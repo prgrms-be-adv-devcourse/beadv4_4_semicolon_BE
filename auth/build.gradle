@@ -5,32 +5,25 @@ bootJar {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // ★ 핵심: 공통 모듈 연결 (Web, Security, JPA, JWT, Swagger 등 포함됨)
+    implementation project(':common')
 
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 
-    // DB
+    // === DB Drivers (실행 환경에 따라 다를 수 있으므로 서비스별 유지 추천) ===
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
 
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    // === Utils ===
+    // (Common 모듈에 uuid-creator를 포함시키지 않았다면 유지)
+    // 루트 build.gradle의 변수 사용 권장
+    implementation "com.github.f4b6a3:uuid-creator:${uuidCreatorVersion}"
 
-    // Swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-
-    // Utils
-    implementation 'com.github.f4b6a3:uuid-creator:6.0.0'
-
-    // Test
+    // === Test ===
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
+// === QueryDSL 설정 (Entity가 이 프로젝트에 있다면 유지) ===
 def querydslDir = "$buildDir/generated/querydsl"
 
 tasks.withType(JavaCompile) {

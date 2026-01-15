@@ -1,0 +1,20 @@
+package dukku.user.shared.user.dto;
+
+import dukku.user.boundedContext.user.entity.type.Role;
+import dukku.user.boundedContext.user.entity.type.UserStatus;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
+import java.util.UUID;
+
+@Getter
+@AllArgsConstructor
+@ToString
+public class UserResponse {
+    private UUID userUuid; // uuid
+    private String email; // 이메일
+    private String nickname; // 이름
+    private Role role; // 권한
+    private UserStatus status; // 계정 상태
+}

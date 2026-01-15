@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library' // 'api' 키워드를 사용하여 의존성을 다른 모듈로 전파하기 위해 필요
+}
+
+
+// Spring Boot의 실행 가능한 Jar(bootJar) 생성은 끄고, 일반 Jar만 생성
+bootJar { enabled = false }
+jar { enabled = true }
+
+dependencies {
+    // === 1. Spring Boot Starters (공통 기능) ===
+    // 'api'를 사용하면 이 모듈을 의존하는 auth-service 등에서도 이 라이브러리들을 바로 사용할 수 있습니다.
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-security'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+
+    // === 2. JWT (Root build.gradle의 ext 변수 사용) ===
+    api "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    // === 3. Swagger / SpringDoc (Root 변수 사용) ===
+    // Gateway가 없어진 아키텍처이므로 각 서비스마다 Swagger가 필요할 수 있어 공통으로 둡니다.
+    api "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+
+    // === 4. Utils (JSON, UUID 등) ===
+    // 필요 시 root의 uuidCreatorVersion 등 활용 가능
+    implementation "com.github.f4b6a3:uuid-creator:${uuidCreatorVersion}"
+}

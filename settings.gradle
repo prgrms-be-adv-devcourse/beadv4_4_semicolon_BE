@@ -1,5 +1,6 @@
-rootProject.name = 'dukku'
+rootProject.name = 'common'
 
+include 'common'
 include 'auth'
 include 'user'
 include 'product'
