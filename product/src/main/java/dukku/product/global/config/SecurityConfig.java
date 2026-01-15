@@ -1,6 +1,6 @@
-package com.template.global.config;
+package dukku.product.global.config;
 
-import com.template.global.auth.jwt.JwtAuthenticationFilter;
+import dukku.common.global.auth.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
