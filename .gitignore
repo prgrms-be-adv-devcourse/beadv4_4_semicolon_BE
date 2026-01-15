@@ -44,6 +44,7 @@ out/
 *.crt
 *.p12
 *.pfx
+**/application-dev.yml
 
 # OS / Logs
 .DS_Store

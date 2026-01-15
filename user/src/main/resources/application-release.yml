@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+jwt:
+  access:
+    secret:
+      key: ${JWT_ACCESS_SECRET}
+  refresh:
+    secret:
+      key: ${JWT_REFRESH_SECRET}
+
+crypto:
+  key: ${CRYPTO_KEY}
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}

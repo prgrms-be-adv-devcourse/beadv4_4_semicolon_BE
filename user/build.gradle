@@ -1,0 +1,43 @@
+
+description = 'user'
+
+bootJar {
+    enabled = true
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // DB
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+
+    // JWT
+    implementation "io.jsonwebtoken:jjwt-api:${rootProject.ext.jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${rootProject.ext.jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${rootProject.ext.jjwtVersion}"
+
+    // Swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${rootProject.ext.springdocVersion}"
+
+    // Utils
+    implementation "com.github.f4b6a3:uuid-creator:${rootProject.ext.uuidCreatorVersion}"
+
+    // Test
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+clean {
+    delete file(querydslDir)
+}

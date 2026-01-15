@@ -1,1 +1,5 @@
 rootProject.name = 'dukku'
+
+include 'auth'
+include 'user'
+include 'product'

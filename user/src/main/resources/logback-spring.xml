@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- ===== 공통 프로퍼티 ===== -->
+    <property name="LOG_PATH" value="./log"/>
+    <property name="APP_NAME" value="template-java"/>
+
+    <!-- ===== Console Appender ===== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul} %-5level [%thread]
+                %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- ===== File Appender ===== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz
+            </fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Seoul} %-5level [%thread]
+                %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- DEV 환경
+         - 콘솔 출력만
+         - 파일 로그 생성 안 함 -->
+    <springProfile name="dev">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+    </springProfile>
+
+    <!-- RELEASE / PROD 환경
+         - 파일 로그 필수
+         - 콘솔 출력 선택 (현재는 제거) -->
+    <springProfile name="release,prod">
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+        </root>
+
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
+    </springProfile>
+
+</configuration>
