@@ -1,4 +1,4 @@
-description = 'auth'
+description = 'semicolon'
 
 bootJar {
     enabled = true

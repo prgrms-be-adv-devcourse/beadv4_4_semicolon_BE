@@ -1,7 +1,7 @@
-package dukku.auth.global.auth.jwt;
+package dukku.user.global.auth.jwt;
 
-import dukku.common.global.exception.UnauthorizedException;
 import dukku.common.global.auth.jwt.JwtTokenUtil;
+import dukku.common.global.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
