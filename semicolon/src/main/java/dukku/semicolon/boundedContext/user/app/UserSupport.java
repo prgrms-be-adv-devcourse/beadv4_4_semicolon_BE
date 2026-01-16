@@ -1,7 +1,7 @@
-package dukku.user.boundedContext.user.app;
+package dukku.semicolon.boundedContext.user.app;
 
-import dukku.user.boundedContext.user.entity.User;
-import dukku.user.boundedContext.user.out.UserRepository;
+import dukku.semicolon.boundedContext.user.entity.User;
+import dukku.semicolon.boundedContext.user.out.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

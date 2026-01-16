@@ -1,4 +1,4 @@
-package dukku.user.boundedContext.user.entity.type;
+package dukku.semicolon.boundedContext.user.entity.type;
 
 public enum UserStatus {
     ACTIVE,

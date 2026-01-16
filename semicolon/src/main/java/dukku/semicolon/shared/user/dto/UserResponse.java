@@ -1,7 +1,7 @@
-package dukku.user.shared.user.dto;
+package dukku.semicolon.shared.user.dto;
 
-import dukku.user.boundedContext.user.entity.type.Role;
-import dukku.user.boundedContext.user.entity.type.UserStatus;
+import dukku.semicolon.boundedContext.user.entity.type.Role;
+import dukku.semicolon.boundedContext.user.entity.type.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;

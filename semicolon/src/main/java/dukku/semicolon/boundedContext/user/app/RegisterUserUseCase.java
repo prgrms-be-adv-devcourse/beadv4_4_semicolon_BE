@@ -1,12 +1,12 @@
-package dukku.user.boundedContext.user.app;
+package dukku.semicolon.boundedContext.user.app;
 
-import dukku.user.shared.user.dto.UserRegisterRequest;
-import dukku.user.boundedContext.user.entity.User;
-import dukku.user.boundedContext.user.entity.type.Role;
-import dukku.user.boundedContext.user.entity.type.UserStatus;
-import dukku.user.shared.user.exception.UserConflictException;
+import dukku.semicolon.shared.user.dto.UserRegisterRequest;
+import dukku.semicolon.boundedContext.user.entity.User;
+import dukku.semicolon.boundedContext.user.entity.type.Role;
+import dukku.semicolon.boundedContext.user.entity.type.UserStatus;
+import dukku.semicolon.shared.user.exception.UserConflictException;
 import dukku.common.global.eventPublisher.EventPublisher;
-import dukku.user.shared.user.event.UserJoinedEvent;
+import dukku.semicolon.shared.user.event.UserJoinedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,13 +1,13 @@
-package dukku.user.boundedContext.user.in;
+package dukku.semicolon.boundedContext.user.in;
 
-import dukku.user.boundedContext.user.app.UserFacade;
-import dukku.user.shared.user.dto.PasswordUpdateRequest;
-import dukku.user.shared.user.dto.UserRegisterRequest;
-import dukku.user.shared.user.dto.UserResponse;
-import dukku.user.shared.user.dto.UserUpdateRequest;
-import dukku.user.boundedContext.user.entity.type.Role;
+import dukku.semicolon.boundedContext.user.app.UserFacade;
+import dukku.semicolon.shared.user.dto.PasswordUpdateRequest;
+import dukku.semicolon.shared.user.dto.UserRegisterRequest;
+import dukku.semicolon.shared.user.dto.UserResponse;
+import dukku.semicolon.shared.user.dto.UserUpdateRequest;
+import dukku.semicolon.boundedContext.user.entity.type.Role;
 import dukku.common.global.UserUtil;
-import dukku.user.shared.user.docs.UserApiDocs;
+import dukku.semicolon.shared.user.docs.UserApiDocs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

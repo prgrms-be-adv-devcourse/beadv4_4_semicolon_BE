@@ -1,4 +1,4 @@
-package dukku.user.standard.resultType;
+package dukku.semicolon.standard.resultType;
 
 
 public interface ResultType {

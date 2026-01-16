@@ -1,4 +1,4 @@
-package dukku.user.shared.user.exception;
+package dukku.semicolon.shared.user.exception;
 
 import dukku.common.global.exception.ConflictException;
 
