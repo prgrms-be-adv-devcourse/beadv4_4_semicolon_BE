@@ -3,7 +3,7 @@
 
     <!-- ===== 공통 프로퍼티 ===== -->
     <property name="LOG_PATH" value="./log"/>
-    <property name="APP_NAME" value="product-java"/>
+    <property name="APP_NAME" value="semicolon-java"/>
 
     <!-- ===== Console Appender ===== -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
