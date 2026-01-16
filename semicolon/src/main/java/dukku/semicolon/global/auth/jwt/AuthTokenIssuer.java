@@ -1,4 +1,4 @@
-package dukku.user.global.auth.jwt;
+package dukku.semicolon.global.auth.jwt;
 
 import dukku.common.global.auth.jwt.JwtTokenUtil;
 import dukku.common.global.exception.UnauthorizedException;

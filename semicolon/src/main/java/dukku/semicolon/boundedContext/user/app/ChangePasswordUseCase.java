@@ -1,11 +1,11 @@
-package dukku.user.boundedContext.user.app;
+package dukku.semicolon.boundedContext.user.app;
 
 import dukku.common.global.eventPublisher.EventPublisher;
-import dukku.user.shared.user.dto.PasswordUpdateRequest;
-import dukku.user.boundedContext.user.entity.User;
-import dukku.user.shared.user.event.UserModifiedEvent;
-import dukku.user.shared.user.exception.UserNotFoundException;
-import dukku.user.boundedContext.user.out.UserRepository;
+import dukku.semicolon.shared.user.dto.PasswordUpdateRequest;
+import dukku.semicolon.boundedContext.user.entity.User;
+import dukku.semicolon.shared.user.event.UserModifiedEvent;
+import dukku.semicolon.shared.user.exception.UserNotFoundException;
+import dukku.semicolon.boundedContext.user.out.UserRepository;
 import dukku.common.global.UserUtil;
 import dukku.common.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;

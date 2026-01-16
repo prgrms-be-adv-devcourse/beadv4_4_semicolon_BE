@@ -1,4 +1,4 @@
-package dukku.user.shared.user.out;
+package dukku.semicolon.shared.user.out;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

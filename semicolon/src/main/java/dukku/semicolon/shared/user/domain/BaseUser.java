@@ -1,7 +1,7 @@
-package dukku.user.shared.user.domain;
+package dukku.semicolon.shared.user.domain;
 
-import dukku.user.boundedContext.user.entity.type.Role;
-import dukku.user.boundedContext.user.entity.type.UserStatus;
+import dukku.semicolon.boundedContext.user.entity.type.Role;
+import dukku.semicolon.boundedContext.user.entity.type.UserStatus;
 import dukku.common.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;

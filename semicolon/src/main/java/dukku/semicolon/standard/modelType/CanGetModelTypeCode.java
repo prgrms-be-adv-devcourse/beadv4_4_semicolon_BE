@@ -1,4 +1,4 @@
-package dukku.user.standard.modelType;
+package dukku.semicolon.standard.modelType;
 
 public interface CanGetModelTypeCode {
     String getModelTypeCode();
