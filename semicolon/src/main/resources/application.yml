@@ -1,11 +1,11 @@
 spring:
   application:
-    name: product
+    name: semicolon
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:test}?sslmode=${DB_SSLMODE:disable}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:user_service}?sslmode=${DB_SSLMODE:disable}
     driver-class-name: org.postgresql.Driver
     hikari:
       minimum-idle: 5
