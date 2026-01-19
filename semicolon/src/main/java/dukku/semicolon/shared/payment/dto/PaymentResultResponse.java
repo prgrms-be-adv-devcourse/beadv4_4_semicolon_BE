@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,52 +22,97 @@ import java.util.UUID;
 public class PaymentResultResponse {
 
     /**
-     * 결제 UUID
+     * 처리 성공 여부
      */
-    private UUID paymentUuid;
+    private boolean success;
 
     /**
-     * 토스 주문 ID
+     * 결과 코드
      */
-    private String orderId;
+    private String code;
 
     /**
-     * 주문명
+     * 결과 메시지
      */
-    private String orderName;
+    private String message;
 
     /**
-     * 결제 상태
+     * 응답 데이터
      */
-    private PaymentStatus status;
+    private PaymentResultData data;
 
     /**
-     * 총 결제 금액
+     * 결제 조회 결과 데이터
      */
-    private Integer totalAmount;
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PaymentResultData {
+
+        /**
+         * 결제 UUID
+         */
+        private UUID paymentId;
+
+        /**
+         * 주문 UUID
+         */
+        private UUID orderUuid;
+
+        /**
+         * 결제 상태
+         */
+        private PaymentStatus status;
+
+        /**
+         * 금액 정보
+         */
+        private AmountInfo amounts;
+
+        /**
+         * 결제 요청 생성 시각
+         */
+        private OffsetDateTime createdAt;
+
+        /**
+         * 승인 일시
+         */
+        private OffsetDateTime approvedAt;
+    }
 
     /**
-     * PG 결제 금액
+     * 금액 정보
      */
-    private Integer pgAmount;
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AmountInfo {
 
-    /**
-     * 예치금 사용 금액
-     */
-    private Integer depositAmount;
+        /**
+         * 총 결제 금액
+         */
+        private Integer totalAmount;
 
-    /**
-     * 쿠폰 할인 금액
-     */
-    private Integer couponAmount;
+        /**
+         * 쿠폰 할인 금액
+         */
+        private Integer couponDiscountAmount;
 
-    /**
-     * 승인 일시
-     */
-    private OffsetDateTime approvedAt;
+        /**
+         * 예치금 사용 금액
+         */
+        private Integer depositUseAmount;
 
-    /**
-     * 결제 주문 상품 목록
-     */
-    private List<PaymentOrderItemDto> items;
+        /**
+         * PG 결제 금액
+         */
+        private Integer pgPayAmount;
+
+        /**
+         * 최종 결제 금액
+         */
+        private Integer finalPayAmount;
+    }
 }
