@@ -1,6 +1,7 @@
 package dukku.semicolon.boundedContext.payment.in;
 
 import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.semicolon.shared.payment.docs.PaymentApiDocs;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmRequest;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmResponse;
 import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
+@PaymentApiDocs.PaymentTag
 public class PaymentController {
 
         /**
@@ -33,6 +35,7 @@ public class PaymentController {
          * <p>
          * 프론트에서 결제 준비 요청 시 토스 결제창 호출에 필요한 정보 반환
          */
+        @PaymentApiDocs.RequestPayment
         @PostMapping("/request")
         public ResponseEntity<PaymentResponse> requestPayment(
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
@@ -72,6 +75,7 @@ public class PaymentController {
          * <p>
          * 토스 인증 완료 후 백엔드에서 최종 승인 처리
          */
+        @PaymentApiDocs.ConfirmPayment
         @PostMapping("/confirm")
         public ResponseEntity<PaymentConfirmResponse> confirmPayment(
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
@@ -107,6 +111,7 @@ public class PaymentController {
          * <p>
          * 결제 상세 정보 조회
          */
+        @PaymentApiDocs.GetPaymentResult
         @GetMapping("/result/{paymentId}")
         public ResponseEntity<PaymentResultResponse> getPaymentResult(
                         @PathVariable UUID paymentId) {
@@ -141,6 +146,7 @@ public class PaymentController {
          * <p>
          * 결제 취소/환불 처리
          */
+        @PaymentApiDocs.RefundPayment
         @PostMapping("/refund")
         public ResponseEntity<PaymentRefundResponse> refundPayment(
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
