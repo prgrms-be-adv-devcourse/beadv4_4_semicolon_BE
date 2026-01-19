@@ -16,7 +16,7 @@ public enum OrderItemStatus {
     // 취소
     CANCEL_REQUESTED,       // 취소 요청
     CANCEL_IN_PROGRESS,     // 취소 처리 중
-    CANCELLED,              // 취소 완료
+    CANCELED,              // 취소 완료
 
     // 환불
     REFUND_REQUESTED,       // 환불 요청
