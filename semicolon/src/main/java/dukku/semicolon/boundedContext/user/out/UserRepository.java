@@ -1,6 +1,6 @@
-package dukku.user.boundedContext.user.out;
+package dukku.semicolon.boundedContext.user.out;
 
-import dukku.user.boundedContext.user.entity.User;
+import dukku.semicolon.boundedContext.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

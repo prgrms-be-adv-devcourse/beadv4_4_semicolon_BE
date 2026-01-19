@@ -1,11 +1,11 @@
-package dukku.user.boundedContext.user.app;
+package dukku.semicolon.boundedContext.user.app;
 
-import dukku.user.shared.user.dto.PasswordUpdateRequest;
-import dukku.user.shared.user.dto.UserRegisterRequest;
-import dukku.user.shared.user.dto.UserResponse;
-import dukku.user.shared.user.dto.UserUpdateRequest;
-import dukku.user.boundedContext.user.entity.User;
-import dukku.user.boundedContext.user.entity.type.Role;
+import dukku.semicolon.shared.user.dto.PasswordUpdateRequest;
+import dukku.semicolon.shared.user.dto.UserRegisterRequest;
+import dukku.semicolon.shared.user.dto.UserResponse;
+import dukku.semicolon.shared.user.dto.UserUpdateRequest;
+import dukku.semicolon.boundedContext.user.entity.User;
+import dukku.semicolon.boundedContext.user.entity.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +17,9 @@ import java.util.UUID;
 @Transactional
 public class UserFacade {
 
-    private final RegisterUserUseCase registerUser;
+    private final dukku.semicolon.boundedContext.user.app.RegisterUserUseCase registerUser;
     private final FindUserUseCase findUser;
-    private final UpdateUserUseCase updateUser;
+    private final dukku.semicolon.boundedContext.user.app.UpdateUserUseCase updateUser;
     private final ChangePasswordUseCase changePassword;
 
     public UserResponse registerUser(UserRegisterRequest req, Role role) {

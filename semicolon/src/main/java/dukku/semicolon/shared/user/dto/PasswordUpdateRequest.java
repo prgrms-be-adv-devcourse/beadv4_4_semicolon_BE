@@ -1,4 +1,4 @@
-package dukku.user.shared.user.dto;
+package dukku.semicolon.shared.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

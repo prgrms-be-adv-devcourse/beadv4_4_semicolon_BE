@@ -1,4 +1,4 @@
-package dukku.user;
+package dukku.semicolon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @SpringBootApplication(
         scanBasePackages = {
-                "dukku.user",
+                "dukku.semicolon",
                 "dukku.common"
         }
 )
