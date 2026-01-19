@@ -1,6 +1,9 @@
 package dukku.semicolon.boundedContext.order.app;
 
 import dukku.common.global.UserUtil;
+import dukku.common.global.eventPublisher.EventPublisher;
+import dukku.common.global.jpa.entity.BaseIdAndUUIDAndTime;
+import dukku.common.shared.order.event.OrderProductSaleBlockedEvent;
 import dukku.semicolon.boundedContext.order.entity.Order;
 import dukku.semicolon.boundedContext.order.entity.OrderItem;
 import dukku.semicolon.shared.order.dto.OrderCreateRequest;
@@ -8,10 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class CreateOrderUseCase {
     private final OrderSupport orderSupport;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public Order execute(OrderCreateRequest req) {
@@ -21,6 +28,15 @@ public class CreateOrderUseCase {
                 .map(OrderItem::createOrderItem)
                 .forEach(order::addOrderItem);
 
-        return orderSupport.save(order);
+        Order savedOrder = orderSupport.save(order);
+
+        // 상품 서비스로 해당 상품들이 실제로 존재하는지와 예약 중으로 변경하게 이벤트 전달 (SYNC)
+        List<UUID> productUuids = savedOrder.getOrderItems()
+                .stream().map(BaseIdAndUUIDAndTime::getUuid).toList();
+        eventPublisher.publish(
+                new OrderProductSaleBlockedEvent(savedOrder.getUuid(), productUuids)
+        );
+
+        return savedOrder;
     }
 }

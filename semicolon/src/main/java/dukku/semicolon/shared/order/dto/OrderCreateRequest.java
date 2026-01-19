@@ -1,10 +1,7 @@
 package dukku.semicolon.shared.order.dto;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,8 +13,10 @@ import java.util.UUID;
 public class OrderCreateRequest {
     @NotBlank
     private String address;
+    @Size(max = 50)
     @NotBlank
     private String recipient;
+    @Size(max = 50)
     @NotBlank
     private String contactNumber;
     @NotEmpty
@@ -31,6 +30,7 @@ public class OrderCreateRequest {
         private UUID productUuid;
         @NotNull
         private UUID sellerUuid;
+        @Size(max = 100)
         @NotBlank
         private String productName;
         @Positive

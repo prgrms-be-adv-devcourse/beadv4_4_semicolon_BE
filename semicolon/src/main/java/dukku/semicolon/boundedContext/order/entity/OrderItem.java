@@ -2,10 +2,13 @@ package dukku.semicolon.boundedContext.order.entity;
 
 import dukku.common.global.jpa.entity.BaseIdAndUUIDAndTime;
 import dukku.common.shared.order.type.OrderItemStatus;
+import dukku.semicolon.shared.order.dto.DeliveryInfoRequest;
 import dukku.semicolon.shared.order.dto.OrderCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -21,9 +24,11 @@ public class OrderItem extends BaseIdAndUUIDAndTime {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @JdbcTypeCode(SqlTypes.UUID)
     @Column(nullable = false)
     private UUID productUuid;
 
+    @JdbcTypeCode(SqlTypes.UUID)
     @Column(nullable = false)
     private UUID sellerUuid;
 
@@ -55,5 +60,16 @@ public class OrderItem extends BaseIdAndUUIDAndTime {
                 .productPrice(request.getProductPrice())
                 .imageUrl(request.getImageUrl())
                 .build();
+    }
+
+    public void updateDeliveryInfo(DeliveryInfoRequest request) {
+        this.carrierName = request.getCarrierName();
+        this.carrierCode = request.getCarrierCode();
+        this.trackingNumber = request.getTrackingNumber();
+        this.status = OrderItemStatus.SHIPPED;
+    }
+
+    public void updateOrderStatus(OrderItemStatus status) {
+        this.status = status;
     }
 }

@@ -6,7 +6,7 @@ plugins {
 
 ext {
     jjwtVersion = '0.12.6'
-    springdocVersion = '2.6.0'
+    springdocVersion = '2.8.4'
     uuidCreatorVersion = '6.0.0'
     // QueryDSL 버전 관리 (필요 시 수정)
     queryDslVersion = '5.1.0:jakarta'

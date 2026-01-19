@@ -1,4 +1,4 @@
-package dukku.order.shared.order.exception;
+package dukku.semicolon.shared.order.exception;
 
 import dukku.common.global.exception.NotFoundException;
 

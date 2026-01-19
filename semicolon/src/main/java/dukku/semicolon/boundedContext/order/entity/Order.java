@@ -9,6 +9,8 @@ import dukku.semicolon.shared.order.dto.OrderResponse;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseIdAndUUIDAndTime {
+    @JdbcTypeCode(SqlTypes.UUID)
     @Column(nullable = false, comment = "구매자 UUID")
     private UUID userUuid;
 
@@ -70,7 +73,7 @@ public class Order extends BaseIdAndUUIDAndTime {
     }
 
     public void updateOrderForUser(String address, String recipient, String contactNumber) {
-        if (!canChangeShippingInfo()) {
+        if (!isShipped()) {
             throw new ConflictException("이미 배송 준비 중이거나 완료된 상품이 있어 배송지를 변경할 수 없습니다.");
         }
 
@@ -100,9 +103,15 @@ public class Order extends BaseIdAndUUIDAndTime {
                 .build();
     }
 
-    private boolean canChangeShippingInfo() {
+    public boolean isShipped() {
         return orderItems.stream()
                 .map(OrderItem::getStatus)
                 .allMatch(OrderItemStatus::canChangeShippingInfo);
+    }
+
+    public List<UUID> getProductUuids() {
+        return orderItems.stream()
+                .map(BaseIdAndUUIDAndTime::getUuid)
+                .toList();
     }
 }

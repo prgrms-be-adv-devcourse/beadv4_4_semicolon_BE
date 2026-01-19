@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class FindAdminOrderListUseCase {
-
     private final OrderRepository orderRepository;
 
     public Page<OrderListResponse> execute(AdminOrderSearchCondition condition, Pageable pageable) {

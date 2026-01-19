@@ -16,7 +16,7 @@ public class FindOrderUseCase {
 
     @Transactional(readOnly = true)
     public Order execute(UUID orderUuid) {
-        Order order = orderSupport.findByUuidWithItems(orderUuid);
+        Order order = orderSupport.findOrderByUuidWithItems(orderUuid);
 
         if (!UserUtil.isAdmin() && !order.getUserUuid().equals(UserUtil.getUserId())) {
             throw new ForbiddenException("주문 접근 권한이 없습니다.");

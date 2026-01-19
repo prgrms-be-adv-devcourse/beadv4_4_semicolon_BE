@@ -16,7 +16,7 @@ public class UpdateOrderRefundStatusUseCase {
 
     @Transactional
     public void updateRefund(UUID orderUuid, OrderStatus newStatus, int refundAmount) {
-        Order order = orderSupport.findByUuid(orderUuid);
+        Order order = orderSupport.findOrderByUuid(orderUuid);
 
         if (Objects.nonNull(newStatus)) {
             order.updateOrderStatus(newStatus);

@@ -26,4 +26,10 @@ public enum OrderItemStatus {
     public boolean canChangeShippingInfo() {
         return this == PAYMENT_COMPLETED || this == PREPARING_SHIPMENT;
     }
+
+    public static boolean isUserActionAllowed(OrderItemStatus status) {
+        return status == CONFIRMED
+                || status == CANCEL_REQUESTED
+                || status == REFUND_REQUESTED;
+    }
 }

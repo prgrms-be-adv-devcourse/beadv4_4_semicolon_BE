@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.order.app;
 
 import dukku.semicolon.boundedContext.order.entity.Order;
 import dukku.semicolon.boundedContext.order.out.OrderRepository;
-import dukku.order.shared.order.exception.OrderNotFoundException;
+import dukku.semicolon.shared.order.exception.OrderNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,14 +11,14 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class OrderSupport {
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
-    public Order findByUuid(UUID orderUuid) {
+    public Order findOrderByUuid(UUID orderUuid) {
         return orderRepository.findByUuid(orderUuid)
                 .orElseThrow(OrderNotFoundException::new);
     }
 
-    public Order findByUuidWithItems(UUID orderUuid) {
+    public Order findOrderByUuidWithItems(UUID orderUuid) {
         return orderRepository.findByUuidWithItems(orderUuid)
                 .orElseThrow(OrderNotFoundException::new);
     }

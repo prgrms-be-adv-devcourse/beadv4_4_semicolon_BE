@@ -17,10 +17,10 @@ public class UpdateShippingInfoUseCase {
 
     @Transactional
     public void execute(UUID orderUuid, OrderUpdateRequest.ShippingInfo req) {
-        Order order = orderSupport.findByUuidWithItems(orderUuid);
+        Order order = orderSupport.findOrderByUuidWithItems(orderUuid);
 
         if (!UserUtil.isAdmin() && !order.getUserUuid().equals(UserUtil.getUserId())) {
-            throw new ForbiddenException("주문 수정 권한이 없습니다.");
+            throw new ForbiddenException("주문 상품 수정 권한이 없습니다.");
         }
 
         order.updateOrderForUser(req.getAddress(), req.getRecipient(), req.getContactNumber());
