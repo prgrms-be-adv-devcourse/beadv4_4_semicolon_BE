@@ -21,7 +21,7 @@ public abstract class BaseIdAndTime extends BaseEntity<Integer> {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
     @CreatedDate
-    private LocalDateTime createDate;
+    private LocalDateTime createdAt;
     @LastModifiedDate
-    private LocalDateTime modifyDate;
+    private LocalDateTime updatedAt;
 }
