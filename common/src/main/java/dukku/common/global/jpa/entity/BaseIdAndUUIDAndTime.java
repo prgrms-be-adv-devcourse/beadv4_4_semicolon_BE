@@ -24,10 +24,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @Getter
 @SuperBuilder
-public abstract class BaseIdAndUUIDAndTime extends BaseEntity {
+public abstract class BaseIdAndUUIDAndTime extends BaseEntity<Integer> {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private int id;
+    private Integer id;
     @JdbcTypeCode(SqlTypes.UUID)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false, unique = true, comment = "유저 UUID")
     private UUID uuid;
