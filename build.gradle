@@ -6,7 +6,7 @@ plugins {
 
 ext {
     jjwtVersion = '0.12.6'
-    springdocVersion = '2.6.0'
+    springdocVersion = '3.0.1'
     uuidCreatorVersion = '6.0.0'
 }
 
