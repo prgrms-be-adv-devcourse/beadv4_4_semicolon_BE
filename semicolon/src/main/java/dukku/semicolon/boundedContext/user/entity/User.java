@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends SourceUser {
     @Column(length = 100, nullable = false, comment = "암호화된 비밀번호")
     private String password;

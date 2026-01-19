@@ -11,7 +11,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class UserSupport {
-
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 

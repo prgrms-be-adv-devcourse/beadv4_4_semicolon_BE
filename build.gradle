@@ -6,8 +6,10 @@ plugins {
 
 ext {
     jjwtVersion = '0.12.6'
-    springdocVersion = '2.6.0'
+    springdocVersion = '2.8.4'
     uuidCreatorVersion = '6.0.0'
+    // QueryDSL 버전 관리 (필요 시 수정)
+    queryDslVersion = '5.1.0:jakarta'
 }
 
 allprojects {
@@ -37,12 +39,35 @@ subprojects {
     }
 
     dependencies {
-        // Lombok
+        // === 1. Lombok (기존 유지) ===
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
 
-        // Test
+        // === 2. JPA & QueryDSL 공통 적용 ===
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+        implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+        annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
+        annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+
+        // === 3. Test (기존 유지) ===
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    // === 4. QueryDSL 빌드 경로 설정 (모든 서브 모듈 자동 적용) ===
+    def querydslDir = "$buildDir/generated/querydsl"
+
+    sourceSets {
+        main.java.srcDirs += [ querydslDir ]
+    }
+
+    tasks.withType(JavaCompile) {
+        options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+    }
+
+    clean.doLast {
+        file(querydslDir).deleteDir()
     }
 
     tasks.named('test') {
