@@ -1,6 +1,6 @@
 spring:
   application:
-    name: user-test
+    name: semicolon-test
 
   # === Database (H2 In-Memory for Testing) ===
   datasource:
