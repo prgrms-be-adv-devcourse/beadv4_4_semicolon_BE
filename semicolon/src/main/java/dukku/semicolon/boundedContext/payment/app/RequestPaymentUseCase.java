@@ -92,7 +92,7 @@ public class RequestPaymentUseCase {
         }
 
         // 2. finalPayAmount = depositUseAmount + pgPayAmount 확인
-        Integer expectedFinalAmount = amounts.getDepositUseAmount() + amounts.getPgPayAmount();
+        Long expectedFinalAmount = amounts.getDepositUseAmount() + amounts.getPgPayAmount();
         if (!expectedFinalAmount.equals(amounts.getFinalPayAmount())) {
             throw new AmountMismatchException(
                     "최종 결제금액 불일치: 예상=" + expectedFinalAmount
@@ -102,7 +102,7 @@ public class RequestPaymentUseCase {
         }
 
         // 3. itemsTotalAmount - couponDiscountAmount = finalPayAmount 확인
-        Integer expectedFromItems = amounts.getItemsTotalAmount() - amounts.getCouponDiscountAmount();
+        Long expectedFromItems = amounts.getItemsTotalAmount() - amounts.getCouponDiscountAmount();
         if (!expectedFromItems.equals(amounts.getFinalPayAmount())) {
             throw new AmountMismatchException(
                     "상품금액 계산 불일치: 예상=" + expectedFromItems

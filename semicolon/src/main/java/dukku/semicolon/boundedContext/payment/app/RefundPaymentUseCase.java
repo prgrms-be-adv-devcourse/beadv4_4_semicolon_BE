@@ -50,8 +50,8 @@ public class RefundPaymentUseCase {
 
         // 4. 상태 변경 전 값 저장
         PaymentStatus originStatus = payment.getPaymentStatus();
-        Integer originAmountPg = payment.getAmountPg();
-        Integer originDeposit = payment.getPaymentDeposit();
+        Long originAmountPg = payment.getAmountPg();
+        Long originDeposit = payment.getPaymentDeposit();
 
         // 5. 환불 금액 계산 (예치금 vs PG)
         RefundAmounts refundAmounts = calculateRefundAmounts(payment, request.getRefundAmount());
@@ -79,21 +79,21 @@ public class RefundPaymentUseCase {
         }
     }
 
-    private void validateRefundAmount(Payment payment, Integer refundAmount) {
+    private void validateRefundAmount(Payment payment, Long refundAmount) {
         // 환불 가능 금액 = 현재 결제 금액 - 이미 환불된 금액
-        Integer refundableAmount = payment.getAmount() - payment.getRefundTotal();
+        Long refundableAmount = payment.getAmount() - payment.getRefundTotal();
         if (refundAmount > refundableAmount) {
             throw new InvalidRefundAmountException(
                     "환불 가능 금액(" + refundableAmount + ")을 초과했습니다. 요청: " + refundAmount);
         }
     }
 
-    private RefundAmounts calculateRefundAmounts(Payment payment, Integer totalRefundAmount) {
+    private RefundAmounts calculateRefundAmounts(Payment payment, Long totalRefundAmount) {
         // 환불 시 예치금 우선 환불 정책
         // 남은 예치금 사용액 중에서 환불
-        Integer remainingDeposit = payment.getPaymentDeposit();
-        Integer depositRefund = Math.min(remainingDeposit, totalRefundAmount);
-        Integer pgRefund = totalRefundAmount - depositRefund;
+        Long remainingDeposit = payment.getPaymentDeposit();
+        Long depositRefund = Math.min(remainingDeposit, totalRefundAmount);
+        Long pgRefund = totalRefundAmount - depositRefund;
 
         return new RefundAmounts(depositRefund, pgRefund, totalRefundAmount);
     }
@@ -110,10 +110,10 @@ public class RefundPaymentUseCase {
         return support.saveRefund(refund);
     }
 
-    private void updatePaymentStatus(Payment payment, Integer refundAmount) {
+    private void updatePaymentStatus(Payment payment, Long refundAmount) {
         // 전체 환불인지 부분 환불인지 판단
-        Integer totalPaid = payment.getAmount();
-        Integer totalRefunded = payment.getRefundTotal() + refundAmount;
+        Long totalPaid = payment.getAmount();
+        Long totalRefunded = payment.getRefundTotal() + refundAmount;
 
         if (totalRefunded.equals(totalPaid)) {
             payment.cancel();
@@ -124,7 +124,7 @@ public class RefundPaymentUseCase {
     }
 
     private void createHistory(Payment payment, PaymentStatus originStatus,
-            Integer originAmountPg, Integer originDeposit, Integer refundAmount) {
+            Long originAmountPg, Long originDeposit, Long refundAmount) {
         // 전체 환불 vs 부분 환불 구분
         PaymentHistoryType type = payment.getPaymentStatus() == PaymentStatus.CANCELED
                 ? PaymentHistoryType.FULL_REFUND_SUCCESS
@@ -173,6 +173,6 @@ public class RefundPaymentUseCase {
     /**
      * 환불 금액 계산 결과
      */
-    private record RefundAmounts(Integer depositAmount, Integer pgAmount, Integer totalAmount) {
+    private record RefundAmounts(Long depositAmount, Long pgAmount, Long totalAmount) {
     }
 }

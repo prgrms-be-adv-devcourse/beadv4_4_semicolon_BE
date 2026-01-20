@@ -52,8 +52,8 @@ public class ConfirmPaymentUseCase {
 
         // 5. 결제 승인 상태 변경 전 값 저장
         PaymentStatus originStatus = payment.getPaymentStatus();
-        Integer originAmountPg = payment.getAmountPg();
-        Integer originDeposit = payment.getPaymentDeposit();
+        Long originAmountPg = payment.getAmountPg();
+        Long originDeposit = payment.getPaymentDeposit();
 
         // 6. 결제 승인 처리
         // TODO: 실제 토스 API 호출
@@ -75,7 +75,7 @@ public class ConfirmPaymentUseCase {
         }
     }
 
-    private void validateAmount(Payment payment, Integer tossAmount) {
+    private void validateAmount(Payment payment, Long tossAmount) {
         if (!payment.getAmountPg().equals(tossAmount)) {
             throw new TossAmountMismatchException(payment.getAmountPg(), tossAmount);
         }
@@ -88,7 +88,7 @@ public class ConfirmPaymentUseCase {
     }
 
     private void createHistory(Payment payment, PaymentStatus originStatus,
-            Integer originAmountPg, Integer originDeposit) {
+            Long originAmountPg, Long originDeposit) {
         PaymentHistory history = PaymentHistory.create(
                 payment,
                 PaymentHistoryType.PAYMENT_SUCCESS,
