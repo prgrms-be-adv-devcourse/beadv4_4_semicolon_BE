@@ -3,7 +3,6 @@ package dukku.semicolon.boundedContext.product.entity;
 import dukku.common.global.jpa.entity.BaseIdAndTime;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
@@ -13,7 +12,7 @@ import lombok.experimental.SuperBuilder;
         }
 )
 @Getter
-@SuperBuilder
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseIdAndTime {
