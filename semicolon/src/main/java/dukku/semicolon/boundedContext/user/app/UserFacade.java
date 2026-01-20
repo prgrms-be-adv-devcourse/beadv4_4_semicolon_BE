@@ -17,9 +17,9 @@ import java.util.UUID;
 @Transactional
 public class UserFacade {
 
-    private final dukku.semicolon.boundedContext.user.app.RegisterUserUseCase registerUser;
+    private final RegisterUserUseCase registerUser;
     private final FindUserUseCase findUser;
-    private final dukku.semicolon.boundedContext.user.app.UpdateUserUseCase updateUser;
+    private final UpdateUserUseCase updateUser;
     private final ChangePasswordUseCase changePassword;
 
     public UserResponse registerUser(UserRegisterRequest req, Role role) {
