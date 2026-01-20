@@ -27,7 +27,7 @@ public class User extends SourceUser {
     public Integer getId() {
         return this.getInteger();
     }
-    public static User createUser(UserRegisterRequest req, Role role) {
+    public static User createUser(UserRegisterRequest req, Role role, String encodedPassword) {
         return User.builder()
                 .email(req.getEmail())
                 .password(req.getPassword())
