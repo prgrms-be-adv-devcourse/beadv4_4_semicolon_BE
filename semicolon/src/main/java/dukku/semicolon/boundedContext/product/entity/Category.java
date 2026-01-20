@@ -27,4 +27,19 @@ public class Category extends BaseIdAndTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", comment = "상위 카테고리")
     private Category parent;
+
+    public static Category createRoot(String name) {
+        return Category.builder()
+                .categoryName(name)
+                .depth(1)
+                .build();
+    }
+
+    public static Category createChild(String name, Category parent) {
+        return Category.builder()
+                .categoryName(name)
+                .parent(parent)
+                .depth(parent.getDepth() + 1)
+                .build();
+    }
 }
