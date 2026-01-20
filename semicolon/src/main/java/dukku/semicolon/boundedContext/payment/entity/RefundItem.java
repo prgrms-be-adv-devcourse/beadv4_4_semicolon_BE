@@ -32,18 +32,18 @@ public class RefundItem extends BaseIdAndUUIDAndTime {
     private PaymentOrderItem paymentOrderItem;
 
     @Column(nullable = false, comment = "환불 금액 (결제주문상품 금액 - 쿠폰 할인액)")
-    private Integer refundAmount;
+    private Long refundAmount;
 
     @Column(nullable = false, comment = "환불 예치금 (이 상품에 적용된 환불 예치금 금액)")
-    private Integer refundDeposit;
+    private Long refundDeposit;
 
     @Column(nullable = false, comment = "PG 환불액 (환불대상액 - 환불 예치금)")
-    private Integer refundAmountPg;
+    private Long refundAmountPg;
 
     // === 정적 팩토리 메서드 ===
 
     public static RefundItem create(Refund refund, PaymentOrderItem item,
-            Integer amount, Integer deposit, Integer amountPg) {
+            Long amount, Long deposit, Long amountPg) {
         return RefundItem.builder()
                 .refund(refund)
                 .paymentOrderItem(item)

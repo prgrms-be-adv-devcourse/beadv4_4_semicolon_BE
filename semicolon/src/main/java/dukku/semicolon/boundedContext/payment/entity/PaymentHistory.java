@@ -43,21 +43,21 @@ public class PaymentHistory extends BaseIdAndUUIDAndTime {
     private PaymentStatus paymentStatusChanged;
 
     @Column(comment = "변경 전 PG 승인액")
-    private Integer amountPgOrigin;
+    private Long amountPgOrigin;
 
     @Column(comment = "변경 후 PG 승인액")
-    private Integer amountPgChanged;
+    private Long amountPgChanged;
 
     @Column(comment = "변경 전 예치금 사용액")
-    private Integer paymentDepositOrigin;
+    private Long paymentDepositOrigin;
 
     @Column(comment = "변경 후 예치금 사용액")
-    private Integer paymentDepositChanged;
+    private Long paymentDepositChanged;
 
     public static PaymentHistory create(Payment payment, PaymentHistoryType type,
             PaymentStatus paymentStatusOrigin, PaymentStatus paymentStatusChanged,
-            Integer amountPgOrigin, Integer amountPgChanged,
-            Integer paymentDepositOrigin, Integer paymentDepositChanged) {
+            Long amountPgOrigin, Long amountPgChanged,
+            Long paymentDepositOrigin, Long paymentDepositChanged) {
         return PaymentHistory.builder()
                 .payment(payment)
                 .type(type)

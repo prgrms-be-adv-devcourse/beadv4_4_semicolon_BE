@@ -24,9 +24,9 @@ public class PaymentHistoryDto {
     private PaymentHistoryType type;
     private PaymentStatus paymentStatusOrigin;
     private PaymentStatus paymentStatusChanged;
-    private Integer amountPgOrigin;
-    private Integer amountPgChanged;
-    private Integer paymentDepositOrigin;
-    private Integer paymentDepositChanged;
+    private Long amountPgOrigin;
+    private Long amountPgChanged;
+    private Long paymentDepositOrigin;
+    private Long paymentDepositChanged;
     private LocalDateTime createdAt;
 }

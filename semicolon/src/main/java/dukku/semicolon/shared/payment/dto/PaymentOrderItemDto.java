@@ -20,6 +20,6 @@ public class PaymentOrderItemDto {
     private UUID sellerUuid;
     private Integer productId;
     private String productName;
-    private Integer price;
-    private Integer paymentCoupon;
+    private Long price;
+    private Long paymentCoupon;
 }

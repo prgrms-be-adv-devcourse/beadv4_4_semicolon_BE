@@ -33,7 +33,7 @@ public class PaymentOrderItem extends BaseIdAndUUIDAndTime {
     private Payment payment;
 
     @Column(nullable = false, comment = "쿠폰 할인액 스냅샷")
-    private Integer paymentCoupon;
+    private Long paymentCoupon;
 
     @JdbcTypeCode(SqlTypes.UUID)
     @Column(nullable = false, columnDefinition = "uuid", comment = "판매자 UUID")
@@ -46,12 +46,12 @@ public class PaymentOrderItem extends BaseIdAndUUIDAndTime {
     private String productName;
 
     @Column(nullable = false, comment = "결제 시점 단가")
-    private Integer price;
+    private Long price;
 
     // === 정적 팩토리 메서드 ===
 
     public static PaymentOrderItem create(Payment payment, Integer productId, String productName,
-            Integer price, Integer paymentCoupon, UUID sellerUuid) {
+            Long price, Long paymentCoupon, UUID sellerUuid) {
         return PaymentOrderItem.builder()
                 .payment(payment)
                 .productId(productId)

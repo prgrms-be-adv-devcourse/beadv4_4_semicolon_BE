@@ -18,7 +18,7 @@ public class RefundItemDto {
     private Integer id;
     private UUID uuid;
     private Integer paymentOrderItemId;
-    private Integer refundAmount;
-    private Integer refundDeposit;
-    private Integer refundAmountPg;
+    private Long refundAmount;
+    private Long refundDeposit;
+    private Long refundAmountPg;
 }

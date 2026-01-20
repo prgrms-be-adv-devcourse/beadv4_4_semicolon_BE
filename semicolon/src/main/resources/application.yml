@@ -24,6 +24,7 @@ spring:
         hbm2ddl:
           auto: update
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_batch_fetch_size: 100
 
   jackson:
     time-zone: Asia/Seoul

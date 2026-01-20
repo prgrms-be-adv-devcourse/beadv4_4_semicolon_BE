@@ -22,11 +22,11 @@ public class PaymentDto {
     private Integer id;
     private UUID uuid;
     private UUID userUuid;
-    private Integer amount;
-    private Integer paymentDeposit;
-    private Integer amountPg;
-    private Integer paymentCouponTotal;
-    private Integer refundTotal;
+    private Long amount;
+    private Long paymentDeposit;
+    private Long amountPg;
+    private Long paymentCouponTotal;
+    private Long refundTotal;
     private PaymentType paymentType;
     private PaymentStatus paymentStatus;
     private LocalDateTime approvedAt;

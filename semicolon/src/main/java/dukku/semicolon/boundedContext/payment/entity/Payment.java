@@ -48,26 +48,26 @@ public class Payment extends BaseIdAndUUIDAndTime {
     @Column(nullable = false, columnDefinition = "uuid", comment = "결제 유저 UUID")
     private UUID userUuid;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "주문 총액")
-    private Integer amount;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "주문 총액")
+    private Long amount;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "최초 예치금 사용액 (결제 체결 시점 원본)")
-    private Integer paymentDepositOrigin;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "최초 예치금 사용액 (결제 체결 시점 원본)")
+    private Long paymentDepositOrigin;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "현재 적용된 예치금 (환불로 변동 가능)")
-    private Integer paymentDeposit;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "현재 적용된 예치금 (환불로 변동 가능)")
+    private Long paymentDeposit;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "현재 PG 승인액 (환불로 변동 가능)")
-    private Integer amountPg;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "현재 PG 승인액 (환불로 변동 가능)")
+    private Long amountPg;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "최초 PG 승인액 (결제 체결 시점 원본)")
-    private Integer amountPgOrigin;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "최초 PG 승인액 (결제 체결 시점 원본)")
+    private Long amountPgOrigin;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "쿠폰 총 할인액")
-    private Integer paymentCouponTotal;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "쿠폰 총 할인액")
+    private Long paymentCouponTotal;
 
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "누적 환불 총액")
-    private Integer refundTotal;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "누적 환불 총액")
+    private Long refundTotal;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, comment = "결제 수단 (DEPOSIT, MIXED)")
@@ -94,8 +94,8 @@ public class Payment extends BaseIdAndUUIDAndTime {
 
     // === 정적 팩토리 메서드 ===
 
-    public static Payment create(PaymentOrder paymentOrder, UUID userUuid, Integer amount,
-            Integer depositAmount, Integer pgAmount, Integer couponAmount,
+    public static Payment create(PaymentOrder paymentOrder, UUID userUuid, Long amount,
+            Long depositAmount, Long pgAmount, Long couponAmount,
             PaymentType paymentType) {
         return Payment.builder()
                 .paymentOrder(paymentOrder)
@@ -106,7 +106,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
                 .amountPgOrigin(pgAmount)
                 .amountPg(pgAmount)
                 .paymentCouponTotal(couponAmount)
-                .refundTotal(0)
+                .refundTotal(0L)
                 .paymentType(paymentType)
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
@@ -128,8 +128,8 @@ public class Payment extends BaseIdAndUUIDAndTime {
         this.paymentStatus = PaymentStatus.CANCELED;
     }
 
-    public void partialCancel(Integer refundAmount) {
-        this.refundTotal = (this.refundTotal == null ? 0 : this.refundTotal) + refundAmount;
+    public void partialCancel(Long refundAmount) {
+        this.refundTotal = (this.refundTotal == null ? 0L : this.refundTotal) + refundAmount;
         this.paymentStatus = PaymentStatus.PARTIAL_CANCELED;
     }
 

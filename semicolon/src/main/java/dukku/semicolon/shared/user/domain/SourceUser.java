@@ -26,8 +26,12 @@ public abstract class SourceUser extends BaseUser {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
+
     //private int id;
-    private int integer;
+//
+
+    private Integer id;
+
 
     @JdbcTypeCode(SqlTypes.UUID)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false, unique = true, comment = "유저 UUID")
