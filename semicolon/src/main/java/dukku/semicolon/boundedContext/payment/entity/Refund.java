@@ -41,10 +41,10 @@ public class Refund extends BaseIdAndUUIDAndTime {
     private Payment payment;
 
     @Column(nullable = false, comment = "총 환불 금액")
-    private Integer refundAmountTotal;
+    private Long refundAmountTotal;
 
     @Column(nullable = false, comment = "예치금으로 복구된 금액")
-    private Integer refundDepositTotal;
+    private Long refundDepositTotal;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, comment = "환불 상태")
@@ -59,7 +59,7 @@ public class Refund extends BaseIdAndUUIDAndTime {
 
     // === 정적 팩토리 메서드 ===
 
-    public static Refund create(Payment payment, Integer amount, Integer depositAmount) {
+    public static Refund create(Payment payment, Long amount, Long depositAmount) {
         return Refund.builder()
                 .payment(payment)
                 .refundAmountTotal(amount)

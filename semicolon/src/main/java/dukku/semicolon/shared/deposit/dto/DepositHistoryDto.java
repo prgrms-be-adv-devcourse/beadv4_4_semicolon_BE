@@ -19,8 +19,8 @@ import java.util.UUID;
 public class DepositHistoryDto {
     private Integer id;
     private UUID userUuid;
-    private Integer amount;
-    private Integer balanceSnapshot;
+    private Long amount;
+    private Long balanceSnapshot;
     private DepositHistoryType type;
     private UUID orderItemUuid;
     private LocalDateTime createdAt;

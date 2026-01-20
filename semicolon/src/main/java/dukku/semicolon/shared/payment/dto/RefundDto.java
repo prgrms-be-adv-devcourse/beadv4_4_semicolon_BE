@@ -20,8 +20,8 @@ import java.util.UUID;
 public class RefundDto {
     private Integer id;
     private UUID uuid;
-    private Integer refundAmountTotal;
-    private Integer refundDepositTotal;
+    private Long refundAmountTotal;
+    private Long refundDepositTotal;
     private RefundStatus refundStatus;
     private LocalDateTime approvedAt;
     private LocalDateTime createdAt;

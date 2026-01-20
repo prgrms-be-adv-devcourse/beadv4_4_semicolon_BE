@@ -93,26 +93,26 @@ public class PaymentResultResponse {
         /**
          * 총 결제 금액
          */
-        private Integer totalAmount;
+        private Long totalAmount;
 
         /**
          * 쿠폰 할인 금액
          */
-        private Integer couponDiscountAmount;
+        private Long couponDiscountAmount;
 
         /**
          * 예치금 사용 금액
          */
-        private Integer depositUseAmount;
+        private Long depositUseAmount;
 
         /**
          * PG 결제 금액
          */
-        private Integer pgPayAmount;
+        private Long pgPayAmount;
 
         /**
          * 최종 결제 금액
          */
-        private Integer finalPayAmount;
+        private Long finalPayAmount;
     }
 }

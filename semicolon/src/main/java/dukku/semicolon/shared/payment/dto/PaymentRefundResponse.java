@@ -103,17 +103,17 @@ public class PaymentRefundResponse {
         /**
          * 요청된 환불 금액
          */
-        private Integer requestedRefundAmount;
+        private Long requestedRefundAmount;
 
         /**
          * 예치금 환불 금액
          */
-        private Integer depositRefundAmount;
+        private Long depositRefundAmount;
 
         /**
          * PG 환불 금액
          */
-        private Integer pgRefundAmount;
+        private Long pgRefundAmount;
     }
 
     /**
