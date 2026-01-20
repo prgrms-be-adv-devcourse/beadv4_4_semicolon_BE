@@ -1,0 +1,30 @@
+package dukku.semicolon.boundedContext.product.entity;
+
+import dukku.common.global.jpa.entity.BaseIdAndUUIDAndTime;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+@Entity
+@Table(
+        name = "categories",
+        indexes = {
+                @Index(name = "idx_categories_parent_id", columnList = "parent_id")
+        }
+)
+@Getter
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class Category extends BaseIdAndUUIDAndTime {
+
+    @Column(nullable = false, length = 100, comment = "카테고리 이름")
+    private String categoryName;
+
+    @Column(nullable = false, comment = "깊이(1: 최상위, max: 3)")
+    private int depth;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", comment = "상위 카테고리")
+    private Category parent;
+}
