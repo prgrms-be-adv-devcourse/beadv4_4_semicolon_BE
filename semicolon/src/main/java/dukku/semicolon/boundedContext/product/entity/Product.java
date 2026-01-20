@@ -26,10 +26,6 @@ import java.util.UUID;
                 @Index(
                         name = "idx_products_cat_vis_sale_like",
                         columnList = "category_id, visibility_status, sale_status, like_count"
-                ),
-                @Index(
-                        name = "idx_products_cat_vis_sale_price",
-                        columnList = "category_id, visibility_status, sale_status, price"
                 )
         }
 )
