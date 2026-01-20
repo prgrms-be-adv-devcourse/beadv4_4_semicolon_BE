@@ -40,8 +40,8 @@ public class Deposit extends BaseEntity<UUID> {
     private UUID depositUuid;
 
     @Builder.Default
-    @Column(nullable = false, columnDefinition = "integer default 0", comment = "예치금 잔액")
-    private Integer balance = 0;
+    @Column(nullable = false, columnDefinition = "bigint default 0", comment = "예치금 잔액")
+    private Long balance = 0L;
 
     @Version
     @Builder.Default
@@ -67,7 +67,7 @@ public class Deposit extends BaseEntity<UUID> {
         return Deposit.builder()
                 .userUuid(userUuid)
                 .depositUuid(UUID.randomUUID())
-                .balance(0)
+                .balance(0L)
                 .build();
     }
 
@@ -76,8 +76,8 @@ public class Deposit extends BaseEntity<UUID> {
     /**
      * 잔액 증가 (충전/환불 등)
      */
-    public void addBalance(Integer amount) {
-        if (amount == null || amount < 0)
+    public void addBalance(Long amount) {
+        if (amount == null || amount < 0L)
             return;
         this.balance += amount;
     }
@@ -85,8 +85,8 @@ public class Deposit extends BaseEntity<UUID> {
     /**
      * 잔액 차감 (사용/출금 등)
      */
-    public void subtractBalance(Integer amount) {
-        if (amount == null || amount < 0)
+    public void subtractBalance(Long amount) {
+        if (amount == null || amount < 0L)
             return;
         if (this.balance < amount) {
             throw new RuntimeException("예치금이 부족합니다."); // TODO: Custom Exception 전환

@@ -22,14 +22,3 @@ dependencies {
     // === Test ===
     testImplementation 'org.springframework.security:spring-security-test'
 }
-
-// === QueryDSL 설정 (Entity가 이 프로젝트에 있다면 유지) ===
-def querydslDir = "$buildDir/generated/querydsl"
-
-tasks.withType(JavaCompile) {
-    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
-}
-
-clean {
-    delete file(querydslDir)
-}

@@ -63,34 +63,34 @@ public class PaymentRequest {
          */
         @NotNull(message = "상품 총액은 필수입니다.")
         @Min(value = 0, message = "상품 총액은 0 이상이어야 합니다.")
-        private Integer itemsTotalAmount;
+        private Long itemsTotalAmount;
 
         /**
          * 쿠폰 할인 금액
          */
         @NotNull(message = "쿠폰 할인 금액은 필수입니다.")
         @Min(value = 0, message = "쿠폰 할인 금액은 0 이상이어야 합니다.")
-        private Integer couponDiscountAmount;
+        private Long couponDiscountAmount;
 
         /**
          * 최종 결제 금액 (상품 총액 - 쿠폰 할인)
          */
         @NotNull(message = "최종 결제 금액은 필수입니다.")
         @Min(value = 0, message = "최종 결제 금액은 0 이상이어야 합니다.")
-        private Integer finalPayAmount;
+        private Long finalPayAmount;
 
         /**
          * 예치금 사용 금액
          */
         @NotNull(message = "예치금 사용 금액은 필수입니다.")
         @Min(value = 0, message = "예치금 사용 금액은 0 이상이어야 합니다.")
-        private Integer depositUseAmount;
+        private Long depositUseAmount;
 
         /**
          * PG 결제 금액 (최종 결제 금액 - 예치금 사용)
          */
         @NotNull(message = "PG 결제 금액은 필수입니다.")
         @Min(value = 0, message = "PG 결제 금액은 0 이상이어야 합니다.")
-        private Integer pgPayAmount;
+        private Long pgPayAmount;
     }
 }

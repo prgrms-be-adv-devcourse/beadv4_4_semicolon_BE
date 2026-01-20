@@ -13,7 +13,7 @@ public class TossAmountMismatchException extends BadRequestException {
         super("토스 결제 금액이 일치하지 않습니다.");
     }
 
-    public TossAmountMismatchException(Integer expected, Integer actual) {
+    public TossAmountMismatchException(Long expected, Long actual) {
         super(String.format("토스 amount 불일치: 기대값(%d원), 실제값(%d원)", expected, actual));
     }
 }

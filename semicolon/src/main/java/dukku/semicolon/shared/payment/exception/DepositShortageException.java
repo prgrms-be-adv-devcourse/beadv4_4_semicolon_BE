@@ -17,7 +17,7 @@ public class DepositShortageException extends BadRequestException {
         super(details);
     }
 
-    public DepositShortageException(Integer requested, Integer available) {
+    public DepositShortageException(Long requested, Long available) {
         super(String.format("예치금 잔액이 부족합니다. (요청: %d원, 잔액: %d원)", requested, available));
     }
 }

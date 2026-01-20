@@ -18,7 +18,7 @@ import java.util.UUID;
 public class DepositDto {
     private UUID userUuid;
     private UUID depositUuid;
-    private Integer balance;
+    private Long balance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -42,10 +42,10 @@ public class DepositHistory extends BaseEntity<Integer> {
     private UUID userUuid;
 
     @Column(updatable = false, nullable = false, comment = "변동 금액 (+/-)")
-    private Integer amount;
+    private Long amount;
 
     @Column(updatable = false, nullable = false, comment = "변동 후 잔액 스냅샷")
-    private Integer balanceSnapshot;
+    private Long balanceSnapshot;
 
     @Enumerated(EnumType.STRING)
     @Column(updatable = false, nullable = false, comment = "변동 유형")
@@ -71,7 +71,7 @@ public class DepositHistory extends BaseEntity<Integer> {
 
     // === 정적 팩토리 메서드 ===
 
-    public static DepositHistory create(UUID userUuid, Integer amount, Integer balanceSnapshot,
+    public static DepositHistory create(UUID userUuid, Long amount, Long balanceSnapshot,
             DepositHistoryType type, UUID orderItemUuid) {
         return DepositHistory.builder()
                 .userUuid(userUuid)

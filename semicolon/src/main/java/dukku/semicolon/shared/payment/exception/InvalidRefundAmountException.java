@@ -17,7 +17,7 @@ public class InvalidRefundAmountException extends BadRequestException {
         super(details);
     }
 
-    public InvalidRefundAmountException(Integer requested, Integer available) {
+    public InvalidRefundAmountException(Long requested, Long available) {
         super(String.format("환불 금액 초과: 요청(%d원), 가능(%d원)", requested, available));
     }
 }

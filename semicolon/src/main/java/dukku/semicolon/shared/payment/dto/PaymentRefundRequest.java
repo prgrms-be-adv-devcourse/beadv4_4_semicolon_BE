@@ -42,7 +42,7 @@ public class PaymentRefundRequest {
      */
     @NotNull(message = "환불 금액은 필수입니다.")
     @Min(value = 1, message = "환불 금액은 1원 이상이어야 합니다.")
-    private Integer refundAmount;
+    private Long refundAmount;
 
     /**
      * 환불 사유
@@ -76,6 +76,6 @@ public class PaymentRefundRequest {
          */
         @NotNull(message = "상품별 환불 금액은 필수입니다.")
         @Min(value = 1, message = "환불 금액은 1원 이상이어야 합니다.")
-        private Integer refundAmount;
+        private Long refundAmount;
     }
 }

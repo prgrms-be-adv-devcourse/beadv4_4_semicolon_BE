@@ -17,7 +17,7 @@ public class AmountMismatchException extends BadRequestException {
         super(details);
     }
 
-    public AmountMismatchException(Integer expected, Integer actual) {
+    public AmountMismatchException(Long expected, Long actual) {
         super(String.format("결제 금액 불일치: 기대값(%d원), 실제값(%d원)", expected, actual));
     }
 }

@@ -60,6 +60,6 @@ public class PaymentConfirmRequest {
          * PG 결제 금액
          */
         @NotNull(message = "amount는 필수입니다.")
-        private Integer amount;
+        private Long amount;
     }
 }
