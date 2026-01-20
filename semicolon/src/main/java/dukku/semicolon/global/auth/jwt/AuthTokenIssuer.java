@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.UUID;
+import dukku.semicolon.boundedContext.user.entity.type.Role;
+
 
 @Slf4j
 @Component
@@ -35,6 +37,15 @@ public class AuthTokenIssuer {
         this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
         this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
         this.jwtValidator = jwtValidator;
+    }
+
+    public String issue(UUID userUuid, Role role) {
+        return createToken(
+                userUuid,
+                role.name(),
+                ACCESS_TOKEN_VALIDITY,
+                accessKey
+        );
     }
 
     // === 1. 토큰 생성 로직 (Auth 전용) ===

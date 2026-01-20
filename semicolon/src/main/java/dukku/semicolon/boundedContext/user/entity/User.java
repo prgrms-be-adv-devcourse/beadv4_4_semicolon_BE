@@ -30,7 +30,7 @@ public class User extends SourceUser {
     public static User createUser(UserRegisterRequest req, Role role, String encodedPassword) {
         return User.builder()
                 .email(req.getEmail())
-                .password(req.getPassword())
+                .password(encodedPassword)
                 .role(role)
                 .nickname(req.getNickname())
                 .build();
