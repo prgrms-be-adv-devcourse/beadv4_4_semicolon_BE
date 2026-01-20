@@ -1,6 +1,6 @@
 package dukku.semicolon.boundedContext.product.entity;
 
-import dukku.common.global.jpa.entity.BaseIdAndUUIDAndTime;
+import dukku.common.global.jpa.entity.BaseIdAndTime;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category extends BaseIdAndUUIDAndTime {
+public class Category extends BaseIdAndTime {
 
     @Column(nullable = false, length = 100, comment = "카테고리 이름")
     private String categoryName;
