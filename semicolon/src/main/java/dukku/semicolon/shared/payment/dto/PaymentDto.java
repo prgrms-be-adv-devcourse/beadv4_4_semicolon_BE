@@ -23,6 +23,7 @@ public class PaymentDto {
     private UUID uuid;
     private UUID orderUuid;
     private UUID userUuid;
+    private String tossOrderId;
     private Long amount;
     private Long paymentDeposit;
     private Long amountPg;

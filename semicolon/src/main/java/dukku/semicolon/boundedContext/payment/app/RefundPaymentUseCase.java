@@ -91,7 +91,7 @@ public class RefundPaymentUseCase {
                 refund.getCreatedAt()));
 
         // 10. 응답 생성
-        return buildResponse(payment, refund, request, refundAmounts);
+        return refund.toPaymentRefundResponse(refundAmounts.pgAmount, payment.getTossOrderId());
     }
 
     private void validateRefundable(Payment payment) {
@@ -163,34 +163,6 @@ public class RefundPaymentUseCase {
                 originDeposit,
                 payment.getPaymentDeposit());
         support.savePaymentHistory(history);
-    }
-
-    private PaymentRefundResponse buildResponse(Payment payment, Refund refund,
-            PaymentRefundRequest request, RefundAmounts amounts) {
-        return PaymentRefundResponse.builder()
-                .success(true)
-                .code("REFUND_COMPLETED")
-                .message("환불이 완료되었습니다.")
-                .data(PaymentRefundResponse.RefundData.builder()
-                        .refundId(refund.getUuid())
-                        .paymentId(payment.getUuid())
-                        .orderUuid(request.getOrderUuid())
-                        .status(payment.getPaymentStatus())
-                        .amounts(PaymentRefundResponse.RefundAmountInfo.builder()
-                                .requestedRefundAmount(amounts.totalAmount)
-                                .depositRefundAmount(amounts.depositAmount)
-                                .pgRefundAmount(amounts.pgAmount)
-                                .build())
-                        .pg(PaymentRefundResponse.PgInfo.builder()
-                                .provider("TOSS_PAYMENTS")
-                                // TODO: 실제 토스 취소 후 값 설정
-                                .tossOrderId("TOSS_" + payment.getUuid().toString().substring(0, 8))
-                                .cancelTransactionKey("CANCEL_TXN_" + UUID.randomUUID().toString().substring(0, 8))
-                                .build())
-                        .createdAt(OffsetDateTime.now())
-                        .completedAt(OffsetDateTime.now())
-                        .build())
-                .build();
     }
 
     /**

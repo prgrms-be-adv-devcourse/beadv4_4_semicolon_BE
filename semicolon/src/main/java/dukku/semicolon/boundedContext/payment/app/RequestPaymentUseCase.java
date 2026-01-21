@@ -45,13 +45,11 @@ public class RequestPaymentUseCase {
         validateAmounts(request.getAmounts());
 
         // 3. Payment 생성 (PENDING 상태) 및 스냅샷 기록
-        Payment payment = createPayment(request);
+        String tossOrderId = generateTossOrderId(UUID.randomUUID()); // 또는 로직 변경
+        Payment payment = createPayment(request, tossOrderId);
 
-        // 4. 토스 orderId 생성
-        String tossOrderId = generateTossOrderId(payment.getUuid());
-
-        // 5. 응답 생성
-        return payment.toPaymentResponse(request.getOrderName(), tossOrderId);
+        // 4. 응답 생성
+        return payment.toPaymentResponse(request.getOrderName());
     }
 
     /**
@@ -107,7 +105,7 @@ public class RequestPaymentUseCase {
         // TODO: Deposit BC 연동 후 실제 잔액 조회 및 검증 로직 추가
     }
 
-    private Payment createPayment(PaymentRequest request) {
+    private Payment createPayment(PaymentRequest request, String tossOrderId) {
         UUID userUuid = UserUtil.getUserId();
         PaymentRequest.Amounts amounts = request.getAmounts();
 
@@ -123,7 +121,8 @@ public class RequestPaymentUseCase {
                 amounts.getDepositUseAmount(),
                 amounts.getPgPayAmount(),
                 amounts.getCouponDiscountAmount(),
-                paymentType);
+                paymentType,
+                tossOrderId);
 
         // 스냅샷 아이템 추가
         request.getItems().forEach(itemDto -> {

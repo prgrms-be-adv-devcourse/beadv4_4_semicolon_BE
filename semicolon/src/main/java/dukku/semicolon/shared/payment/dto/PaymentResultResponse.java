@@ -34,6 +34,7 @@ public class PaymentResultResponse {
     public static class PaymentResultData {
         private UUID paymentUuid;
         private UUID orderUuid;
+        private String tossOrderId;
         private PaymentStatus status;
 
         // 금액 정보

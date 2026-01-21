@@ -88,6 +88,9 @@ public class Payment extends BaseIdAndUUIDAndTime {
     @Column(comment = "결제 승인 시점")
     private LocalDateTime approvedAt;
 
+    @Column(comment = "토스 주문 ID")
+    private String tossOrderId;
+
     @Builder.Default
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentOrderItem> items = new ArrayList<>();
@@ -100,7 +103,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
 
     public static Payment create(UUID orderUuid, UUID userUuid, Long amount,
             Long depositAmount, Long pgAmount, Long couponAmount,
-            PaymentType paymentType) {
+            PaymentType paymentType, String tossOrderId) {
         return Payment.builder()
                 .orderUuid(orderUuid)
                 .userUuid(userUuid)
@@ -113,6 +116,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
                 .refundTotal(0L)
                 .paymentType(paymentType)
                 .paymentStatus(PaymentStatus.PENDING)
+                .tossOrderId(tossOrderId)
                 .build();
     }
 
@@ -151,7 +155,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
 
     // === DTO 변환 ===
 
-    public PaymentResponse toPaymentResponse(String orderName, String tossOrderId) {
+    public PaymentResponse toPaymentResponse(String orderName) {
         return PaymentResponse.builder()
                 .success(true)
                 .code("PAYMENT_REQUESTED")
@@ -160,7 +164,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
                         .paymentUuid(this.getUuid())
                         .status(this.paymentStatus)
                         .toss(PaymentResponse.TossInfo.builder()
-                                .orderId(tossOrderId)
+                                .orderId(this.tossOrderId)
                                 .amount(this.amountPg)
                                 .orderName(orderName)
                                 .successUrl("https://localhost:3000/payments/success?paymentUuid=" + this.getUuid())
@@ -186,7 +190,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
                         .status(this.paymentStatus)
                         .approvedAt(this.approvedAt)
                         .toss(PaymentConfirmResponse.TossInfo.builder()
-                                .orderId("TOSS_" + this.getUuid().toString().substring(0, 8)) // FIXME: 실제 orderId가 어디 저장되는지 확인 필요
+                                .orderId(this.tossOrderId)
                                 .paymentKey(this.pgPaymentKey)
                                 .build())
                         .amounts(PaymentConfirmResponse.AmountInfo.builder()
@@ -206,6 +210,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
                 .data(PaymentResultResponse.PaymentResultData.builder()
                         .paymentUuid(this.getUuid())
                         .orderUuid(this.orderUuid)
+                        .tossOrderId(this.tossOrderId)
                         .status(this.paymentStatus)
                         .totalAmount(this.amount)
                         .couponDiscountAmount(this.paymentCouponTotal)
@@ -230,6 +235,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
                 .uuid(this.getUuid())
                 .orderUuid(this.orderUuid)
                 .userUuid(this.userUuid)
+                .tossOrderId(this.tossOrderId)
                 .amount(this.amount)
                 .paymentDeposit(this.paymentDeposit)
                 .amountPg(this.amountPg)

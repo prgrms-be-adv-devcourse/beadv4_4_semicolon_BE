@@ -76,7 +76,7 @@ public class ConfirmPaymentUseCase {
                 payment.getApprovedAt()));
 
         // 8. 응답 생성
-        return buildResponse(payment, request);
+        return payment.toPaymentConfirmResponse(true, "결제가 승인되었습니다.");
     }
 
     private void validatePaymentStatus(Payment payment) {
@@ -109,27 +109,5 @@ public class ConfirmPaymentUseCase {
                 originDeposit,
                 payment.getPaymentDeposit());
         support.savePaymentHistory(history);
-    }
-
-    private PaymentConfirmResponse buildResponse(Payment payment, PaymentConfirmRequest request) {
-        return PaymentConfirmResponse.builder()
-                .success(true)
-                .code("PAYMENT_CONFIRMED")
-                .message("결제가 승인되었습니다.")
-                .data(PaymentConfirmResponse.PaymentConfirmData.builder()
-                        .paymentUuid(payment.getUuid())
-                        .status(payment.getPaymentStatus())
-                        .approvedAt(OffsetDateTime.now())
-                        .toss(PaymentConfirmResponse.TossInfo.builder()
-                                .orderId(request.getToss().getOrderId())
-                                .paymentKey(request.getToss().getPaymentKey())
-                                .build())
-                        .amounts(PaymentConfirmResponse.AmountInfo.builder()
-                                .finalPayAmount(payment.getAmount())
-                                .depositUseAmount(payment.getPaymentDeposit())
-                                .pgPayAmount(payment.getAmountPg())
-                                .build())
-                        .build())
-                .build();
     }
 }

@@ -82,11 +82,11 @@ public class Refund extends BaseIdAndUUIDAndTime {
 
     // === DTO 변환 ===
 
-    public PaymentRefundResponse toPaymentRefundResponse(Long pgRefundAmount) {
+    public PaymentRefundResponse toPaymentRefundResponse(Long pgRefundAmount, String tossOrderId) {
         return PaymentRefundResponse.builder()
                 .success(true)
-                .code("REFUND_REQUESTED")
-                .message("환불 요청이 접수되었습니다.")
+                .code("REFUND_COMPLETED")
+                .message("환불이 완료되었습니다.")
                 .data(PaymentRefundResponse.RefundData.builder()
                         .refundId(this.getUuid())
                         .paymentId(this.payment.getUuid())
@@ -98,6 +98,15 @@ public class Refund extends BaseIdAndUUIDAndTime {
                                 .pgRefundAmount(pgRefundAmount)
                                 .build())
                         .pg(PaymentRefundResponse.PgInfo.builder()
+                                .provider("TOSS_PAYMENTS")
+                                .tossOrderId(tossOrderId)
+                                .cancelTransactionKey("CANCEL_" + this.getUuid().toString().substring(0, 8))
+                                .build())
+                        .createdAt(this.getCreatedAt())
+                        .completedAt(this.approvedAt)
+                        .build())
+                .build();
+    }
                                 .provider("TOSS_PAYMENTS")
                                 .tossOrderId("TOSS_" + this.payment.getUuid().toString().substring(0, 8)) // FIXME: 실제 orderId 사용
                                 .cancelTransactionKey("CANCEL_TXN_" + this.getUuid().toString().substring(0, 8))
