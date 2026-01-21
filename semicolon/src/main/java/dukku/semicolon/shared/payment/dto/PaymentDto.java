@@ -1,7 +1,7 @@
 package dukku.semicolon.shared.payment.dto;
 
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentType;
+import dukku.common.shared.payment.type.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +21,7 @@ import java.util.UUID;
 public class PaymentDto {
     private Integer id;
     private UUID uuid;
+    private UUID orderUuid;
     private UUID userUuid;
     private Long amount;
     private Long paymentDeposit;

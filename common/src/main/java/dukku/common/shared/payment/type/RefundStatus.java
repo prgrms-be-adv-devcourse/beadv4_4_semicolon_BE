@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.payment.entity.enums;
+package dukku.common.shared.payment.type;
 
 /**
  * 환불 상태
