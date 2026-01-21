@@ -4,6 +4,9 @@ import dukku.common.global.UserUtil;
 import dukku.semicolon.shared.deposit.docs.DepositApiDocs;
 import dukku.semicolon.shared.deposit.dto.DepositBalanceResponse;
 import dukku.semicolon.shared.deposit.dto.DepositHistoryResponse;
+import dukku.semicolon.boundedContext.deposit.app.DepositFacade;
+import dukku.semicolon.shared.deposit.dto.DepositDto;
+import dukku.semicolon.shared.deposit.dto.DepositHistoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,21 +27,29 @@ import java.util.UUID;
 @DepositApiDocs.DepositTag
 public class DepositController {
 
+        private final DepositFacade depositFacade;
+
         /**
          * 내 예치금 잔액 조회
+         *
+         * <p>
+         * 사용자의 현재 예치금 잔액을 조회한다.
          */
         @DepositApiDocs.GetMyBalance
         @GetMapping("/me/balance")
         public ResponseEntity<DepositBalanceResponse> getMyBalance() {
-                // TODO: 서비스 연결 예정 - 현재는 더미 응답
+                UUID userUuid = UserUtil.getUserId();
+                DepositDto depositDto = depositFacade.findDeposit(userUuid);
+
                 DepositBalanceResponse response = DepositBalanceResponse.builder()
                                 .success(true)
                                 .code("DEPOSIT_BALANCE_RETRIEVED")
                                 .message("예치금 잔액을 조회했습니다.")
                                 .data(DepositBalanceResponse.DepositBalanceData.builder()
-                                                .userUuid(UserUtil.getUserId())
-                                                .balance(12500)
-                                                .updatedAt(OffsetDateTime.now().minusHours(3))
+                                                .userUuid(depositDto.getUserUuid())
+                                                .balance(depositDto.getBalance())
+                                                .updatedAt(OffsetDateTime.of(depositDto.getUpdatedAt(),
+                                                                java.time.ZoneOffset.of("+09:00"))) // KST 가정
                                                 .build())
                                 .build();
 
@@ -47,6 +58,9 @@ public class DepositController {
 
         /**
          * 내 예치금 변동 내역 조회
+         *
+         * <p>
+         * 예치금의 충전, 사용, 환불 등 모든 변동 내역을 조회한다.
          */
         @DepositApiDocs.GetMyHistories
         @GetMapping("/me/histories")
@@ -54,53 +68,44 @@ public class DepositController {
                         @RequestParam(defaultValue = "20") Integer size,
                         @RequestParam(required = false) String cursor) {
 
-                // TODO: 서비스 연결 예정 - 현재는 더미 응답
-                DepositHistoryResponse response = createDummyHistoryResponse(size, "DEPOSIT_HISTORIES_RETRIEVED",
-                                "예치금 내역을 조회했습니다.");
+                UUID userUuid = UserUtil.getUserId();
+                // TODO: Pagination 구현 필요. 현재는 전체 조회 후 dummy slicing or just returning all for
+                // MVP as per Facade implementation
+                // For MVP, returning list as is. Pagination logic should be refined in
+                // Facade/Repository if needed.
+                List<DepositHistoryDto> histories = depositFacade.findHistories(userUuid);
+
+                List<DepositHistoryResponse.DepositHistoryHistoryItem> items = histories.stream()
+                                .map(this::toHistoryItem)
+                                .toList();
+
+                DepositHistoryResponse response = DepositHistoryResponse.builder()
+                                .success(true)
+                                .code("DEPOSIT_HISTORIES_RETRIEVED")
+                                .message("예치금 내역을 조회했습니다.")
+                                .data(DepositHistoryResponse.DepositHistoryData.builder()
+                                                .items(items)
+                                                .page(DepositHistoryResponse.PageInfo.builder()
+                                                                .size(size)
+                                                                .nextCursor(null) // TODO: Implement cursor pagination
+                                                                .build())
+                                                .build())
+                                .build();
 
                 return ResponseEntity.ok(response);
         }
 
-        private DepositHistoryResponse createDummyHistoryResponse(Integer size, String code, String message) {
-                return DepositHistoryResponse.builder()
-                                .success(true)
-                                .code(code)
-                                .message(message)
-                                .data(DepositHistoryResponse.DepositHistoryData.builder()
-                                                .items(List.of(
-                                                                DepositHistoryResponse.DepositHistoryHistoryItem
-                                                                                .builder()
-                                                                                .depositHistoryId(
-                                                                                                "b7c7b8c9-6c7a-4a8b-b8c2-1a2b3c4d5e6f")
-                                                                                .type("USE")
-                                                                                .amount(-4500)
-                                                                                .balanceAfter(12500)
-                                                                                .ref(DepositHistoryResponse.ReferenceInfo
-                                                                                                .builder()
-                                                                                                .paymentId(UUID.fromString(
-                                                                                                                "9a5be1c6-735e-4f69-a35f-7a9f6b0a9a9a"))
-                                                                                                .orderUuid(UUID.fromString(
-                                                                                                                "b2f0f6d3-9c4f-44d1-9f1f-8c2b3c7b1a11"))
-                                                                                                .build())
-                                                                                .createdAt(OffsetDateTime.now()
-                                                                                                .minusMinutes(12))
-                                                                                .build(),
-                                                                DepositHistoryResponse.DepositHistoryHistoryItem
-                                                                                .builder()
-                                                                                .depositHistoryId(UUID.randomUUID()
-                                                                                                .toString())
-                                                                                .type("CHARGE")
-                                                                                .amount(10000)
-                                                                                .balanceAfter(17000)
-                                                                                .createdAt(OffsetDateTime.now()
-                                                                                                .minusDays(2))
-                                                                                .build()))
-                                                .page(DepositHistoryResponse.PageInfo.builder()
-                                                                .size(size)
-                                                                .nextCursor("2026-01-15T13:58:00+09:00|"
-                                                                                + UUID.randomUUID())
-                                                                .build())
+        private DepositHistoryResponse.DepositHistoryHistoryItem toHistoryItem(DepositHistoryDto dto) {
+                return DepositHistoryResponse.DepositHistoryHistoryItem.builder()
+                                .depositHistoryId(String.valueOf(dto.getId()))
+                                .type(dto.getType().name())
+                                .amount(dto.getAmount()) // 절댓값 그대로 반환 (프론트에서 Type 보고 처리)
+                                .balanceAfter(dto.getBalanceSnapshot())
+                                .ref(DepositHistoryResponse.ReferenceInfo.builder()
+                                                // TODO: OrderItem 등 연관 관계 조회 로직 추가 필요 시 구현
+                                                .orderUuid(dto.getOrderItemUuid())
                                                 .build())
+                                .createdAt(OffsetDateTime.of(dto.getCreatedAt(), java.time.ZoneOffset.of("+09:00")))
                                 .build();
         }
 }

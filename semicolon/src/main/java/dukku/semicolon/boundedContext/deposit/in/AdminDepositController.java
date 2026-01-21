@@ -25,6 +25,9 @@ public class AdminDepositController {
 
         /**
          * 특정 사용자 예치금 잔액 조회 (관리자용)
+         *
+         * <p>
+         * 관리자가 특정 사용자의 현재 예치금 잔액을 조회한다.
          */
         @DepositApiDocs.GetUserBalance
         @GetMapping("/{userUuid}/balance")
@@ -38,7 +41,7 @@ public class AdminDepositController {
                                 .message("예치금 잔액을 조회했습니다.")
                                 .data(DepositBalanceResponse.DepositBalanceData.builder()
                                                 .userUuid(userUuid)
-                                                .balance(50000)
+                                                .balance(50000L)
                                                 .updatedAt(OffsetDateTime.now().minusDays(1))
                                                 .build())
                                 .build();
@@ -48,6 +51,9 @@ public class AdminDepositController {
 
         /**
          * 특정 사용자 예치금 내역 조회 (관리자용)
+         *
+         * <p>
+         * 관리자가 특정 사용자의 예치금 변동 내역을 조회한다.
          */
         @DepositApiDocs.GetUserHistories
         @GetMapping("/{userUuid}/histories")
@@ -65,6 +71,9 @@ public class AdminDepositController {
 
         /**
          * 전체 사용자 예치금 내역 조회 (관리자용)
+         *
+         * <p>
+         * 관리자가 시스템 전체의 예치금 변동 내역을 조회한다.
          */
         @DepositApiDocs.GetAllHistories
         @GetMapping("/histories")
@@ -91,8 +100,8 @@ public class AdminDepositController {
                                                                                 .depositHistoryId(
                                                                                                 "b7c7b8c9-6c7a-4a8b-b8c2-1a2b3c4d5e6f")
                                                                                 .type("USE")
-                                                                                .amount(-4500)
-                                                                                .balanceAfter(12500)
+                                                                                .amount(-4500L)
+                                                                                .balanceAfter(12500L)
                                                                                 .ref(DepositHistoryResponse.ReferenceInfo
                                                                                                 .builder()
                                                                                                 .paymentId(UUID.fromString(
