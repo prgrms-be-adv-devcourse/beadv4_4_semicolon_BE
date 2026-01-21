@@ -179,6 +179,7 @@ public class DepositFacade {
         increaseDeposit(userUuid, amount, DepositHistoryType.SETTLEMENT, settlementUuid);
 
         // 성공 이벤트 발행
+        // 성공 이벤트 발행
         eventPublisher.publish(new DepositChargeSucceededEvent(
                 userUuid,
                 amount,
@@ -190,9 +191,9 @@ public class DepositFacade {
 
         // 실패 이벤트 발행
         eventPublisher.publish(new DepositChargeFailedEvent(
-                settlementUuid,
                 userUuid,
                 amount,
+                settlementUuid,
                 e.getMessage()));
     }
 }

@@ -2,6 +2,8 @@ package dukku.semicolon.boundedContext.deposit.in;
 
 import dukku.semicolon.boundedContext.deposit.app.DepositFacade;
 import dukku.semicolon.shared.deposit.docs.DepositApiDocs;
+import dukku.semicolon.shared.deposit.docs.DepositApiDocs;
+import dukku.semicolon.shared.deposit.dto.DepositAccountResponse;
 import dukku.semicolon.shared.deposit.dto.DepositBalanceResponse;
 import dukku.semicolon.shared.deposit.dto.DepositDto;
 import dukku.semicolon.shared.deposit.dto.DepositHistoryDto;
@@ -48,6 +50,29 @@ public class AdminDepositController {
                                                 .updatedAt(deposit.getUpdatedAt()
                                                                 .atOffset(java.time.ZoneOffset.ofHours(9))) // KST
                                                                                                             // 처리
+                                                .build())
+                                .build();
+
+                return ResponseEntity.ok(response);
+        }
+
+        /**
+         * 특정 사용자 예치금 계좌 조회 (관리자용)
+         *
+         * <p>
+         * 특정 사용자의 예치금 계좌 UUID를 조회한다.
+         */
+        @GetMapping("/{userUuid}/account")
+        public ResponseEntity<DepositAccountResponse> getUserAccount(@PathVariable UUID userUuid) {
+
+                DepositDto deposit = depositFacade.findDeposit(userUuid);
+
+                DepositAccountResponse response = DepositAccountResponse.builder()
+                                .success(true)
+                                .code("DEPOSIT_ACCOUNT_RETRIEVED")
+                                .message("예치금 계좌 정보를 조회했습니다.")
+                                .data(DepositAccountResponse.DepositAccountData.builder()
+                                                .depositUuid(deposit.getDepositUuid())
                                                 .build())
                                 .build();
 
