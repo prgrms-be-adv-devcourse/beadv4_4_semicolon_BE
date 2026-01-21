@@ -27,6 +27,7 @@ public class DepositBalanceResponse {
     @NoArgsConstructor
     public static class DepositBalanceData {
         private UUID userUuid;
+        private UUID depositUuid;
         private Long balance;
         private OffsetDateTime updatedAt;
     }

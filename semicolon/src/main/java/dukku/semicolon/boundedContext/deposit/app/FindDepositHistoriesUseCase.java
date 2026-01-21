@@ -22,12 +22,16 @@ public class FindDepositHistoriesUseCase {
     private final DepositSupport depositSupport;
 
     /**
-     * 내역 목록 조회
-     *
-     * <p>
-     * 사용자의 예치금 변동 내역을 최신순으로 정렬하여 반환한다.
+     * 특정 사용자 예치금 내역 조회
      */
     public List<DepositHistory> findHistories(UUID userUuid) {
         return depositSupport.findHistoriesByUserUuid(userUuid);
+    }
+
+    /**
+     * 전체 사용자 예치금 내역 조회
+     */
+    public List<DepositHistory> findAllHistories() {
+        return depositSupport.findAllHistories();
     }
 }

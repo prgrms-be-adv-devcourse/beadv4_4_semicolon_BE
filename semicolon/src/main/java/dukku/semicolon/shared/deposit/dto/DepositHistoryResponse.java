@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.deposit.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,7 +41,7 @@ public class DepositHistoryResponse {
         private String type; // 변동 유형 (Enum String)
         private Long amount; // 변동 금액
         private Long balanceAfter; // 변동 후 잔액
-        private ReferenceInfo ref; // 참조 정보 (결제/주문 등)
+        private ReferenceInfo ref; // 참조 정보
         private OffsetDateTime createdAt; // 생성 일시
     }
 
@@ -48,9 +49,11 @@ public class DepositHistoryResponse {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ReferenceInfo {
         private UUID paymentId;
         private UUID orderUuid;
+        private UUID settlementUuid;
     }
 
     @Data

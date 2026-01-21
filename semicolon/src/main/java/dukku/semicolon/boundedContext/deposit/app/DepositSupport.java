@@ -33,4 +33,8 @@ public class DepositSupport {
     public List<DepositHistory> findHistoriesByUserUuid(UUID userUuid) {
         return depositHistoryRepository.findByUserUuidOrderByCreatedAtDesc(userUuid);
     }
+
+    public List<DepositHistory> findAllHistories() {
+        return depositHistoryRepository.findAllByOrderByCreatedAtDesc();
+    }
 }

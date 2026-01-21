@@ -13,5 +13,7 @@ public interface DepositHistoryRepository extends JpaRepository<DepositHistory, 
 
     List<DepositHistory> findByUserUuidOrderByCreatedAtDesc(UUID userUuid);
 
+    List<DepositHistory> findAllByOrderByCreatedAtDesc();
+
     List<DepositHistory> findByOrderItemUuid(UUID orderItemUuid);
 }
