@@ -1,9 +1,6 @@
 package dukku.common.global.jpa.entity;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -22,8 +19,10 @@ public abstract class BaseIdAndTime extends BaseEntity<Integer> {
     private Integer id;
 
     @CreatedDate
+    @Column(nullable = false, updatable = false, comment = "생성일")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Column(comment = "수정일")
     private LocalDateTime updatedAt;
 }
