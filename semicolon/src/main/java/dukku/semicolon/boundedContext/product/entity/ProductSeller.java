@@ -39,6 +39,8 @@ public class ProductSeller extends BaseIdAndUUIDAndTime {
     private int activeListingCount;
 
     public static ProductSeller create(UUID userUuid, String intro) {
+        if (userUuid == null) throw new IllegalArgumentException("userUuid는 필수입니다.");
+
         return ProductSeller.builder()
                 .userUuid(userUuid)
                 .intro(intro)

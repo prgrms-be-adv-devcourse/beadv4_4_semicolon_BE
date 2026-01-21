@@ -38,6 +38,9 @@ public class ProductUser {
     private AccountStatus status;
 
     public static ProductUser create(UUID userUuid, String nickname) {
+        if (userUuid == null) throw new IllegalArgumentException("userUuid는 필수입니다.");
+        if (nickname == null || nickname.isBlank()) throw new IllegalArgumentException("nickname은 필수입니다.");
+
         return ProductUser.builder()
                 .userUuid(userUuid)
                 .nickname(nickname)
