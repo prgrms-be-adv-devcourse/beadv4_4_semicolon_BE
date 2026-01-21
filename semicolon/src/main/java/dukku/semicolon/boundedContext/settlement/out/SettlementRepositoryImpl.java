@@ -61,9 +61,9 @@ public class SettlementRepositoryImpl implements SettlementRepositoryCustom {
         return queryFactory
                 .select(
                         settlement.count(),
-                        settlement.totalAmount.sum().coalesce(0),
-                        settlement.settlementAmount.sum().coalesce(0),
-                        settlement.feeAmount.sum().coalesce(0)
+                        settlement.totalAmount.sum().coalesce(0L),
+                        settlement.settlementAmount.sum().coalesce(0L),
+                        settlement.feeAmount.sum().coalesce(0L)
                 )
                 .from(settlement)
                 .fetchOne();
@@ -79,7 +79,7 @@ public class SettlementRepositoryImpl implements SettlementRepositoryCustom {
                 .select(
                         settlement.settlementStatus,
                         settlement.count(),
-                        settlement.settlementAmount.sum().coalesce(0)
+                        settlement.settlementAmount.sum().coalesce(0L)
                 )
                 .from(settlement)
                 .groupBy(settlement.settlementStatus)
