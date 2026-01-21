@@ -36,9 +36,15 @@ public class ProductImage extends BaseIdAndUUIDAndTime {
     private boolean isThumbnail;
 
     public static ProductImage create(Product product, String imageUrl, int sortOrder) {
-        if (product == null) throw new IllegalArgumentException("product는 필수입니다.");
-        if (imageUrl == null || imageUrl.isBlank()) throw new IllegalArgumentException("imageUrl은 필수입니다.");
-        if (sortOrder < 1) throw new IllegalArgumentException("sortOrder는 1 이상이어야 합니다.");
+        if (product == null) {
+            throw new IllegalArgumentException("product는 필수입니다.");
+        }
+        if (imageUrl == null || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("imageUrl은 필수입니다.");
+        }
+        if (sortOrder < 1) {
+            throw new IllegalArgumentException("sortOrder는 1 이상이어야 합니다.");
+        }
 
         return ProductImage.builder()
                 .product(product)

@@ -28,7 +28,9 @@ public class Category extends BaseIdAndTime {
     private Category parent;
 
     public static Category createRoot(String name) {
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("name은 필수입니다.");
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name은 필수입니다.");
+        }
 
         return Category.builder()
                 .categoryName(name)
@@ -37,8 +39,12 @@ public class Category extends BaseIdAndTime {
     }
 
     public static Category createChild(String name, Category parent) {
-        if (parent == null) throw new IllegalArgumentException("parent는 필수입니다.");
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("name은 필수입니다.");
+        if (parent == null) {
+            throw new IllegalArgumentException("parent는 필수입니다.");
+        }
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name은 필수입니다.");
+        }
 
         return Category.builder()
                 .categoryName(name)
