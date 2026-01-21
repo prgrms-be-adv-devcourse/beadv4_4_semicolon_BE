@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Slice;
 
 @Component
 @RequiredArgsConstructor
@@ -36,5 +37,9 @@ public class DepositSupport {
 
     public List<DepositHistory> findAllHistories() {
         return depositHistoryRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    public Slice<DepositHistory> findHistoriesByCursor(UUID userUuid, Integer cursor, int size) {
+        return depositHistoryRepository.findHistoriesByCursor(userUuid, cursor, size);
     }
 }

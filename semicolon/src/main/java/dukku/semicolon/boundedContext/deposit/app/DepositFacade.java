@@ -9,6 +9,8 @@ import dukku.common.shared.deposit.event.*;
 import dukku.semicolon.boundedContext.deposit.exception.NotEnoughDepositException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,11 +61,37 @@ public class DepositFacade {
     }
 
     /**
-     * 예치금 변동 내역 조회
+     * 예치금 변동 내역 조회 (커서 기반 페이징)
      *
      * <p>
-     * 사용자의 모든 예치금 변동 내역을 최신순으로 조회한다.
+     * 사용자의 예치금 변동 내역을 최신순으로 조회한다.
      */
+    public Slice<DepositHistoryDto> findHistories(UUID userUuid, Integer cursor, int size) {
+        Slice<DepositHistory> histories = findDepositHistoriesUseCase.findHistories(userUuid, cursor, size);
+        List<DepositHistoryDto> content = histories.getContent().stream()
+                .map(DepositHistory::toDto)
+                .toList();
+        return new SliceImpl<>(content, histories.getPageable(), histories.hasNext());
+    }
+
+    /**
+     * 전체 예치금 변동 내역 조회 (관리자용, 커서 기반 페이징)
+     *
+     * <p>
+     * 시스템 상의 모든 예치금 변동 내역을 최신순으로 조회한다.
+     */
+    public Slice<DepositHistoryDto> findAllHistories(Integer cursor, int size) {
+        Slice<DepositHistory> histories = findDepositHistoriesUseCase.findAllHistories(cursor, size);
+        List<DepositHistoryDto> content = histories.getContent().stream()
+                .map(DepositHistory::toDto)
+                .toList();
+        return new SliceImpl<>(content, histories.getPageable(), histories.hasNext());
+    }
+
+    /**
+     * @deprecated Use {@link #findHistories(UUID, Integer, int)} instead.
+     */
+    @Deprecated
     public List<DepositHistoryDto> findHistories(UUID userUuid) {
         return findDepositHistoriesUseCase.findHistories(userUuid).stream()
                 .map(DepositHistory::toDto)
@@ -71,11 +99,9 @@ public class DepositFacade {
     }
 
     /**
-     * 전체 예치금 변동 내역 조회 (관리자용)
-     *
-     * <p>
-     * 시스템 상의 모든 예치금 변동 내역을 최신순으로 조회한다.
+     * @deprecated Use {@link #findAllHistories(Integer, int)} instead.
      */
+    @Deprecated
     public List<DepositHistoryDto> findAllHistories() {
         return findDepositHistoriesUseCase.findAllHistories().stream()
                 .map(DepositHistory::toDto)

@@ -2,17 +2,17 @@ package dukku.semicolon.boundedContext.deposit.in;
 
 import dukku.semicolon.boundedContext.deposit.app.DepositFacade;
 import dukku.semicolon.shared.deposit.docs.DepositApiDocs;
-import dukku.semicolon.shared.deposit.docs.DepositApiDocs;
 import dukku.semicolon.shared.deposit.dto.DepositAccountResponse;
 import dukku.semicolon.shared.deposit.dto.DepositBalanceResponse;
 import dukku.semicolon.shared.deposit.dto.DepositDto;
 import dukku.semicolon.shared.deposit.dto.DepositHistoryDto;
 import dukku.semicolon.shared.deposit.dto.DepositHistoryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,17 +39,20 @@ public class AdminDepositController {
         @DepositApiDocs.GetUserBalance
         @GetMapping("/{userUuid}/balance")
         public ResponseEntity<DepositBalanceResponse> getUserBalance(@PathVariable UUID userUuid) {
-
                 DepositDto deposit = depositFacade.findDeposit(userUuid);
 
-                DepositBalanceResponse response = DepositBalanceResponse.builder().success(true)
-                                .code("DEPOSIT_BALANCE_RETRIEVED").message("예치금 잔액을 조회했습니다.")
+                DepositBalanceResponse response = DepositBalanceResponse.builder()
+                                .success(true)
+                                .code("DEPOSIT_BALANCE_RETRIEVED")
+                                .message("예치금 잔액을 조회했습니다.")
                                 .data(DepositBalanceResponse.DepositBalanceData.builder()
-                                                .userUuid(deposit.getUserUuid()).depositUuid(deposit.getDepositUuid())
+                                                .userUuid(deposit.getUserUuid())
+                                                .depositUuid(deposit.getDepositUuid())
                                                 .balance(deposit.getBalance())
-                                                .updatedAt(deposit.getUpdatedAt()
-                                                                .atOffset(java.time.ZoneOffset.ofHours(9))) // KST
-                                                                                                            // 처리
+                                                .updatedAt(deposit.getUpdatedAt() != null
+                                                                ? deposit.getUpdatedAt().atOffset(ZoneOffset.ofHours(9))
+                                                                : deposit.getCreatedAt()
+                                                                                .atOffset(ZoneOffset.ofHours(9)))
                                                 .build())
                                 .build();
 
@@ -87,39 +90,82 @@ public class AdminDepositController {
          */
         @DepositApiDocs.GetUserHistories
         @GetMapping("/{userUuid}/histories")
-        public ResponseEntity<DepositHistoryResponse> getUserHistories(@PathVariable UUID userUuid,
-                        @RequestParam(defaultValue = "20") Integer size,
+        public ResponseEntity<DepositHistoryResponse> getUserHistories(
+                        @PathVariable UUID userUuid,
+                        @RequestParam(defaultValue = "10") Integer size,
                         @RequestParam(required = false) String cursor) {
 
-                List<DepositHistoryDto> histories = depositFacade.findHistories(userUuid);
-
-                // TODO: Pagination Logic (현재는 전체 반환)
-                List<DepositHistoryResponse.DepositHistoryHistoryItem> items = histories.stream()
-                                .map(history -> DepositHistoryResponse.DepositHistoryHistoryItem.builder()
-                                                .depositHistoryId(String.valueOf(history.getId()))
-                                                .type(history.getType().name())
-                                                .amount(history.getAmount()) // DTO amount is absolute
-                                                .balanceAfter(history.getBalanceSnapshot())
-                                                .ref(mapReference(history))
-                                                .createdAt(history.getCreatedAt()
-                                                                .atOffset(java.time.ZoneOffset.ofHours(9)))
-                                                .build())
-                                .toList();
+                Integer cursorId = (cursor != null && !cursor.isBlank()) ? Integer.parseInt(cursor) : null;
+                Slice<DepositHistoryDto> historySlice = depositFacade.findHistories(userUuid, cursorId, size);
+                List<DepositHistoryDto> histories = historySlice.getContent();
 
                 DepositHistoryResponse response = DepositHistoryResponse.builder()
                                 .success(true)
                                 .code("DEPOSIT_HISTORIES_RETRIEVED")
-                                .message("예치금 내역을 조회했습니다.")
+                                .message("사용자 예치금 내역을 조회했습니다.")
                                 .data(DepositHistoryResponse.DepositHistoryData.builder()
-                                                .items(items)
+                                                .items(histories.stream()
+                                                                .map(this::mapToHistoryItem)
+                                                                .toList())
                                                 .page(DepositHistoryResponse.PageInfo.builder()
                                                                 .size(size)
-                                                                .nextCursor(null) // Pagination 미구현
+                                                                .nextCursor(historySlice.hasNext()
+                                                                                ? histories.get(histories.size() - 1)
+                                                                                                .getId().toString()
+                                                                                : null)
                                                                 .build())
                                                 .build())
                                 .build();
 
                 return ResponseEntity.ok(response);
+        }
+
+        /**
+         * 전체 사용자 예치금 내역 조회 (관리자용)
+         *
+         * <p>
+         * 관리자가 시스템 전체의 예치금 변동 내역을 조회한다.
+         */
+        @DepositApiDocs.GetAllHistories
+        @GetMapping("/histories")
+        public ResponseEntity<DepositHistoryResponse> getAllHistories(
+                        @RequestParam(defaultValue = "10") Integer size,
+                        @RequestParam(required = false) String cursor) {
+
+                Integer cursorId = (cursor != null && !cursor.isBlank()) ? Integer.parseInt(cursor) : null;
+                Slice<DepositHistoryDto> historySlice = depositFacade.findAllHistories(cursorId, size);
+                List<DepositHistoryDto> histories = historySlice.getContent();
+
+                DepositHistoryResponse response = DepositHistoryResponse.builder()
+                                .success(true)
+                                .code("DEPOSIT_HISTORIES_RETRIEVED")
+                                .message("전체 예치금 내역을 조회했습니다.")
+                                .data(DepositHistoryResponse.DepositHistoryData.builder()
+                                                .items(histories.stream()
+                                                                .map(this::mapToHistoryItem)
+                                                                .toList())
+                                                .page(DepositHistoryResponse.PageInfo.builder()
+                                                                .size(size)
+                                                                .nextCursor(historySlice.hasNext()
+                                                                                ? histories.get(histories.size() - 1)
+                                                                                                .getId().toString()
+                                                                                : null)
+                                                                .build())
+                                                .build())
+                                .build();
+
+                return ResponseEntity.ok(response);
+        }
+
+        private DepositHistoryResponse.DepositHistoryHistoryItem mapToHistoryItem(DepositHistoryDto dto) {
+                return DepositHistoryResponse.DepositHistoryHistoryItem.builder()
+                                .depositHistoryId(dto.getId().toString())
+                                .type(dto.getType().name())
+                                .amount(dto.getAmount())
+                                .balanceAfter(dto.getBalanceSnapshot())
+                                .ref(mapReference(dto))
+                                .createdAt(dto.getCreatedAt().atOffset(ZoneOffset.ofHours(9)))
+                                .build();
         }
 
         private DepositHistoryResponse.ReferenceInfo mapReference(DepositHistoryDto history) {
@@ -135,47 +181,5 @@ public class AdminDepositController {
                         }
                 }
                 return builder.build();
-        }
-
-        /**
-         * 전체 사용자 예치금 내역 조회 (관리자용)
-         *
-         * <p>
-         * 관리자가 시스템 전체의 예치금 변동 내역을 조회한다.
-         */
-        @DepositApiDocs.GetAllHistories
-        @GetMapping("/histories")
-        public ResponseEntity<DepositHistoryResponse> getAllHistories(@RequestParam(defaultValue = "20") Integer size,
-                        @RequestParam(required = false) String cursor) {
-
-                List<DepositHistoryDto> histories = depositFacade.findAllHistories();
-
-                // TODO: Pagination Logic (현재는 전체 반환)
-                List<DepositHistoryResponse.DepositHistoryHistoryItem> items = histories.stream()
-                                .map(history -> DepositHistoryResponse.DepositHistoryHistoryItem.builder()
-                                                .depositHistoryId(String.valueOf(history.getId()))
-                                                .type(history.getType().name())
-                                                .amount(history.getAmount())
-                                                .balanceAfter(history.getBalanceSnapshot())
-                                                .ref(mapReference(history))
-                                                .createdAt(history.getCreatedAt()
-                                                                .atOffset(java.time.ZoneOffset.ofHours(9)))
-                                                .build())
-                                .toList();
-
-                DepositHistoryResponse response = DepositHistoryResponse.builder()
-                                .success(true)
-                                .code("DEPOSIT_HISTORIES_RETRIEVED")
-                                .message("예치금 내역을 조회했습니다.")
-                                .data(DepositHistoryResponse.DepositHistoryData.builder()
-                                                .items(items)
-                                                .page(DepositHistoryResponse.PageInfo.builder()
-                                                                .size(size)
-                                                                .nextCursor(null) // Pagination 미구현
-                                                                .build())
-                                                .build())
-                                .build();
-
-                return ResponseEntity.ok(response);
         }
 }

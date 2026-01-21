@@ -8,10 +8,12 @@ import dukku.semicolon.boundedContext.deposit.app.DepositFacade;
 import dukku.semicolon.shared.deposit.dto.DepositDto;
 import dukku.semicolon.shared.deposit.dto.DepositHistoryDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,9 +49,13 @@ public class DepositController {
                                 .message("예치금 잔액을 조회했습니다.")
                                 .data(DepositBalanceResponse.DepositBalanceData.builder()
                                                 .userUuid(depositDto.getUserUuid())
+                                                .depositUuid(depositDto.getDepositUuid())
                                                 .balance(depositDto.getBalance())
-                                                .updatedAt(OffsetDateTime.of(depositDto.getUpdatedAt(),
-                                                                java.time.ZoneOffset.of("+09:00"))) // KST 가정
+                                                .updatedAt(depositDto.getUpdatedAt() != null
+                                                                ? depositDto.getUpdatedAt()
+                                                                                .atOffset(ZoneOffset.ofHours(9))
+                                                                : depositDto.getCreatedAt()
+                                                                                .atOffset(ZoneOffset.ofHours(9)))
                                                 .build())
                                 .build();
 
@@ -65,29 +71,29 @@ public class DepositController {
         @DepositApiDocs.GetMyHistories
         @GetMapping("/me/histories")
         public ResponseEntity<DepositHistoryResponse> getMyHistories(
-                        @RequestParam(defaultValue = "20") Integer size,
+                        @RequestParam(defaultValue = "10") Integer size,
                         @RequestParam(required = false) String cursor) {
 
                 UUID userUuid = UserUtil.getUserId();
-                // TODO: Pagination 구현 필요. 현재는 전체 조회 후 dummy slicing or just returning all for
-                // MVP as per Facade implementation
-                // For MVP, returning list as is. Pagination logic should be refined in
-                // Facade/Repository if needed.
-                List<DepositHistoryDto> histories = depositFacade.findHistories(userUuid);
+                Integer cursorId = (cursor != null && !cursor.isBlank()) ? Integer.parseInt(cursor) : null;
 
-                List<DepositHistoryResponse.DepositHistoryHistoryItem> items = histories.stream()
-                                .map(this::toHistoryItem)
-                                .toList();
+                Slice<DepositHistoryDto> historySlice = depositFacade.findHistories(userUuid, cursorId, size);
+                List<DepositHistoryDto> histories = historySlice.getContent();
 
                 DepositHistoryResponse response = DepositHistoryResponse.builder()
                                 .success(true)
                                 .code("DEPOSIT_HISTORIES_RETRIEVED")
                                 .message("예치금 내역을 조회했습니다.")
                                 .data(DepositHistoryResponse.DepositHistoryData.builder()
-                                                .items(items)
+                                                .items(histories.stream()
+                                                                .map(this::mapToHistoryItem)
+                                                                .toList())
                                                 .page(DepositHistoryResponse.PageInfo.builder()
                                                                 .size(size)
-                                                                .nextCursor(null) // TODO: Implement cursor pagination
+                                                                .nextCursor(historySlice.hasNext()
+                                                                                ? histories.get(histories.size() - 1)
+                                                                                                .getId().toString()
+                                                                                : null)
                                                                 .build())
                                                 .build())
                                 .build();
@@ -95,17 +101,16 @@ public class DepositController {
                 return ResponseEntity.ok(response);
         }
 
-        private DepositHistoryResponse.DepositHistoryHistoryItem toHistoryItem(DepositHistoryDto dto) {
+        private DepositHistoryResponse.DepositHistoryHistoryItem mapToHistoryItem(DepositHistoryDto dto) {
                 return DepositHistoryResponse.DepositHistoryHistoryItem.builder()
-                                .depositHistoryId(String.valueOf(dto.getId()))
+                                .depositHistoryId(dto.getId().toString())
                                 .type(dto.getType().name())
-                                .amount(dto.getAmount()) // 절댓값 그대로 반환 (프론트에서 Type 보고 처리)
+                                .amount(dto.getAmount())
                                 .balanceAfter(dto.getBalanceSnapshot())
                                 .ref(DepositHistoryResponse.ReferenceInfo.builder()
-                                                // TODO: OrderItem 등 연관 관계 조회 로직 추가 필요 시 구현
                                                 .orderUuid(dto.getOrderItemUuid())
                                                 .build())
-                                .createdAt(OffsetDateTime.of(dto.getCreatedAt(), java.time.ZoneOffset.of("+09:00")))
+                                .createdAt(dto.getCreatedAt().atOffset(ZoneOffset.ofHours(9)))
                                 .build();
         }
 }
