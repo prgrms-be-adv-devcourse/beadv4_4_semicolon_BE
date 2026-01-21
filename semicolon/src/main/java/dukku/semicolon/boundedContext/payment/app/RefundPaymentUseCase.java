@@ -1,13 +1,18 @@
 package dukku.semicolon.boundedContext.payment.app;
 
+import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
 import dukku.semicolon.boundedContext.payment.entity.PaymentHistory;
+import dukku.semicolon.boundedContext.payment.entity.PaymentOrderItem;
 import dukku.semicolon.boundedContext.payment.entity.Refund;
+import dukku.semicolon.boundedContext.payment.entity.RefundItem;
 import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
 import dukku.semicolon.shared.payment.dto.PaymentRefundResponse;
+import dukku.common.shared.payment.event.RefundCompletedEvent;
 import dukku.semicolon.shared.payment.exception.InvalidRefundAmountException;
+import dukku.semicolon.shared.payment.exception.PaymentNotFoundException;
 import dukku.semicolon.shared.payment.exception.PaymentNotRefundableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,15 +26,13 @@ import java.util.UUID;
  * <p>
  * 결제 취소/환불 요청 처리
  * items가 있으면 부분 환불, 없거나 전체 금액이면 전체 환불로 처리
- *
- * <p>
- * TODO: 실제 토스 취소 API 호출은 별도 태스크로 추후 구현
  */
 @Component
 @RequiredArgsConstructor
 public class RefundPaymentUseCase {
 
     private final PaymentSupport support;
+    private final EventPublisher eventPublisher;
 
     /**
      * 환불 요청 처리
@@ -59,15 +62,35 @@ public class RefundPaymentUseCase {
         // 6. Refund 엔티티 생성
         Refund refund = createRefund(payment, refundAmounts);
 
+        // 6-1. RefundItem 생성 (요청에 아이템 정보가 있는 경우)
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            for (PaymentRefundRequest.RefundItemInfo itemInfo : request.getItems()) {
+                PaymentOrderItem orderItem = support.findPaymentOrderItem(payment.getId(), itemInfo.getOrderItemUuid())
+                        .orElseThrow(() -> new IllegalArgumentException("결제 내역에서 해당 상품을 찾을 수 없습니다: " + itemInfo.getOrderItemUuid()));
+                
+                RefundItem refundItem = RefundItem.create(refund, orderItem, 
+                        itemInfo.getRefundAmount(), 0L, itemInfo.getRefundAmount());
+                refund.addRefundItem(refundItem);
+            }
+        }
+
         // 7. 결제 상태 업데이트
         updatePaymentStatus(payment, request.getRefundAmount());
 
         // 8. 이력 생성
         createHistory(payment, originStatus, originAmountPg, originDeposit, request.getRefundAmount());
 
-        // TODO: RefundCompletedEvent 이벤트 발행 (Deposit BC 예치금 환불용)
+        // 9. 이벤트 발행
+        eventPublisher.publish(new RefundCompletedEvent(
+                refund.getUuid(),
+                payment.getUuid(),
+                payment.getOrderUuid(),
+                refundAmounts.totalAmount,
+                refundAmounts.depositAmount,
+                payment.getUserUuid(),
+                refund.getCreatedAt()));
 
-        // 9. 응답 생성
+        // 10. 응답 생성
         return buildResponse(payment, refund, request, refundAmounts);
     }
 

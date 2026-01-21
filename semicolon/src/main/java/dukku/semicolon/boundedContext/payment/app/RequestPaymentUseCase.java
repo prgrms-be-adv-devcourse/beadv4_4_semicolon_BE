@@ -1,9 +1,9 @@
 package dukku.semicolon.boundedContext.payment.app;
 
+import dukku.common.global.UserUtil;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
-import dukku.semicolon.boundedContext.payment.entity.PaymentOrder;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentOrderStatus;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentType;
+import dukku.semicolon.boundedContext.payment.entity.PaymentOrderItem;
+import dukku.common.shared.payment.type.PaymentType;
 import dukku.semicolon.shared.payment.dto.PaymentRequest;
 import dukku.semicolon.shared.payment.dto.PaymentResponse;
 import dukku.semicolon.shared.payment.exception.AmountMismatchException;
@@ -20,9 +20,6 @@ import java.util.UUID;
  * <p>
  * 프론트에서 결제 준비 요청 시 토스 결제창 호출에 필요한 정보 반환
  * {@link Payment} 엔티티를 PENDING 상태로 생성하고 토스 orderId를 발급
- *
- * <p>
- * TODO: Order BC 머지 후 실제 주문 정보 연동 필요
  */
 @Component
 @RequiredArgsConstructor
@@ -35,10 +32,9 @@ public class RequestPaymentUseCase {
      *
      * @param request        결제 요청 DTO
      * @param idempotencyKey 멱등성 키 (중복 요청 방지)
-     * @param userUuid       요청 사용자 UUID
      * @return 토스 결제창 호출에 필요한 정보
      */
-    public PaymentResponse execute(PaymentRequest request, String idempotencyKey, UUID userUuid) {
+    public PaymentResponse execute(PaymentRequest request, String idempotencyKey) {
         // 1. 멱등성 검증 - 동일 주문에 대한 중복 결제 요청 방지
         Optional<PaymentResponse> cachedResponse = checkIdempotency(request.getOrderUuid(), idempotencyKey);
         if (cachedResponse.isPresent()) {
@@ -48,17 +44,14 @@ public class RequestPaymentUseCase {
         // 2. 금액 유효성 검증
         validateAmounts(request.getAmounts());
 
-        // 3. PaymentOrder 레플리카 동기화 (Order BC 미구현으로 더미 생성)
-        PaymentOrder paymentOrder = syncPaymentOrderReplica(request.getOrderUuid(), userUuid);
+        // 3. Payment 생성 (PENDING 상태) 및 스냅샷 기록
+        Payment payment = createPayment(request);
 
-        // 4. Payment 생성 (PENDING 상태)
-        Payment payment = createPayment(paymentOrder, request, userUuid);
-
-        // 5. 토스 orderId 생성
+        // 4. 토스 orderId 생성
         String tossOrderId = generateTossOrderId(payment.getUuid());
 
-        // 6. 응답 생성
-        return buildResponse(payment, request, tossOrderId);
+        // 5. 응답 생성
+        return payment.toPaymentResponse(request.getOrderName(), tossOrderId);
     }
 
     /**
@@ -72,7 +65,6 @@ public class RequestPaymentUseCase {
         // TODO: Redis 또는 DB 기반 멱등성 검증 구현
         // orderUUID로 존재유무 확인한다음 존재하면 생성안하는 방식으로 인메모리 대응할 수도 있을 거 같은데
         // 일단 나중에 생각하고 무조건 띄워주는 방식으로 구현하고 갈아끼우자
-        // 검증에 사용할 Order 도메인의 구현이 아직 dev에 머지되지 않았음
         return Optional.empty();
     }
 
@@ -110,34 +102,13 @@ public class RequestPaymentUseCase {
                             + " - 쿠폰할인 " + amounts.getCouponDiscountAmount() + ")"
                             + ", 실제=" + amounts.getFinalPayAmount());
         }
+
+        // 4. 예치금 잔액 검증
+        // TODO: Deposit BC 연동 후 실제 잔액 조회 및 검증 로직 추가
     }
 
-    /**
-     * PaymentOrder 레플리카 동기화
-     *
-     * <p>
-     * PaymentOrder는 Order BC의 레플리카로, 실제로는 Order BC에서 발행하는
-     * OrderCreatedEvent를 수신하여 동기화해야 함
-     * 현재는 Order BC가 미구현이므로 더미 데이터로 생성
-     *
-     * @param orderUuid 주문 UUID
-     * @param userUuid  사용자 UUID
-     * @return 동기화된 PaymentOrder
-     */
-    private PaymentOrder syncPaymentOrderReplica(UUID orderUuid, UUID userUuid) {
-        // TODO: Order BC 머지 후 EventListener 기반 동기화로 변경
-        // 실제 구현: OrderCreatedEvent 수신 → PaymentOrder 레플리카 저장
-        // 결제 요청 시점에는 이미 존재하는 레플리카를 조회만 해야 함
-        // 이 메소드는 결제 유스케이스 내부 동작을 위한 더미 데이터 생성을 하는 메소드임
-        PaymentOrder paymentOrder = PaymentOrder.builder()
-                .userUuid(userUuid)
-                .status(PaymentOrderStatus.PAID)
-                .build();
-
-        return support.savePaymentOrder(paymentOrder);
-    }
-
-    private Payment createPayment(PaymentOrder paymentOrder, PaymentRequest request, UUID userUuid) {
+    private Payment createPayment(PaymentRequest request) {
+        UUID userUuid = UserUtil.getUserId();
         PaymentRequest.Amounts amounts = request.getAmounts();
 
         // 결제 유형 결정 (예치금만 사용 vs 혼합)
@@ -146,7 +117,7 @@ public class RequestPaymentUseCase {
                 : PaymentType.MIXED;
 
         Payment payment = Payment.create(
-                paymentOrder,
+                request.getOrderUuid(),
                 userUuid,
                 amounts.getFinalPayAmount(),
                 amounts.getDepositUseAmount(),
@@ -154,37 +125,28 @@ public class RequestPaymentUseCase {
                 amounts.getCouponDiscountAmount(),
                 paymentType);
 
+        // 스냅샷 아이템 추가
+        request.getItems().forEach(itemDto -> {
+            payment.addItem(PaymentOrderItem.create(
+                    payment,
+                    request.getOrderUuid(),
+                    itemDto.getOrderItemUuid(),
+                    itemDto.getProductId(),
+                    itemDto.getProductName(),
+                    itemDto.getPrice(),
+                    itemDto.getPaymentCoupon(),
+                    itemDto.getSellerUuid()));
+        });
+
         return support.savePayment(payment);
     }
 
     private String generateTossOrderId(UUID paymentUuid) {
-        // TODO: Order BC 머지 후 Order UUID를 그대로 orderId로 사용
-        // 현재는 임시로 Payment UUID 기반으로 생성
         // 토스 orderId 형식: TOSS_{UUID 앞 8자}_{날짜}
-        String datePart = OffsetDateTime.now().toLocalDate().toString().replace("-", "");
+        // TODO: 향후 한 주문에 대해 여러 번 결제 시도 시의 고유성 보장이 필요한 경우 정책에 따라 수정
+        String datePart = LocalDateTime.now().toLocalDate().toString().replace("-", "");
         return "TOSS_" + paymentUuid.toString().substring(0, 8) + "_" + datePart;
     }
 
-    private PaymentResponse buildResponse(Payment payment, PaymentRequest request, String tossOrderId) {
-        PaymentRequest.Amounts requestAmounts = request.getAmounts();
-
-        return PaymentResponse.builder()
-                .paymentUuid(payment.getUuid())
-                .status(payment.getPaymentStatus())
-                .toss(PaymentResponse.TossInfo.builder()
-                        .orderId(tossOrderId)
-                        .amount(requestAmounts.getPgPayAmount())
-                        .orderName(request.getOrderName())
-                        // TODO: 실제 successUrl, failUrl은 설정에서 가져오기
-                        .successUrl("https://localhost:3000/payments/success?paymentUuid=" + payment.getUuid())
-                        .failUrl("https://localhost:3000/payments/fail?paymentUuid=" + payment.getUuid())
-                        .build())
-                .amounts(PaymentResponse.ResponseAmounts.builder()
-                        .finalPayAmount(requestAmounts.getFinalPayAmount())
-                        .depositUseAmount(requestAmounts.getDepositUseAmount())
-                        .pgPayAmount(requestAmounts.getPgPayAmount())
-                        .build())
-                .createdAt(OffsetDateTime.now())
-                .build();
     }
 }

@@ -42,11 +42,10 @@ public class PaymentFacade {
      *
      * @param request        결제 요청 정보
      * @param idempotencyKey 멱등성 키
-     * @param userUuid       요청 사용자 UUID
      * @return 토스 결제창 호출 정보
      */
-    public PaymentResponse requestPayment(PaymentRequest request, String idempotencyKey, UUID userUuid) {
-        return requestPayment.execute(request, idempotencyKey, userUuid);
+    public PaymentResponse requestPayment(PaymentRequest request, String idempotencyKey) {
+        return requestPayment.execute(request, idempotencyKey);
     }
 
     /**
@@ -71,7 +70,7 @@ public class PaymentFacade {
      */
     @Transactional(readOnly = true)
     public PaymentResultResponse findPaymentResult(UUID paymentUuid) {
-        return findPayment.execute(paymentUuid);
+        return findPayment.execute(paymentUuid).toPaymentResultResponse();
     }
 
     /**

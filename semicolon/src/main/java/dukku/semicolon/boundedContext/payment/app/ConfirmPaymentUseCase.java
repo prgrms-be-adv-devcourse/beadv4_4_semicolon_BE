@@ -1,11 +1,13 @@
 package dukku.semicolon.boundedContext.payment.app;
 
+import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
 import dukku.semicolon.boundedContext.payment.entity.PaymentHistory;
 import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmRequest;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmResponse;
+import dukku.common.shared.payment.event.PaymentSuccessEvent;
 import dukku.semicolon.shared.payment.exception.DuplicatePaymentKeyException;
 import dukku.semicolon.shared.payment.exception.PaymentNotPendingException;
 import dukku.semicolon.shared.payment.exception.TossAmountMismatchException;
@@ -29,6 +31,7 @@ import java.time.OffsetDateTime;
 public class ConfirmPaymentUseCase {
 
     private final PaymentSupport support;
+    private final EventPublisher eventPublisher;
 
     /**
      * 결제 승인 확정 처리
@@ -63,7 +66,14 @@ public class ConfirmPaymentUseCase {
         // 7. 이력 생성
         createHistory(payment, originStatus, originAmountPg, originDeposit);
 
-        // TODO: PaymentCompletedEvent 이벤트 발행 (Deposit BC 연동용)
+        // 8. 이벤트 발행
+        eventPublisher.publish(new PaymentSuccessEvent(
+                payment.getUuid(),
+                payment.getOrderUuid(),
+                payment.getAmount(),
+                payment.getPaymentDeposit(),
+                payment.getUserUuid(),
+                payment.getApprovedAt()));
 
         // 8. 응답 생성
         return buildResponse(payment, request);

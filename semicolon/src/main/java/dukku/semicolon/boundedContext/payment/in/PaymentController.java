@@ -42,10 +42,7 @@ public class PaymentController {
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
                         @RequestBody @Validated PaymentRequest request) {
 
-                // TODO: 실제 userUuid는 SecurityContext에서 가져오기
-                UUID userUuid = UUID.randomUUID(); // 임시 더미 값
-
-                PaymentResponse response = paymentFacade.requestPayment(request, idempotencyKey, userUuid);
+                PaymentResponse response = paymentFacade.requestPayment(request, idempotencyKey);
                 return ResponseEntity.ok(response);
         }
 
