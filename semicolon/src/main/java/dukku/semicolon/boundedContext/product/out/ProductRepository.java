@@ -13,6 +13,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Optional<Product> findByUuid(UUID productUuid);
 
+    Optional<Product> findByUuidAndDeletedAtIsNull(UUID productUuid);
+
+    boolean existsByUuidAndDeletedAtIsNull(UUID productUuid);
+
     // 목록: visibility=VISIBLE, deletedAt=null 기본
     Page<Product> findByVisibilityStatusAndDeletedAtIsNull(
             VisibilityStatus visibilityStatus,

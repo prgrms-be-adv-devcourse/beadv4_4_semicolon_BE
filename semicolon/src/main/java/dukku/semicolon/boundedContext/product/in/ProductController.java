@@ -7,14 +7,16 @@ import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;
 import dukku.semicolon.shared.product.dto.ProductListResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Validated
 @RestController
-@RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 @ProductApiDocs.ProductTag
 public class ProductController {
 
