@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.user.app;
+package dukku.semicolon.boundedContext.user.app.user;
 
 import dukku.semicolon.shared.user.dto.PasswordUpdateRequest;
 import dukku.semicolon.shared.user.dto.UserRegisterRequest;

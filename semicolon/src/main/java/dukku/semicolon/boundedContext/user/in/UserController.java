@@ -1,7 +1,6 @@
 package dukku.semicolon.boundedContext.user.in;
 
-import dukku.semicolon.boundedContext.user.app.UserFacade;
-import dukku.semicolon.boundedContext.user.entity.type.UserStatus;
+import dukku.semicolon.boundedContext.user.app.user.UserFacade;
 import dukku.semicolon.shared.user.dto.PasswordUpdateRequest;
 import dukku.semicolon.shared.user.dto.UserRegisterRequest;
 import dukku.semicolon.shared.user.dto.UserResponse;
@@ -14,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/users")
