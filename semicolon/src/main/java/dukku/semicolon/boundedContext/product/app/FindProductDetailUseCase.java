@@ -1,5 +1,6 @@
 package dukku.semicolon.boundedContext.product.app;
 
+import dukku.semicolon.boundedContext.product.entity.Product;
 import dukku.semicolon.boundedContext.product.out.ProductRepository;
 import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.exception.ProductNotFoundException;
@@ -15,7 +16,7 @@ public class FindProductDetailUseCase {
     private final ProductRepository productRepository;
 
     public ProductDetailResponse execute(UUID productUuid) {
-        var product = productRepository.findByUuid(productUuid)
+        Product product = productRepository.findByUuid(productUuid)
                 .orElseThrow(ProductNotFoundException::new);
 
         return ProductMapper.toDetail(product);

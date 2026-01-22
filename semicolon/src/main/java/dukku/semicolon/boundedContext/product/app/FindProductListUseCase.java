@@ -1,10 +1,13 @@
 package dukku.semicolon.boundedContext.product.app;
 
 import dukku.common.shared.product.type.VisibilityStatus;
+import dukku.semicolon.boundedContext.product.entity.Product;
 import dukku.semicolon.boundedContext.product.out.ProductRepository;
 import dukku.semicolon.shared.product.dto.ProductListResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +29,9 @@ public class FindProductListUseCase {
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
 
-        var pageable = PageRequest.of(Math.max(page, 0), Math.min(size, 50), s);
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(size, 50), s);
 
-        var result = (categoryId == null)
+        Page<Product> result = (categoryId == null)
                 ? productRepository.findByVisibilityStatusAndDeletedAtIsNull(VisibilityStatus.VISIBLE, pageable)
                 : productRepository.findByCategory_IdAndVisibilityStatusAndDeletedAtIsNull(categoryId, VisibilityStatus.VISIBLE, pageable);
 
