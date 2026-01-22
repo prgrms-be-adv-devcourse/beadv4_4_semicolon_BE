@@ -9,6 +9,7 @@ import dukku.semicolon.shared.product.exception.ProductCategoryNotFoundException
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -36,7 +37,7 @@ public class CreateProductUseCase {
                 request.conditionStatus()
         );
 
-        var imageUrls = request.imageUrls();
+        List<String> imageUrls = request.imageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
             productSupport.validateImageCount(product.getImages().size(), imageUrls.size());
             imageUrls.forEach(product::addImage);

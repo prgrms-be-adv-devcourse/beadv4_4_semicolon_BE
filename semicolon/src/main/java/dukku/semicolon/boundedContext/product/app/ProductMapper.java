@@ -6,6 +6,7 @@ import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class ProductMapper {
 
@@ -26,7 +27,7 @@ public class ProductMapper {
     }
 
     public static ProductDetailResponse toDetail(Product p) {
-        var imageUrls = p.getImages().stream()
+        List<String> imageUrls = p.getImages().stream()
                 .sorted(Comparator.comparingInt(ProductImage::getSortOrder))
                 .map(ProductImage::getImageUrl)
                 .toList();

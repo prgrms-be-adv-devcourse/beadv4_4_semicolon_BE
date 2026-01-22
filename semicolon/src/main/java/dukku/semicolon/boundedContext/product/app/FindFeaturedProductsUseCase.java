@@ -5,6 +5,7 @@ import dukku.semicolon.boundedContext.product.out.ProductRepository;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class FindFeaturedProductsUseCase {
     private final ProductRepository productRepository;
 
     public List<ProductListItemResponse> execute(int size) {
-        var pageable = PageRequest.of(
+        Pageable pageable = PageRequest.of(
                 0,
                 Math.min(size, 50),
                 Sort.by(Sort.Direction.DESC, "likeCount")
