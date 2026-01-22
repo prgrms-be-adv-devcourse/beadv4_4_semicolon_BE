@@ -1,11 +1,10 @@
-package dukku.semicolon.boundedContext.user.app;
+package dukku.semicolon.boundedContext.user.app.user;
 
 import dukku.semicolon.shared.user.dto.UserRegisterRequest;
 import dukku.semicolon.boundedContext.user.entity.User;
 import dukku.semicolon.boundedContext.user.entity.type.Role;
 import dukku.semicolon.boundedContext.user.entity.type.UserStatus;
 import dukku.semicolon.shared.user.exception.UserConflictException;
-import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.semicolon.shared.user.event.UserJoinedEvent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RegisterUserUseCase {
 
-    private final dukku.semicolon.boundedContext.user.app.UserSupport support;
+    private final UserSupport support;
     private final ApplicationEventPublisher springEventPublisher;
 
     @Transactional

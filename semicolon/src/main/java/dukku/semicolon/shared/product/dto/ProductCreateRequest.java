@@ -1,26 +1,40 @@
 package dukku.semicolon.shared.product.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import dukku.common.shared.product.type.ConditionStatus;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
-public record ProductCreateRequest(
-        @NotNull
-        UUID sellerUuid,
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductCreateRequest {
+
         @NotNull
         @Min(1)
-        Integer categoryId,
+        private Integer categoryId;
+
         @NotBlank
-        String title,
-        String description,
+        @Size(max = 200)
+        private String title;
+
+        private String description;
+
         @NotNull
         @PositiveOrZero
-        Long price,
+        private Long price;
+
         @PositiveOrZero
-        Long shippingFee,
-        List<String> imageUrls
-) {}
+        private Long shippingFee;
+
+        @Size(max = 10)
+        private List<@NotBlank String> imageUrls;
+
+        @NotNull
+        private ConditionStatus conditionStatus;
+}

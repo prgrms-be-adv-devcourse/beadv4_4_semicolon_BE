@@ -1,5 +1,6 @@
 package dukku.semicolon.boundedContext.user.entity;
 
+import dukku.semicolon.boundedContext.user.exception.AlreadyWithdrawUserException;
 import dukku.semicolon.shared.user.dto.UserRegisterRequest;
 import dukku.semicolon.shared.user.dto.UserResponse;
 import dukku.semicolon.shared.user.dto.UserUpdateRequest;
@@ -45,9 +46,12 @@ public class User extends SourceUser {
         this.setStatus(status);
     }
 
-    public void deleteUser() {
-        this.setDeletedAt(LocalDateTime.now());
+    public void withdraw() {
+        if (this.getStatus() == UserStatus.DELETED) {
+            throw new AlreadyWithdrawUserException();
+        }
         this.setStatus(UserStatus.DELETED);
+        this.setDeletedAt(LocalDateTime.now());
     }
 
     public void updatePassword(String password) {

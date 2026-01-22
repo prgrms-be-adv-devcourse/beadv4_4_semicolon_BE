@@ -20,7 +20,7 @@ public class AuthService {
 
     public TokenResponse login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
                 .orElseThrow(() ->  new NotFoundException("존재하지 않는 회원입니다."));
 
         if (!passwordEncoder.matches(
