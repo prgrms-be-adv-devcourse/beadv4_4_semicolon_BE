@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -59,6 +62,17 @@ public class UserController {
     public ResponseEntity<Void> deleteUser() {
         userFacade.withdraw(UserUtil.getUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/followings")
+    public List<UserResponse> myFollowings() {
+        // 기존 메서드들과 동일하게 UserUtil을 사용합니다.
+        return userFacade.findMyFollowings(UserUtil.getUserId());
+    }
+
+    @GetMapping("/me/followers")
+    public List<UserResponse> myFollowers() {
+        return userFacade.findMyFollowers(UserUtil.getUserId());
     }
 
 }

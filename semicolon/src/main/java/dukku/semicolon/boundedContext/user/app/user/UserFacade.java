@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,6 +23,8 @@ public class UserFacade {
     private final UpdateUserUseCase updateUser;
     private final ChangePasswordUseCase changePassword;
     private final WithdrawUserUseCase withdrawUserUseCase;
+    private final FindFollowingUsersUseCase findFollowingUsers;
+    private final FindFollowerUsersUseCase findFollowerUsers;
 
     public UserResponse registerUser(UserRegisterRequest req, Role role) {
         return User.toUserResponse(registerUser.execute(req, role));
@@ -42,5 +45,19 @@ public class UserFacade {
 
     public void withdraw(UUID userUuid) {
         withdrawUserUseCase.withdraw(userUuid);
+    }
+
+    public List<UserResponse> findMyFollowings(UUID userUuid) {
+        return findFollowingUsers.execute(userUuid)
+                .stream()
+                .map(User::toUserResponse)
+                .toList();
+    }
+
+    public List<UserResponse> findMyFollowers(UUID userUuid) {
+        return findFollowerUsers.execute(userUuid)
+                .stream()
+                .map(User::toUserResponse)
+                .toList();
     }
 }
