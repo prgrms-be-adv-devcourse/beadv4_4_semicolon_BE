@@ -4,6 +4,7 @@ import dukku.common.global.exception.BadRequestException;
 import dukku.common.global.jpa.entity.BaseIdAndTime;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
@@ -13,7 +14,7 @@ import lombok.*;
         }
 )
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseIdAndTime {
