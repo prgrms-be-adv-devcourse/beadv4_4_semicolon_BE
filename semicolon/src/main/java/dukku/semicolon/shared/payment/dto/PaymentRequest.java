@@ -50,6 +50,14 @@ public class PaymentRequest {
     private String orderName;
 
     /**
+     * 결제 상품 목록 (스냅샷)
+     */
+    @NotNull(message = "상품 목록은 필수입니다.")
+    @Size(min = 1, message = "최소 1개 이상의 상품이 있어야 합니다.")
+    @Valid
+    private java.util.List<PaymentRequestItem> items;
+
+    /**
      * 결제 요청 금액 정보
      */
     @Data
@@ -92,5 +100,34 @@ public class PaymentRequest {
         @NotNull(message = "PG 결제 금액은 필수입니다.")
         @Min(value = 0, message = "PG 결제 금액은 0 이상이어야 합니다.")
         private Long pgPayAmount;
+    }
+
+    /**
+     * 결제 상품 정보 (스냅샷용)
+     */
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PaymentRequestItem {
+
+        @NotNull(message = "주문 상품 UUID는 필수입니다.")
+        private UUID orderItemUuid;
+
+        @NotNull(message = "상품 ID는 필수입니다.")
+        private Integer productId;
+
+        @NotBlank(message = "상품명은 필수입니다.")
+        private String productName;
+
+        @NotNull(message = "상품 가격은 필수입니다.")
+        @Min(value = 0, message = "상품 가격은 0 이상이어야 합니다.")
+        private Long price;
+
+        @NotNull(message = "판매자 UUID는 필수입니다.")
+        private UUID sellerUuid;
+
+        @Min(value = 0, message = "쿠폰 할인액은 0 이상이어야 합니다.")
+        private Long paymentCoupon;
     }
 }

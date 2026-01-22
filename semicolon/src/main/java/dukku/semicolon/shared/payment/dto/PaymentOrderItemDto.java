@@ -17,6 +17,8 @@ import java.util.UUID;
 public class PaymentOrderItemDto {
     private Integer id;
     private UUID uuid;
+    private UUID orderUuid;
+    private UUID orderItemUuid;
     private UUID sellerUuid;
     private Integer productId;
     private String productName;
