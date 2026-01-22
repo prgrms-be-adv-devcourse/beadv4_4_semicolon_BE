@@ -58,8 +58,8 @@ public class UserController {
     }
 
     @DeleteMapping("/me")
-    @UserApiDocs.WithdrawMe
-    public ResponseEntity<Void> withdrawMe() {
+    @UserApiDocs.deleteUser
+    public ResponseEntity<Void> deleteUser() {
         userFacade.withdraw(UserUtil.getUserId());
         return ResponseEntity.noContent().build();
     }

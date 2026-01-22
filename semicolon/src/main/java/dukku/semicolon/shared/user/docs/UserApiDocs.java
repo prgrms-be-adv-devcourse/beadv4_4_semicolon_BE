@@ -268,5 +268,5 @@ public final class UserApiDocs {
                     )
             }
     )
-    public @interface WithdrawMe {}
+    public @interface deleteUser {}
 }
