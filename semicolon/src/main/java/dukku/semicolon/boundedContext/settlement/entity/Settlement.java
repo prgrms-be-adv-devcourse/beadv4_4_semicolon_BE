@@ -69,17 +69,6 @@ public class Settlement extends BaseIdAndUUIDAndTime {
     @Column(name = "completed_at", comment = "정산완료일")
     private LocalDateTime completedAt;
 
-    @PrePersist
-    public void prePersist() {
-        super.prePersist();
-        if (this.settlementStatus == null) {
-            this.settlementStatus = SettlementStatus.PENDING;
-        }
-        // fee는 반드시 외부에서 주입받아야 함 (application.yml → UseCase → Settlement.create)
-        if (this.fee == null) {
-            throw new IllegalStateException("수수료율(fee)은 필수입니다. Settlement.create()를 통해 생성하세요.");
-        }
-    }
 
     /* ========= 생성 ========= */
 
