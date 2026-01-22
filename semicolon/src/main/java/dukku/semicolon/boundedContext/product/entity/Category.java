@@ -1,5 +1,6 @@
 package dukku.semicolon.boundedContext.product.entity;
 
+import dukku.common.global.exception.BadRequestException;
 import dukku.common.global.jpa.entity.BaseIdAndTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,6 +36,10 @@ public class Category extends BaseIdAndTime {
     }
 
     public static Category createChild(String name, Category parent) {
+        if (parent == null) {
+            throw new BadRequestException("parent는 필수입니다.");
+        }
+
         return Category.builder()
                 .categoryName(name)
                 .parent(parent)

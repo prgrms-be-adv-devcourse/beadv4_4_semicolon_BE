@@ -1,0 +1,55 @@
+package dukku.semicolon.boundedContext.product.in;
+
+import dukku.semicolon.boundedContext.product.app.ProductFacade;
+import dukku.semicolon.shared.product.docs.ProductApiDocs;
+import dukku.semicolon.shared.product.dto.CategoryCreateResponse;
+import dukku.semicolon.shared.product.dto.ProductDetailResponse;
+import dukku.semicolon.shared.product.dto.ProductListItemResponse;
+import dukku.semicolon.shared.product.dto.ProductListResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/v1")
+@RequiredArgsConstructor
+@ProductApiDocs.ProductTag
+public class ProductController {
+
+    private final ProductFacade productFacade;
+
+    @GetMapping("/categories")
+    @ProductApiDocs.FindCategories
+    public List<CategoryCreateResponse> findCategories() {
+        return productFacade.findCategories();
+    }
+
+    @GetMapping("/products/featured")
+    @ProductApiDocs.FindFeaturedProducts
+    public List<ProductListItemResponse> findFeaturedProducts(
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return productFacade.findFeatured(size);
+    }
+
+    @GetMapping("/products")
+    @ProductApiDocs.FindProductList
+    public ProductListResponse findProducts(
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(defaultValue = "recent") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return productFacade.findProducts(categoryId, sort, page, size);
+    }
+
+    @GetMapping("/products/{productUuid}")
+    @ProductApiDocs.FindProductDetail
+    public ProductDetailResponse findProductDetail(
+            @PathVariable UUID productUuid
+    ) {
+        return productFacade.findProductDetail(productUuid);
+    }
+}
