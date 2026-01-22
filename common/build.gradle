@@ -27,4 +27,18 @@ dependencies {
     // === 4. Utils (JSON, UUID 등) ===
     // 필요 시 root의 uuidCreatorVersion 등 활용 가능
     implementation "com.github.f4b6a3:uuid-creator:${uuidCreatorVersion}"
+
+    // === Spring Batch (임시)===
+    api 'org.springframework.boot:spring-boot-starter-batch'
+}
+
+// === QueryDSL 설정 ===
+def querydslDir = "$buildDir/generated/querydsl"
+
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+clean {
+    delete file(querydslDir)
 }
