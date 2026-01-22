@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.product.in;
 
 import dukku.semicolon.boundedContext.product.app.ProductFacade;
 import dukku.semicolon.shared.product.docs.ProductApiDocs;
-import dukku.semicolon.shared.product.dto.CategoryResponse;
+import dukku.semicolon.shared.product.dto.CategoryCreateResponse;
 import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;
 import dukku.semicolon.shared.product.dto.ProductListResponse;
@@ -22,7 +22,7 @@ public class ProductController {
 
     @GetMapping("/categories")
     @ProductApiDocs.FindCategories
-    public List<CategoryResponse> findCategories() {
+    public List<CategoryCreateResponse> findCategories() {
         return productFacade.findCategories();
     }
 

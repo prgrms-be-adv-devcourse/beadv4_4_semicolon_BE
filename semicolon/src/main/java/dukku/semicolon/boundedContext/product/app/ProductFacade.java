@@ -1,6 +1,6 @@
 package dukku.semicolon.boundedContext.product.app;
 
-import dukku.semicolon.shared.product.dto.CategoryResponse;
+import dukku.semicolon.shared.product.dto.CategoryCreateResponse;
 import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;
 import dukku.semicolon.shared.product.dto.ProductListResponse;
@@ -19,7 +19,7 @@ public class ProductFacade {
     private final FindProductListUseCase findProductListUseCase;
     private final FindProductDetailUseCase findProductDetailUseCase;
 
-    public List<CategoryResponse> findCategories() {
+    public List<CategoryCreateResponse> findCategories() {
         return findCategoryListUseCase.execute();
     }
 

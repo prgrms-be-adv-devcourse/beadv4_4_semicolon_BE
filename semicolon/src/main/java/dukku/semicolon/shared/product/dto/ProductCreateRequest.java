@@ -2,33 +2,39 @@ package dukku.semicolon.shared.product.dto;
 
 import dukku.common.shared.product.type.ConditionStatus;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Getter
 @Builder
-public record ProductCreateRequest(
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductCreateRequest {
 
         @NotNull
         @Min(1)
-        Integer categoryId,
+        private Integer categoryId;
 
         @NotBlank
         @Size(max = 200)
-        String title,
+        private String title;
 
-        String description,
+        private String description;
 
         @NotNull
         @PositiveOrZero
-        Long price,
+        private Long price;
 
         @PositiveOrZero
-        Long shippingFee,
+        private Long shippingFee;
 
         @Size(max = 10)
-        List<@NotBlank String> imageUrls,
+        private List<@NotBlank String> imageUrls;
 
         @NotNull
-        ConditionStatus conditionStatus
-) {}
+        private ConditionStatus conditionStatus;
+}

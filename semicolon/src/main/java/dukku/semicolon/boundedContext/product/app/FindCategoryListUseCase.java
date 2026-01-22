@@ -1,7 +1,7 @@
 package dukku.semicolon.boundedContext.product.app;
 
 import dukku.semicolon.boundedContext.product.out.CategoryRepository;
-import dukku.semicolon.shared.product.dto.CategoryResponse;
+import dukku.semicolon.shared.product.dto.CategoryCreateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +13,9 @@ public class FindCategoryListUseCase {
 
     private final CategoryRepository categoryRepository;
 
-    public List<CategoryResponse> execute() {
+    public List<CategoryCreateResponse> execute() {
         return categoryRepository.findAll().stream()
-                .map(CategoryResponse::from)
+                .map(CategoryCreateResponse::from)
                 .toList();
     }
 }

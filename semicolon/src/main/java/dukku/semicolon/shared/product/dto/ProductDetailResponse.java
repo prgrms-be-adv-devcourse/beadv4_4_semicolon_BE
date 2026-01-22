@@ -4,31 +4,35 @@ import dukku.common.shared.product.type.ConditionStatus;
 import dukku.common.shared.product.type.SaleStatus;
 import dukku.common.shared.product.type.VisibilityStatus;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 @Builder
-public record ProductDetailResponse(
-        UUID productUuid,
-        String title,
-        String description,
-        Long price,
-        Long shippingFee,
+public class ProductDetailResponse {
 
-        ConditionStatus conditionStatus,
-        SaleStatus saleStatus,
-        VisibilityStatus visibilityStatus,
+    private UUID productUuid;
+    private String title;
+    private String description;
+    private Long price;
+    private Long shippingFee;
 
-        int likeCount,
-        int viewCount,
-        List<String> imageUrls,
-        CategorySummary category
-) {
+    private ConditionStatus conditionStatus;
+    private SaleStatus saleStatus;
+    private VisibilityStatus visibilityStatus;
+
+    private int likeCount;
+    private int viewCount;
+    private List<String> imageUrls;
+    private CategorySummary category;
+
+    @Getter
     @Builder
-    public record CategorySummary(
-            Integer id,
-            String name,
-            int depth
-    ) {}
+    public static class CategorySummary {
+        private Integer id;
+        private String name;
+        private int depth;
+    }
 }

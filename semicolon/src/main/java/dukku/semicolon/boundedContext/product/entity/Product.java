@@ -104,21 +104,6 @@ public class Product extends BaseIdAndUUIDAndTime {
             Long shippingFee,
             ConditionStatus conditionStatus
     ) {
-        if (sellerUuid == null) {
-            throw new IllegalArgumentException("sellerUuid는 필수입니다.");
-        }
-        if (category == null) {
-            throw new IllegalArgumentException("category는 필수입니다.");
-        }
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("title은 필수입니다.");
-        }
-        if (price == null || price < 0) {
-            throw new IllegalArgumentException("price는 0 이상이어야 합니다.");
-        }
-        if (shippingFee != null && shippingFee < 0) {
-            throw new IllegalArgumentException("shippingFee는 0 이상이어야 합니다.");
-        }
 
         return Product.builder()
                 .sellerUuid(sellerUuid)
@@ -148,9 +133,6 @@ public class Product extends BaseIdAndUUIDAndTime {
     private List<ProductImage> images = new ArrayList<>();
 
     public void addImage(String imageUrl) {
-        if (imageUrl == null || imageUrl.isBlank()) {
-            throw new IllegalArgumentException("imageUrl은 필수입니다.");
-        }
 
         int nextSortOrder = images.stream()
                 .mapToInt(ProductImage::getSortOrder)

@@ -6,15 +6,15 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CategoryResponse {
+public class CategoryCreateResponse {
 
     private Integer id;
     private String name;
     private Integer depth;
     private Integer parentId;
 
-    public static CategoryResponse from(Category category) {
-        return CategoryResponse.builder()
+    public static CategoryCreateResponse from(Category category) {
+        return CategoryCreateResponse.builder()
                 .id(category.getId())
                 .name(category.getCategoryName())
                 .depth(category.getDepth())
