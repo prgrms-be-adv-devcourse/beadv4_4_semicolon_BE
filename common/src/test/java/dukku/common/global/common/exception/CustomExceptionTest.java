@@ -20,9 +20,9 @@ class CustomExceptionTest {
         BadRequestException exception = new BadRequestException(details);
 
         // then
-        assertThat(exception.getCode()).isEqualTo(HttpStatus.FORBIDDEN.getReasonPhrase());
+        assertThat(exception.getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getReasonPhrase());
         assertThat(exception.getMessage()).isEqualTo("잘못된 요청");
-        assertThat(exception.getStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(exception.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(exception.getDetails()).isEqualTo(details);
     }
 
