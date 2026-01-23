@@ -9,6 +9,7 @@ dependencies {
     implementation project(':common')
 
     implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
     // === DB Drivers (실행 환경에 따라 다를 수 있으므로 서비스별 유지 추천) ===
     runtimeOnly 'org.postgresql:postgresql'
@@ -21,4 +22,7 @@ dependencies {
 
     // === Test ===
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // === Redis ===
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
