@@ -22,6 +22,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @EntityGraph(attributePaths = "images")
     List<Product> findByUuidInAndDeletedAtIsNull(List<UUID> uuids);
 
+    @EntityGraph(attributePaths = "images")
+    Page<Product> findBySellerUuidAndDeletedAtIsNull(UUID sellerUuid, Pageable pageable);
+
     // 목록: visibility=VISIBLE, deletedAt=null 기본
     Page<Product> findByVisibilityStatusAndDeletedAtIsNull(
             VisibilityStatus visibilityStatus,
