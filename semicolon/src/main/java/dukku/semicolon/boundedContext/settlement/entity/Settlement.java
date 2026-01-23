@@ -49,7 +49,7 @@ public class Settlement extends BaseIdAndUUIDAndTime {
     private UUID depositId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "settlement_status", nullable = false, columnDefinition = "enum('CREATED','PROCESSING','PENDING','SUCCESS','FAILED')", comment = "정산 상태")
+    @Column(name = "settlement_status", nullable = false, comment = "정산 상태")
     private SettlementStatus settlementStatus;
 
     @Column(name = "total_amount", nullable = false, columnDefinition = "bigint default 0", comment = "총액")

@@ -233,4 +233,40 @@ public final class UserApiDocs {
             }
     )
     public @interface UpdatePassword {}
+
+    // =============== 5) 회원 탈퇴 ===============
+    @Documented
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "현재 로그인한 사용자를 탈퇴 처리합니다. (Soft Delete)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "회원 탈퇴 성공 (No Content)"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "인증되지 않은 사용자",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            value = "{\"message\": \"인증이 필요합니다.\"}"
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "이미 탈퇴한 사용자",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            value = "{\"message\": \"이미 탈퇴한 사용자입니다.\"}"
+                                    )
+                            )
+                    )
+            }
+    )
+    public @interface deleteUser {}
 }

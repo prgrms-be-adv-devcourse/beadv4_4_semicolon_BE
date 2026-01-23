@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.payment.entity;
 
 import dukku.common.global.jpa.entity.BaseIdAndUUIDAndTime;
 import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.shared.payment.dto.PaymentHistoryDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

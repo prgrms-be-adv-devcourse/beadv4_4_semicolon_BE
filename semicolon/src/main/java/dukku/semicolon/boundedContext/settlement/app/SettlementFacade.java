@@ -28,7 +28,6 @@ public class SettlementFacade {
     private final SettlementSupport settlementSupport;
     private final RequestDepositChargeUseCase requestDepositChargeUseCase;
 
-
     @Transactional(readOnly = true)
     public SettlementDetailResponse getSettlement(UUID settlementUuid) {
         Settlement settlement = getSettlementUseCase.execute(settlementUuid);

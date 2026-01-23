@@ -36,4 +36,11 @@ public class ProductLike extends BaseIdAndUUIDAndTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "product_id", comment = "상품 ID")
     private Product product;
+
+    public static ProductLike create(UUID userUuid, Product product) {
+        return ProductLike.builder()
+                .userUuid(userUuid)
+                .product(product)
+                .build();
+    }
 }

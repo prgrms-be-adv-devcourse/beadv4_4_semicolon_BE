@@ -76,7 +76,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getReasonPhrase());
-        assertThat(response.getBody().getMessage()).isEqualTo("요청한 리소스를 찾을 수 없습니다.");
+        assertThat(response.getBody().getMessage()).isEqualTo("리소스를 찾을 수 없습니다.");
         assertThat(response.getBody().getStatus()).isEqualTo(404);
         assertThat(response.getBody().getDetails()).isEqualTo("리소스를 찾을 수 없습니다.");
     }
@@ -114,4 +114,3 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody().getDetails()).isNull();
     }
 }
-

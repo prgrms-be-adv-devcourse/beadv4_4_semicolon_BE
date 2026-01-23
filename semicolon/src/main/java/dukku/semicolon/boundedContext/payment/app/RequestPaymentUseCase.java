@@ -10,6 +10,7 @@ import dukku.semicolon.shared.payment.exception.AmountMismatchException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,9 +61,7 @@ public class RequestPaymentUseCase {
      * @return 기존 결제가 있으면 해당 응답, 없으면 Empty
      */
     private Optional<PaymentResponse> checkIdempotency(UUID orderUuid, String idempotencyKey) {
-        // TODO: Redis 또는 DB 기반 멱등성 검증 구현
-        // orderUUID로 존재유무 확인한다음 존재하면 생성안하는 방식으로 인메모리 대응할 수도 있을 거 같은데
-        // 일단 나중에 생각하고 무조건 띄워주는 방식으로 구현하고 갈아끼우자
+        // TODO: Redis 또는 DB 기반 멱등성 검증 구현 (Phase 2)
         return Optional.empty();
     }
 
@@ -142,10 +141,7 @@ public class RequestPaymentUseCase {
 
     private String generateTossOrderId(UUID paymentUuid) {
         // 토스 orderId 형식: TOSS_{UUID 앞 8자}_{날짜}
-        // TODO: 향후 한 주문에 대해 여러 번 결제 시도 시의 고유성 보장이 필요한 경우 정책에 따라 수정
         String datePart = LocalDateTime.now().toLocalDate().toString().replace("-", "");
         return "TOSS_" + paymentUuid.toString().substring(0, 8) + "_" + datePart;
-    }
-
     }
 }

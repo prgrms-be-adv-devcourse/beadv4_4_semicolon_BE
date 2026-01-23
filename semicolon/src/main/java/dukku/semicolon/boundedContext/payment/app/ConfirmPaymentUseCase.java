@@ -11,7 +11,9 @@ import dukku.common.shared.payment.event.PaymentSuccessEvent;
 import dukku.semicolon.shared.payment.exception.DuplicatePaymentKeyException;
 import dukku.semicolon.shared.payment.exception.PaymentNotPendingException;
 import dukku.semicolon.shared.payment.exception.TossAmountMismatchException;
+import dukku.semicolon.boundedContext.payment.out.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -22,15 +24,14 @@ import java.time.OffsetDateTime;
  * <p>
  * 토스페이먼츠 인증 완료 후 백엔드에서 최종 승인 처리
  * {@link Payment#approve(String)} 호출하여 결제 확정
- *
- * <p>
- * TODO: 실제 토스페이먼츠 API 호출은 별도 태스크로 추후 구현
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ConfirmPaymentUseCase {
 
     private final PaymentSupport support;
+    private final TossPaymentClient tossClient;
     private final EventPublisher eventPublisher;
 
     /**
@@ -58,8 +59,22 @@ public class ConfirmPaymentUseCase {
         Long originAmountPg = payment.getAmountPg();
         Long originDeposit = payment.getPaymentDeposit();
 
-        // 6. 결제 승인 처리
-        // TODO: 실제 토스 API 호출
+        // 6. 실제 토스 API 호출 (Client 위임)
+        java.util.Map<String, Object> tossRequestBody = new java.util.HashMap<>();
+        tossRequestBody.put("paymentKey", request.getToss().getPaymentKey());
+        tossRequestBody.put("orderId", request.getToss().getOrderId());
+        tossRequestBody.put("amount", request.getToss().getAmount());
+
+        java.util.Map<String, Object> tossResponse = tossClient.confirm(tossRequestBody);
+        int statusCode = ((Number) tossResponse.getOrDefault("statusCode", 200)).intValue();
+
+        if (statusCode >= 400) {
+            log.error("[Toss Confirm API Error] status={}, body={}", statusCode, tossResponse);
+            // 에러 시 로직 (명세에 따라 상세 처리 가능)
+            return payment.toPaymentConfirmResponse(false, "PG 승인 실패: " + tossResponse.get("message"));
+        }
+
+        // 7. 결제 승인 처리
         payment.approve(request.getToss().getPaymentKey());
         support.savePayment(payment);
 
