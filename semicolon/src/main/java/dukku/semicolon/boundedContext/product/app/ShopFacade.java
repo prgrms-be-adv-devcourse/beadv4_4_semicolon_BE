@@ -17,9 +17,14 @@ public class ShopFacade {
     private final UpdateMyShopUseCase updateMyShopUseCase;
     private final FindShopUseCase findShopUseCase;
     private final FindShopProductsUseCase findShopProductsUseCase;
+    private final FindMyShopProductsUseCase findMyShopProductsUseCase;
 
     public ShopResponse findMyShop(UUID userUuid) {
         return findMyShopUseCase.execute(userUuid);
+    }
+
+    public ShopProductListResponse findMyShopProducts(UUID userUuid, SaleStatus saleStatus, int page, int size) {
+        return findMyShopProductsUseCase.execute(userUuid, saleStatus, page, size);
     }
 
     public ShopResponse updateMyShop(UUID userUuid, UpdateShopRequest request) {

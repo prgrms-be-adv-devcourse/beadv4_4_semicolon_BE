@@ -43,6 +43,18 @@ public class ShopController {
         return shopFacade.updateMyShop(userUuid, request);
     }
 
+    // 내 상점 상품 목록(내 판매 상품)
+    @GetMapping("/me/shop/products")
+    @ShopApiDocs.FindMyShopProducts
+    public ShopProductListResponse findMyShopProducts(
+            @RequestHeader("X-USER-UUID") UUID userUuid,
+            @RequestParam(required = false) SaleStatus saleStatus,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size
+    ) {
+        return shopFacade.findMyShopProducts(userUuid, saleStatus, page, size);
+    }
+
     // 판매자 상점 조회(공개)
     @GetMapping("/shops/{shopUuid}")
     @ShopApiDocs.FindShop

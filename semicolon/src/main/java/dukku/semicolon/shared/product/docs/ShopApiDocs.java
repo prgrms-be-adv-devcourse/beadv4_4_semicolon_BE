@@ -123,6 +123,71 @@ public final class ShopApiDocs {
     @Target(METHOD)
     @Retention(RUNTIME)
     @Operation(
+            summary = "내 상점 상품 목록 조회",
+            description = "로그인한 사용자의 상점(내 판매 상품) 목록을 페이징으로 조회합니다. (saleStatus로 필터 가능)",
+            parameters = {
+                    @Parameter(
+                            name = "X-USER-UUID",
+                            in = ParameterIn.HEADER,
+                            description = "임시 사용자 UUID 헤더",
+                            required = true,
+                            example = "7fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    ),
+                    @Parameter(
+                            name = "saleStatus",
+                            in = ParameterIn.QUERY,
+                            description = "판매 상태 필터(선택): ON_SALE | RESERVED | SOLD_OUT",
+                            example = "ON_SALE"
+                    ),
+                    @Parameter(
+                            name = "page",
+                            in = ParameterIn.QUERY,
+                            description = "페이지(0부터 시작, 기본 0)",
+                            example = "0"
+                    ),
+                    @Parameter(
+                            name = "size",
+                            in = ParameterIn.QUERY,
+                            description = "페이지 사이즈(기본 20, 최대 50)",
+                            example = "20"
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "내 상점 상품 목록 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "My Shop Products",
+                                            value = """
+                                                    {
+                                                      "items": [
+                                                        {
+                                                          "productUuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                                          "title": "빈티지 원목 독서대",
+                                                          "price": 45000,
+                                                          "thumbnailUrl": "https://cdn.image.com/p/1024_thumb.png",
+                                                          "likeCount": 150
+                                                        }
+                                                      ],
+                                                      "page": 0,
+                                                      "size": 20,
+                                                      "totalCount": 7,
+                                                      "hasNext": false
+                                                    }
+                                                    """
+                                    )
+                            )
+                    )
+            }
+    )
+    public @interface FindMyShopProducts {}
+
+    @Documented
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Operation(
             summary = "판매자 상점 조회(공개)",
             description = "판매자 상점 UUID로 상점 정보를 조회합니다.",
             parameters = {
@@ -190,19 +255,18 @@ public final class ShopApiDocs {
                             name = "saleStatus",
                             in = ParameterIn.QUERY,
                             description = "판매 상태 필터(선택): ON_SALE | RESERVED | SOLD_OUT",
-                            required = false,
                             example = "ON_SALE"
                     ),
                     @Parameter(
                             name = "page",
                             in = ParameterIn.QUERY,
-                            description = "페이지(0부터 시작)",
+                            description = "페이지(0부터 시작, 기본 0)",
                             example = "0"
                     ),
                     @Parameter(
                             name = "size",
                             in = ParameterIn.QUERY,
-                            description = "페이지 사이즈(최대 50)",
+                            description = "페이지 사이즈(기본 20, 최대 50)",
                             example = "20"
                     )
             },
@@ -214,7 +278,7 @@ public final class ShopApiDocs {
                                     mediaType = "application/json",
                                     examples = {
                                             @ExampleObject(
-                                                    name = "Shop Products (All)",
+                                                    name = "Shop Products",
                                                     value = """
                                                             {
                                                               "items": [
@@ -229,26 +293,6 @@ public final class ShopApiDocs {
                                                               "page": 0,
                                                               "size": 20,
                                                               "totalCount": 42,
-                                                              "hasNext": true
-                                                            }
-                                                            """
-                                            ),
-                                            @ExampleObject(
-                                                    name = "Shop Products (Filtered by saleStatus)",
-                                                    value = """
-                                                            {
-                                                              "items": [
-                                                                {
-                                                                  "productUuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                                                                  "title": "빈티지 원목 독서대",
-                                                                  "price": 45000,
-                                                                  "thumbnailUrl": "https://cdn.image.com/p/1024_thumb.png",
-                                                                  "likeCount": 150
-                                                                }
-                                                              ],
-                                                              "page": 0,
-                                                              "size": 20,
-                                                              "totalCount": 12,
                                                               "hasNext": true
                                                             }
                                                             """
