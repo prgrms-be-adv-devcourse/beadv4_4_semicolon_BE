@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.deposit.in;
 
 import dukku.common.shared.payment.event.PaymentSuccessEvent;
 import dukku.common.shared.payment.event.RefundCompletedEvent;
-import dukku.common.shared.settlement.event.SettlementDepositChargeRequestEvent;
+import dukku.common.shared.settlement.event.SettlementDepositChargeRequestedEvent;
 import dukku.semicolon.boundedContext.deposit.app.DepositFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class DepositEventListener {
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handle(SettlementDepositChargeRequestEvent command) {
+    public void handle(SettlementDepositChargeRequestedEvent command) {
         depositFacade.chargeDepositForSettlement(
                 command.userUuid(),
                 command.amount(),

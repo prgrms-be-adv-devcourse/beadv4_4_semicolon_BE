@@ -1,7 +1,7 @@
 package dukku.semicolon.boundedContext.settlement.app;
 
 import dukku.common.global.eventPublisher.EventPublisher;
-import dukku.common.shared.settlement.event.SettlementDepositChargeRequestEvent;
+import dukku.common.shared.settlement.event.SettlementDepositChargeRequestedEvent;
 import dukku.semicolon.boundedContext.settlement.entity.Settlement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class RequestDepositChargeUseCase {
 
         // 2. 예치금 충전 요청 이벤트 발행 (Deposit BC로)
         eventPublisher.publish(
-                new SettlementDepositChargeRequestEvent(
+                new SettlementDepositChargeRequestedEvent(
                         settlement.getSellerUuid(),       // 판매자 UUID
                         settlement.getSettlementAmount(), // 정산 금액 (수수료 제외)
                         settlement.getUuid()              // 정산 UUID
