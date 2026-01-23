@@ -58,7 +58,6 @@ public class Product extends BaseIdAndUUIDAndTime {
     @Enumerated(EnumType.STRING)
     @Column(
             nullable = false,
-            columnDefinition = "enum('SEALED','NO_WEAR','MINOR_WEAR','VISIBLE_WEAR','DAMAGED')",
             comment = "상품 컨디션"
     )
     private ConditionStatus conditionStatus;
@@ -66,7 +65,6 @@ public class Product extends BaseIdAndUUIDAndTime {
     @Enumerated(EnumType.STRING)
     @Column(
             nullable = false,
-            columnDefinition = "enum('ON_SALE','RESERVED','SOLD_OUT')",
             comment = "상품 판매 상태"
     )
     private SaleStatus saleStatus;
@@ -74,7 +72,6 @@ public class Product extends BaseIdAndUUIDAndTime {
     @Enumerated(EnumType.STRING)
     @Column(
             nullable = false,
-            columnDefinition = "enum('VISIBLE','HIDDEN','BLOCKED')",
             comment = "상품 노출 상태"
     )
     private VisibilityStatus visibilityStatus;
