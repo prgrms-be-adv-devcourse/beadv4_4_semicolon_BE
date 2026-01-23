@@ -2,6 +2,7 @@ package dukku.semicolon.shared.product.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -22,6 +23,16 @@ public class MyLikedProductListResponse {
                 .size(pageResult.getSize())
                 .totalCount(pageResult.getTotalElements())
                 .hasNext(pageResult.hasNext())
+                .build();
+    }
+
+    public static MyLikedProductListResponse from(Page<?> metaPage, List<ProductListItemResponse> items) {
+        return MyLikedProductListResponse.builder()
+                .items(items)
+                .page(metaPage.getNumber())
+                .size(metaPage.getSize())
+                .totalCount(metaPage.getTotalElements())
+                .hasNext(metaPage.hasNext())
                 .build();
     }
 }
