@@ -31,7 +31,7 @@ public class DepositEventListener {
     public void handle(PaymentSuccessEvent event) {
         depositFacade.deductDepositForPayment(
                 event.userUuid(),
-                event.depositAmount(),
+                event.paymentDeposit(),
                 event.orderUuid());
     }
 
@@ -47,7 +47,7 @@ public class DepositEventListener {
     public void handle(RefundCompletedEvent event) {
         depositFacade.refundDeposit(
                 event.userUuid(),
-                event.depositRefundAmount(),
+                event.refundDepositAmount(),
                 event.orderUuid());
     }
 

@@ -82,7 +82,7 @@ public class Payment extends BaseIdAndUUIDAndTime {
     private PaymentStatus paymentStatus;
 
     @Convert(converter = AesGcmConverter.class)
-    @Column(length = 50, comment = "토스페이먼츠 결제키 (암호화)")
+    @Column(length = 255, comment = "토스페이먼츠 결제키 (암호화)")
     private String pgPaymentKey;
 
     @Column(comment = "결제 승인 시점")
@@ -167,8 +167,10 @@ public class Payment extends BaseIdAndUUIDAndTime {
                                 .orderId(this.tossOrderId)
                                 .amount(this.amountPg)
                                 .orderName(orderName)
-                                .successUrl("https://localhost:3000/payments/success?paymentUuid=" + this.getUuid())
-                                .failUrl("https://localhost:3000/payments/fail?paymentUuid=" + this.getUuid())
+                                .successUrl("https://localhost:3000/payments/success?paymentUuid="
+                                        + this.getUuid())
+                                .failUrl("https://localhost:3000/payments/fail?paymentUuid="
+                                        + this.getUuid())
                                 .build())
                         .amounts(PaymentResponse.ResponseAmounts.builder()
                                 .finalPayAmount(this.amount)

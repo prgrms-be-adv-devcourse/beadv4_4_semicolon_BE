@@ -1,7 +1,7 @@
 package dukku.semicolon.shared.payment.dto;
 
 import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
