@@ -4,6 +4,7 @@ import dukku.semicolon.boundedContext.product.entity.ProductLike;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,5 +17,11 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Intege
 
     long countByProduct_Uuid(UUID productUuid);
 
-    Page<ProductLike> findByUserUuid(UUID userUuid, Pageable pageable);
+    @Query("""
+        select pl.product.uuid
+        from ProductLike pl
+        where pl.userUuid = :userUuid
+        order by pl.createdAt desc
+    """)
+    Page<UUID> findProductUuidsByUserUuid(UUID userUuid, Pageable pageable);
 }

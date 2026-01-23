@@ -11,19 +11,7 @@ import java.util.List;
 public class ProductMapper {
 
     public static ProductListItemResponse toListItem(Product p) {
-        String thumb = p.getImages().stream()
-                .sorted(Comparator.comparingInt(ProductImage::getSortOrder))
-                .findFirst()
-                .map(ProductImage::getImageUrl)
-                .orElse(null);
-
-        return ProductListItemResponse.builder()
-                .productUuid(p.getUuid())
-                .title(p.getTitle())
-                .price(p.getPrice())
-                .thumbnailUrl(thumb)
-                .likeCount(p.getLikeCount())
-                .build();
+        return ProductListItemResponse.from(p);
     }
 
     public static ProductDetailResponse toDetail(Product p) {

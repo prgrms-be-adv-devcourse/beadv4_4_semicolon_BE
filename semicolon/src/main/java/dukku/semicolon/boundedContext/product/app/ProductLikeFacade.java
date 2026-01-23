@@ -23,7 +23,7 @@ public class ProductLikeFacade {
         return unlikeProductUseCase.execute(userUuid, productUuid);
     }
 
-    public MyLikedProductListResponse myLikes(UUID userUuid, int page, int size) {
+    public MyLikedProductListResponse findMyLikes(UUID userUuid, int page, int size) {
         return findMyLikedProductsUseCase.execute(userUuid, page, size);
     }
 }
