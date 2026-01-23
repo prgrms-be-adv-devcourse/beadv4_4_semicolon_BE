@@ -32,7 +32,6 @@ public class ProductUser {
     @Enumerated(EnumType.STRING)
     @Column(
             nullable = false,
-            columnDefinition = "enum('ACTIVE','BLOCKED','DELETED')",
             comment = "계정 상태"
     )
     private AccountStatus status;
