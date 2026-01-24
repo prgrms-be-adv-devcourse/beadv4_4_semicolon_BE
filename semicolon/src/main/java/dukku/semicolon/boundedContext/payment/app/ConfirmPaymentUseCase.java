@@ -14,6 +14,11 @@ import dukku.semicolon.boundedContext.payment.out.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 결제 승인 확정 UseCase
@@ -57,15 +62,15 @@ public class ConfirmPaymentUseCase {
         Long originDeposit = payment.getPaymentDeposit();
 
         // 6. 실제 토스페이먼츠 승인 요청 API 호출
-        java.util.Map<String, Object> tossRequestBody = new java.util.HashMap<>();
+        Map<String, Object> tossRequestBody = new HashMap<>();
         tossRequestBody.put("paymentKey", request.getToss().getPaymentKey());
         tossRequestBody.put("orderId", request.getToss().getOrderId());
         tossRequestBody.put("amount", request.getToss().getAmount());
 
-        java.util.Map<String, Object> tossResponse = tossClient.confirm(tossRequestBody);
+        Map<String, Object> tossResponse = tossClient.confirm(tossRequestBody);
         int statusCode = ((Number) tossResponse.getOrDefault("statusCode", 200)).intValue();
 
-        if (statusCode >= 400) {
+        if (HttpStatus.valueOf(statusCode).isError()) {
             log.error("[Toss Confirm API Error] status={}, body={}", statusCode, tossResponse);
             // 실패 이력 기록
             support.createHistory(payment, PaymentHistoryType.PAYMENT_FAILED, originStatus, originAmountPg,
@@ -84,7 +89,7 @@ public class ConfirmPaymentUseCase {
         // Deposit BC에서 상품별로 정확히 예치금을 차감하고 이력을 남길 수 있도록
         // 각 상품 스냅샷에서 예치금 사용액이 있는 아이템만 필터링하여 정보를 가공
         // 가공된 항목을 List에 추가
-        java.util.List<PaymentSuccessEvent.ItemDepositUsage> itemDepositUsages = payment.getItems().stream()
+        List<PaymentSuccessEvent.ItemDepositUsage> itemDepositUsages = payment.getItems().stream()
                 .filter(item -> item.getPaymentDeposit() != null && item.getPaymentDeposit() > 0)
                 .map(item -> new PaymentSuccessEvent.ItemDepositUsage(item.getOrderItemUuid(),
                         item.getPaymentDeposit()))

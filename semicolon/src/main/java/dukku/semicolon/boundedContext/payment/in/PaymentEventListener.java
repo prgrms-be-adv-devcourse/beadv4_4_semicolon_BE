@@ -2,10 +2,8 @@ package dukku.semicolon.boundedContext.payment.in;
 
 import dukku.common.shared.deposit.event.DepositDeductionFailedEvent;
 import dukku.common.shared.order.event.PaymentRollbackRequestEvent;
-import dukku.semicolon.boundedContext.payment.app.CompensatePaymentUseCase;
 import dukku.semicolon.boundedContext.payment.app.PaymentFacade;
 import dukku.semicolon.boundedContext.payment.app.PaymentSupport;
-import dukku.semicolon.boundedContext.payment.app.RefundPaymentUseCase;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
 import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +71,9 @@ public class PaymentEventListener {
                 paymentFacade.refundPayment(refundRequest, "rollback-" + payment.getUuid());
                 log.info("[결제 롤백] 환불 성공. paymentUuid={}", payment.getUuid());
             } catch (Exception e) {
+                // 자동 롤백 프로세스 중 발생하는 모든 예외를 잡아서 로그를 남겨야 함.
+                // 여기서 예외를 놓치면 결제는 성공했는데 주문은 실패한 상태로 남을 수 있음 (데이터 불일치)
+                // 상위로 전파하면 다른 결제 건의 롤백이 중단될 수 있으므로, 여기서 예외를 먹고 CRITICAL 로그를 남겨 수동 조치 유도
                 log.error("[결제 롤백] 환불 실패! 수동 조치 필요. paymentUuid={}, error={}",
                         payment.getUuid(), e.getMessage());
             }
