@@ -7,8 +7,6 @@ import dukku.common.shared.payment.type.PaymentType;
 import dukku.semicolon.shared.payment.dto.PaymentResponse;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmResponse;
 import dukku.semicolon.shared.payment.dto.PaymentResultResponse;
-import dukku.semicolon.shared.payment.dto.PaymentOrderItemDto;
-import dukku.semicolon.shared.payment.dto.RefundDto;
 import dukku.semicolon.shared.payment.dto.PaymentDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -134,11 +132,59 @@ public class Payment extends BaseIdAndUUIDAndTime {
 
         public void cancel() {
                 this.paymentStatus = PaymentStatus.CANCELED;
+                this.refundTotal = this.amount;
+                this.amountPg = 0L;
+                this.paymentDeposit = 0L;
         }
 
-        public void partialCancel(Long refundAmount) {
+        /**
+         * 환불액 배분 결과 VO (Value Object)
+         * 
+         * <p>
+         * 총 환불 요청 금액을 PG 취소분과 예치금 복구분으로 나눈 계산 결과를 담는다.
+         * Java 17+ 의 {@code record}를 사용하여 불변성(Immutability)을 보장하며,
+         * 값 자체가 정체성인 VO의 특성을 명확히 한다.
+         */
+        public record RefundAllocation(Long pgRefundAmount, Long depositRefundAmount) {
+        }
+
+        /**
+         * 환불 정책(예치금 우선)에 따른 환불액 배분 계산
+         * 
+         * <p>
+         * [비즈니스 정책]: 환불 시 소비자 보호 및 플랫폼 자산 관리를 위해
+         * **예치금(내부 시스템 자산)을 먼저 전액 복구**한 후, 남은 금액을 PG(외부 결제 수단) 취소로 배분한다.
+         * 
+         * @param refundAmountTotal 요청된 총 환불액
+         * @return PG 취소액과 예치금 복구액 배분 결과 (RefundAllocation)
+         * @throws IllegalArgumentException 환불 요청 금액이 잔여 금액(PG+예치금)을 초과할 경우
+         */
+        public RefundAllocation calculateRefundAllocation(Long refundAmountTotal) {
+                // 환불 가능 잔액 검증: 현재 남은 PG 금액과 예치금의 합계 확인
+                long availableTotal = this.amountPg + this.paymentDeposit;
+                if (refundAmountTotal > availableTotal) {
+                        throw new IllegalArgumentException("환불 요청 금액이 잔여 결제 금액보다 큽니다.");
+                }
+
+                // 예치금 우선 복구 로직: 현재 남은 예치금 내에서 최대한 복구
+                long depositRefundAmount = Math.min(this.paymentDeposit, refundAmountTotal);
+                // 나머지 잔액은 PG 취소로 할당
+                long pgRefundAmount = refundAmountTotal - depositRefundAmount;
+
+                return new RefundAllocation(pgRefundAmount, depositRefundAmount);
+        }
+
+        public void partialCancel(Long refundAmount, Long pgRefundAmount, Long depositRefundAmount) {
                 this.refundTotal = (this.refundTotal == null ? 0L : this.refundTotal) + refundAmount;
-                this.paymentStatus = PaymentStatus.PARTIAL_CANCELED;
+                this.amountPg -= pgRefundAmount;
+                this.paymentDeposit -= depositRefundAmount;
+
+                // 전액 환불 여부 체크
+                if (this.amountPg == 0 && this.paymentDeposit == 0) {
+                        this.paymentStatus = PaymentStatus.CANCELED;
+                } else {
+                        this.paymentStatus = PaymentStatus.PARTIAL_CANCELED;
+                }
         }
 
         public void rollbackStatus() {
@@ -151,6 +197,15 @@ public class Payment extends BaseIdAndUUIDAndTime {
 
         public void addRefund(Refund refund) {
                 this.refunds.add(refund);
+        }
+
+        /**
+         * 환불 엔티티 생성 및 연관관계 설정 (Aggregate Root 책임)
+         */
+        public Refund createRefund(Long refundAmount, Long depositRefundAmount) {
+                Refund refund = Refund.create(this, refundAmount, depositRefundAmount);
+                this.addRefund(refund);
+                return refund;
         }
 
         public void addItem(PaymentOrderItem item) {

@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.springframework.resilience.annotation.Retryable;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -49,26 +49,33 @@ public class TossPaymentClient {
      * @param tossRequestBody 토스 전용 요청 바디 (paymentKey, orderId, amount)
      * @return 토스 API 응답 (statusCode 포함)
      */
-    /**
-     * 토스 결제 승인 API 호출
-     * 
-     * @param tossRequestBody 토스 전용 요청 바디 (paymentKey, orderId, amount)
-     * @return 토스 API 응답 (statusCode 포함)
-     */
     public Map<String, Object> confirm(Map<String, Object> tossRequestBody) {
         return sendRequest(TOSS_CONFIRM_URL, tossRequestBody);
     }
 
     /**
      * 토스 결제 취소 API 호출
-     *
+     * 
+     * <p>
+     * 네트워크 오류나 5xx 에러 발생 시 최대 3회 재시도함.
+     * 
      * @param paymentKey 결제 키
      * @param cancelBody 취소 사유 및 금액 정보
      * @return 토스 API 응답
      */
+    @Retryable(includes = {
+            RuntimeException.class }, maxRetries = 2, delay = 1000, multiplier = 2.0)
     public Map<String, Object> cancel(String paymentKey, Map<String, Object> cancelBody) {
         String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
-        return sendRequest(url, cancelBody);
+        Map<String, Object> response = sendRequest(url, cancelBody);
+
+        int statusCode = ((Number) response.getOrDefault("statusCode", 200)).intValue();
+        if (statusCode >= 500) {
+            log.warn("[Toss API Retry Scope] statusCode={} - retrying...", statusCode);
+            throw new RuntimeException("TOSS_SERVER_ERROR_" + statusCode);
+        }
+
+        return response;
     }
 
     private Map<String, Object> sendRequest(String urlStr, Map<String, Object> requestBody) {

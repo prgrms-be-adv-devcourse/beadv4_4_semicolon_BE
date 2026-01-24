@@ -1,23 +1,20 @@
 package dukku.semicolon.boundedContext.payment.app;
 
+import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
-import dukku.common.shared.payment.type.PaymentHistoryType;
 import dukku.common.shared.payment.type.PaymentStatus;
-import dukku.semicolon.boundedContext.payment.out.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * 결제 실패(보상 트랜잭션용) UseCase
  *
  * <p>
- * 예치금 차감 실패 등 후속 프로세스 오류 시 이미 승인된 PG 결제를 취소 처리한다.
+ * 예치금 차감 실패 등 후속 프로세스 오류 시 이미 승인된 PG 결제를 취소 처리
  */
 @Slf4j
 @Service
@@ -25,11 +22,14 @@ import java.util.UUID;
 public class CompensatePaymentUseCase {
 
     private final PaymentSupport support;
-    private final TossPaymentClient tossClient;
+    private final RefundPaymentUseCase refundPaymentUseCase;
 
     /**
-     * 보상 트랜잭션 실행 (PG 결제 취소)
+     * 보상 트랜잭션 실행 (결제 취소 및 예치금 복구)
      *
+     * <p>
+     * 예치금 차감 실패, 주문 재고 부족 등 후속 프로세스에서 예외 발생 시 호출
+     * 
      * @param orderUuid 관련 주문 UUID
      * @param reason    취소 사유
      */
@@ -46,38 +46,30 @@ public class CompensatePaymentUseCase {
             return;
         }
 
-        // 2. 상태 변경 전 값 저장 (이력용)
-        PaymentStatus originStatus = payment.getPaymentStatus();
-        Long originAmountPg = payment.getAmountPg();
-        Long originDeposit = payment.getPaymentDeposit();
+        log.info("[보상 트랜잭션 시작] 결제 취소 시도: paymentUuid={}, orderUuid={}, 사유={}",
+                payment.getUuid(), orderUuid, reason);
 
-        // 3. 토스페이먼츠 취소 API 호출
-        Map<String, Object> cancelBody = new HashMap<>();
-        cancelBody.put("cancelReason", "시스템 오류로 인한 보상 트랜잭션: " + reason);
+        // 2. RefundPaymentUseCase를 활용하여 통합 환불 로직(PG 취소 + 예치금 복구) 실행
+        try {
+            PaymentRefundRequest refundRequest = PaymentRefundRequest.builder()
+                    .paymentId(payment.getUuid())
+                    .refundAmount(payment.getAmount()) // 보상 트랜잭션은 기본적으로 전액 취소
+                    .reason("COMPENSATION: " + reason)
+                    .build();
 
-        Map<String, Object> response = tossClient.cancel(payment.getPgPaymentKey(), cancelBody);
-        int statusCode = ((Number) response.getOrDefault("statusCode", 200)).intValue();
+            // 멱등성 키로 결제 UUID 활용 (동일 주문에 대한 중복 롤백 방지)
+            refundPaymentUseCase.execute(refundRequest, "COMP-" + payment.getUuid());
 
-        if (statusCode >= 400) {
-            log.error("[CRITICAL][보상 트랜잭션 오류] PG 취소 실패: status={}, body={}. 관리자 확인 필요! paymentUuid={}",
-                    statusCode, response, payment.getUuid());
-
-            // 상태를 ROLLBACK_FAILED로 변경하여 관리자 개입 유도
-            payment.rollbackFailedStatus();
-            support.savePayment(payment);
-
-            support.createHistory(payment, PaymentHistoryType.PAYMENT_ROLLBACK_FAILED, originStatus, originAmountPg,
-                    originDeposit);
-            return;
+            log.info("[보상 트랜잭션 완료] 취소 및 복구 성공: paymentUuid={}", payment.getUuid());
+        } catch (Exception e) {
+            // 보상 트랜잭션은 최후의 복구 수단이므로, 예상치 못한 모든 예외(NPE 등)를 잡아서
+            // 관리자에게 CRITICAL 로그로 알리고 상위로 전파해야 함.
+            // 이때 발생한 exception은 콜스택을 타고 상위 호출자에게 전파됨.
+            // 예외의 세부 종류에 대해서는 일단 나누지 않음. (실패 사실이 더 중요함)
+            log.error("[CRITICAL][보상 트랜잭션 최종 실패] 환불 로직 실행 중 예외 발생: {}. 관리자 점검 필요! paymentUuid={}",
+                    e.getMessage(), payment.getUuid());
+            // RefundPaymentUseCase 내부에서 이미 ROLLBACK_FAILED 상태 전이 및 이력 생성을 수행하므로 여기서는 로그만 남김
+            throw e;
         }
-
-        // 4. 시스템 내 결제 취소 처리
-        payment.cancel();
-        support.savePayment(payment);
-
-        // 5. 이력 기록
-        support.createHistory(payment, PaymentHistoryType.PAYMENT_FAILED, originStatus, originAmountPg, originDeposit);
-
-        log.info("[보상 트랜잭션 완료] 결제 취소됨: paymentUuid={}, orderUuid={}", payment.getUuid(), orderUuid);
     }
 }
