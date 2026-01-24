@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/addresses")
+@RequestMapping("/api/v1/users/me/addresse")
 @RequiredArgsConstructor
 public class AddressController {
     private final AddAddressUseCase addAddressUseCase;

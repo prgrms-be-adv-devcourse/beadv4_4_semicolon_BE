@@ -1,0 +1,53 @@
+package dukku.semicolon.boundedContext.product.app.support;
+
+import dukku.semicolon.boundedContext.product.entity.Product;
+import dukku.semicolon.boundedContext.product.entity.ProductImage;
+import dukku.semicolon.shared.product.dto.product.ProductDetailResponse;
+import dukku.semicolon.shared.product.dto.product.ProductListItemResponse;
+
+import java.util.Comparator;
+import java.util.List;
+
+public class ProductMapper {
+
+    public static ProductListItemResponse toListItem(Product p) {
+        String thumb = p.getImages().stream().min(Comparator.comparingInt(ProductImage::getSortOrder))
+                .map(ProductImage::getImageUrl)
+                .orElse(null);
+
+        return ProductListItemResponse.builder()
+                .productUuid(p.getUuid())
+                .title(p.getTitle())
+                .price(p.getPrice())
+                .thumbnailUrl(thumb)
+                .likeCount(p.getLikeCount())
+                .build();
+    }
+
+    public static ProductDetailResponse toDetail(Product p) {
+        List<String> imageUrls = p.getImages().stream()
+                .sorted(Comparator.comparingInt(ProductImage::getSortOrder))
+                .map(ProductImage::getImageUrl)
+                .toList();
+
+        return ProductDetailResponse.builder()
+                .productUuid(p.getUuid())
+                .title(p.getTitle())
+                .description(p.getDescription())
+                .price(p.getPrice())
+                .shippingFee(p.getShippingFee())
+                .likeCount(p.getLikeCount())
+                .viewCount(p.getViewCount())
+                .imageUrls(imageUrls)
+                .conditionStatus(p.getConditionStatus())
+                .saleStatus(p.getSaleStatus())
+                .visibilityStatus(p.getVisibilityStatus())
+                .category(ProductDetailResponse.CategorySummary.builder()
+                        .id(p.getCategory().getId())
+                        .name(p.getCategory().getCategoryName())
+                        .depth(p.getCategory().getDepth())
+                        .build())
+                .createdAt(p.getCreatedAt())
+                .build();
+    }
+}

@@ -40,7 +40,7 @@ public class CreateSettlementUseCase {
     // private final OrderApiClient orderApiClient;
     // private final PaymentApiClient paymentApiClient;
 
-    @Value("${batch.fee-rate}")
+    @Value("${batch.settlement.fee-rate}")
     private BigDecimal feeRate;
 
     @Transactional
