@@ -49,12 +49,34 @@ public class TossPaymentClient {
      * @param tossRequestBody 토스 전용 요청 바디 (paymentKey, orderId, amount)
      * @return 토스 API 응답 (statusCode 포함)
      */
+    /**
+     * 토스 결제 승인 API 호출
+     * 
+     * @param tossRequestBody 토스 전용 요청 바디 (paymentKey, orderId, amount)
+     * @return 토스 API 응답 (statusCode 포함)
+     */
     public Map<String, Object> confirm(Map<String, Object> tossRequestBody) {
+        return sendRequest(TOSS_CONFIRM_URL, tossRequestBody);
+    }
+
+    /**
+     * 토스 결제 취소 API 호출
+     *
+     * @param paymentKey 결제 키
+     * @param cancelBody 취소 사유 및 금액 정보
+     * @return 토스 API 응답
+     */
+    public Map<String, Object> cancel(String paymentKey, Map<String, Object> cancelBody) {
+        String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
+        return sendRequest(url, cancelBody);
+    }
+
+    private Map<String, Object> sendRequest(String urlStr, Map<String, Object> requestBody) {
         try {
             String authorizations = Base64.getEncoder()
                     .encodeToString((widgetSecretKey + ":").getBytes(StandardCharsets.UTF_8));
 
-            URI uri = URI.create(TOSS_CONFIRM_URL);
+            URI uri = URI.create(urlStr);
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Authorization", "Basic " + authorizations);
@@ -63,7 +85,7 @@ public class TossPaymentClient {
 
             // 요청 바디 전송
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = objectMapper.writeValueAsBytes(tossRequestBody);
+                byte[] input = objectMapper.writeValueAsBytes(requestBody);
                 os.write(input, 0, input.length);
             }
 

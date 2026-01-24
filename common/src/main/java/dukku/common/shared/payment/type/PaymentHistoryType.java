@@ -19,5 +19,8 @@ public enum PaymentHistoryType {
 
     // 전체 환불
     FULL_REFUND_SUCCESS, // 전체 환불 성공
-    FULL_REFUND_FAILED // 전체 환불 실패
+    FULL_REFUND_FAILED, // 전체 환불 실패
+
+    // 기타
+    PAYMENT_ROLLBACK_FAILED // 보상 트랜잭션 실패
 }

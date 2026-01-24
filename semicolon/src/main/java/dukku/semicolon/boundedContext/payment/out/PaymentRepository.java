@@ -22,4 +22,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     List<Payment> findByPaymentStatus(PaymentStatus status);
 
     Optional<Payment> findByPgPaymentKey(String pgPaymentKey);
+
+    Optional<Payment> findByTossOrderId(String tossOrderId);
 }
