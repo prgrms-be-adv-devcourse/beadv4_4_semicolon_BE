@@ -1,5 +1,10 @@
-FROM eclipse-temurin:17-jre
-WORKDIR /app
-COPY build/libs/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+FROM openjdk:25-jdk-slim
+
+# JAR 파일 위치
+ARG JAR_FILE=build/libs/*.jar
+
+# JAR 파일 복사
+COPY ${JAR_FILE} app.jar
+
+# 실행 명령어
+ENTRYPOINT ["java", "-jar", "/app.jar"]
