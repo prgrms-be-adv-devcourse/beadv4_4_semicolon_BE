@@ -1,10 +1,11 @@
-package dukku.semicolon.boundedContext.payment.entity.enums;
+package dukku.common.shared.payment.type;
 
 /**
  * 결제 이력 유형
  */
 public enum PaymentHistoryType {
     // 결제
+    PAYMENT_REQUESTED, // 결제 요청 (준비)
     PAYMENT_SUCCESS, // 결제 성공
     PAYMENT_FAILED, // 결제 실패
 
