@@ -45,7 +45,9 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api/users/register"
+                                "/api/v1/users/register", //임시로 v1추가
+                                "/api/v1/auth/login" //임시테스트용
+                               // "/api/v1/users/me" //삭제 임시 테스트
                         )
                         .permitAll() // 인증 필요없음 -> filter 미실행
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")// ADMIN만 접근

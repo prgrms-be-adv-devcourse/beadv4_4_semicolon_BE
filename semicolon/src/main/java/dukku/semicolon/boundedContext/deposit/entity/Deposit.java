@@ -1,6 +1,7 @@
 package dukku.semicolon.boundedContext.deposit.entity;
 
 import dukku.common.global.jpa.entity.BaseEntity;
+import dukku.semicolon.boundedContext.deposit.exception.NotEnoughDepositException;
 import dukku.semicolon.shared.deposit.dto.DepositDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -89,7 +90,7 @@ public class Deposit extends BaseEntity<UUID> {
         if (amount == null || amount < 0L)
             return;
         if (this.balance < amount) {
-            throw new RuntimeException("예치금이 부족합니다."); // TODO: Custom Exception 전환
+            throw new NotEnoughDepositException();
         }
         this.balance -= amount;
     }

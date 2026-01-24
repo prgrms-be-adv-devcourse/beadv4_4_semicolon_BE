@@ -31,6 +31,22 @@ spring:
     serialization:
       fail-on-empty-beans: false
 
+  batch:
+    initialize-schema: always
+    job:
+      enabled: false  # 애플리케이션 시작 시 자동 실행 방지
+
+batch:
+  settlement:
+    chunk-size: 100
+    fee-rate: 0.05
+    skip-limit: 10
+    retry-limit: 3
+    page-size: 100
+    scheduler:
+        enabled: true
+        cron: "0 0 0 * * *"  # 매일 자정 실행
+
 springdoc:
   api-docs:
     path: /api-docs
@@ -41,3 +57,4 @@ springdoc:
 
 server:
   forward-headers-strategy: framework
+

@@ -13,7 +13,4 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long>, S
 
     Optional<Settlement> findByUuid(UUID settlementUuid);
 
-    Page<Settlement> findBySellerUuid(UUID sellerUuid, Pageable pageable);
-
-    Page<Settlement> findBySettlementStatus(SettlementStatus status, Pageable pageable);
 }

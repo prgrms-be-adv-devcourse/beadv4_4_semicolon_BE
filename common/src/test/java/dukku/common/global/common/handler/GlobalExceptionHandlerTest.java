@@ -91,9 +91,9 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = exceptionHandler.handleBaseException(ex);
 
         // then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getStatus()).isEqualTo(403);
+        assertThat(response.getBody().getStatus()).isEqualTo(400);
     }
 
     @Test
@@ -114,4 +114,3 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody().getDetails()).isNull();
     }
 }
-

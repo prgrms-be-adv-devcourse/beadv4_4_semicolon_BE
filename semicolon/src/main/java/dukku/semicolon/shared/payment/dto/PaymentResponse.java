@@ -1,56 +1,63 @@
 package dukku.semicolon.shared.payment.dto;
 
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
  * 결제 요청 응답 DTO
- *
- * <p>
- * 백엔드에서 결제 준비 완료 후 프론트로 반환하는 데이터.
- * 토스 결제창 호출에 필요한 정보 포함.
  */
-@Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentResponse {
 
-    /**
-     * 결제 UUID
-     */
-    private UUID paymentUuid;
+    private boolean success;
+    private String code;
+    private String message;
+    private PaymentRequestedData data;
 
-    /**
-     * 결제 상태
-     */
-    private PaymentStatus status;
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PaymentRequestedData {
+        /**
+         * 결제 UUID
+         */
+        private UUID paymentUuid;
 
-    /**
-     * 토스 결제 정보
-     */
-    private TossInfo toss;
+        /**
+         * 결제 상태
+         */
+        private PaymentStatus status;
 
-    /**
-     * 금액 정보
-     */
-    private ResponseAmounts amounts;
+        /**
+         * 토스 결제 정보
+         */
+        private TossInfo toss;
 
-    /**
-     * 결제 요청 생성 시각
-     */
-    private OffsetDateTime createdAt;
+        /**
+         * 금액 정보
+         */
+        private ResponseAmounts amounts;
+
+        /**
+         * 결제 요청 생성 시각
+         */
+        private LocalDateTime createdAt;
+    }
 
     /**
      * 토스 결제창 호출에 필요한 정보
      */
-    @Data
+    @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -85,7 +92,7 @@ public class PaymentResponse {
     /**
      * 응답 금액 정보
      */
-    @Data
+    @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor

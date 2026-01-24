@@ -1,6 +1,6 @@
 package dukku.semicolon.boundedContext.payment.in;
 
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.semicolon.boundedContext.payment.app.PaymentFacade;
 import dukku.semicolon.shared.payment.docs.PaymentApiDocs;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmRequest;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmResponse;
@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -29,6 +28,8 @@ import java.util.UUID;
 @PaymentApiDocs.PaymentTag
 public class PaymentController {
 
+        private final PaymentFacade paymentFacade;
+
         /**
          * 결제 요청 (준비)
          *
@@ -41,31 +42,7 @@ public class PaymentController {
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
                         @RequestBody @Validated PaymentRequest request) {
 
-                // TODO: 서비스 연결 예정 - 현재는 더미 응답
-                UUID paymentUuid = UUID.randomUUID();
-                String tossOrderId = "TOSS_" + paymentUuid.toString().substring(0, 8) + "_" +
-                                OffsetDateTime.now().toLocalDate().toString().replace("-", "");
-
-                PaymentResponse response = PaymentResponse.builder()
-                                .paymentUuid(paymentUuid)
-                                .status(PaymentStatus.PENDING)
-                                .toss(PaymentResponse.TossInfo.builder()
-                                                .orderId(tossOrderId)
-                                                .amount(request.getAmounts().getPgPayAmount())
-                                                .orderName(request.getOrderName())
-                                                .successUrl("https://localhost:3000/payments/success?paymentUuid="
-                                                                + paymentUuid) // 더미 url
-                                                .failUrl("https://localhost:3000/payments/fail?paymentUuid="
-                                                                + paymentUuid) // 더미url
-                                                .build())
-                                .amounts(PaymentResponse.ResponseAmounts.builder()
-                                                .finalPayAmount(request.getAmounts().getFinalPayAmount())
-                                                .depositUseAmount(request.getAmounts().getDepositUseAmount())
-                                                .pgPayAmount(request.getAmounts().getPgPayAmount())
-                                                .build())
-                                .createdAt(OffsetDateTime.now())
-                                .build();
-
+                PaymentResponse response = paymentFacade.requestPayment(request, idempotencyKey);
                 return ResponseEntity.ok(response);
         }
 
@@ -81,27 +58,7 @@ public class PaymentController {
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
                         @RequestBody @Validated PaymentConfirmRequest request) {
 
-                // TODO: 서비스 연결 예정 - 현재는 더미 응답
-                PaymentConfirmResponse response = PaymentConfirmResponse.builder()
-                                .success(true)
-                                .code("PAYMENT_CONFIRMED")
-                                .message("결제가 승인되었습니다.")
-                                .data(PaymentConfirmResponse.PaymentConfirmData.builder()
-                                                .paymentUuid(request.getPaymentUuid())
-                                                .status(PaymentStatus.DONE)
-                                                .approvedAt(OffsetDateTime.now())
-                                                .toss(PaymentConfirmResponse.TossInfo.builder()
-                                                                .orderId(request.getToss().getOrderId())
-                                                                .paymentKey(request.getToss().getPaymentKey())
-                                                                .build())
-                                                .amounts(PaymentConfirmResponse.AmountInfo.builder()
-                                                                .finalPayAmount(request.getToss().getAmount())
-                                                                .depositUseAmount(0L)
-                                                                .pgPayAmount(request.getToss().getAmount())
-                                                                .build())
-                                                .build())
-                                .build();
-
+                PaymentConfirmResponse response = paymentFacade.confirmPayment(request, idempotencyKey);
                 return ResponseEntity.ok(response);
         }
 
@@ -116,27 +73,7 @@ public class PaymentController {
         public ResponseEntity<PaymentResultResponse> getPaymentResult(
                         @PathVariable UUID paymentId) {
 
-                // TODO: 서비스 연결 예정 - 현재는 더미 응답
-                PaymentResultResponse response = PaymentResultResponse.builder()
-                                .success(true)
-                                .code("PAYMENT_RESULT_RETRIEVED")
-                                .message("결제 내역을 조회했습니다.")
-                                .data(PaymentResultResponse.PaymentResultData.builder()
-                                                .paymentId(paymentId)
-                                                .orderUuid(UUID.randomUUID())
-                                                .status(PaymentStatus.DONE)
-                                                .amounts(PaymentResultResponse.AmountInfo.builder()
-                                                                .totalAmount(15000L)
-                                                                .couponDiscountAmount(1500L)
-                                                                .depositUseAmount(4500L)
-                                                                .pgPayAmount(9000L)
-                                                                .finalPayAmount(13500L)
-                                                                .build())
-                                                .createdAt(OffsetDateTime.now().minusMinutes(10))
-                                                .approvedAt(OffsetDateTime.now().minusMinutes(8))
-                                                .build())
-                                .build();
-
+                PaymentResultResponse response = paymentFacade.findPaymentResult(paymentId);
                 return ResponseEntity.ok(response);
         }
 
@@ -152,33 +89,7 @@ public class PaymentController {
                         @RequestHeader("Idempotency-Key") String idempotencyKey,
                         @RequestBody @Validated PaymentRefundRequest request) {
 
-                // TODO: 서비스 연결 예정 - 현재는 더미 응답
-                PaymentRefundResponse response = PaymentRefundResponse.builder()
-                                .success(true)
-                                .code("REFUND_REQUESTED")
-                                .message("환불 요청이 접수되었습니다.")
-                                .data(PaymentRefundResponse.RefundData.builder()
-                                                .refundId(UUID.randomUUID())
-                                                .paymentId(request.getPaymentId())
-                                                .orderUuid(request.getOrderUuid())
-                                                .status(PaymentStatus.CANCELED)
-                                                .amounts(PaymentRefundResponse.RefundAmountInfo.builder()
-                                                                .requestedRefundAmount(request.getRefundAmount())
-                                                                .depositRefundAmount(0L)
-                                                                .pgRefundAmount(request.getRefundAmount())
-                                                                .build())
-                                                .pg(PaymentRefundResponse.PgInfo.builder()
-                                                                .provider("TOSS_PAYMENTS")
-                                                                .tossOrderId("TOSS_" + request.getPaymentId().toString()
-                                                                                .substring(0, 8))
-                                                                .cancelTransactionKey("CANCEL_TXN_" + UUID.randomUUID()
-                                                                                .toString().substring(0, 8))
-                                                                .build())
-                                                .createdAt(OffsetDateTime.now())
-                                                .completedAt(OffsetDateTime.now())
-                                                .build())
-                                .build();
-
+                PaymentRefundResponse response = paymentFacade.refundPayment(request, idempotencyKey);
                 return ResponseEntity.ok(response);
         }
 }

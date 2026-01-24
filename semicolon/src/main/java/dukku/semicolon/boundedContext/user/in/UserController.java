@@ -1,6 +1,6 @@
 package dukku.semicolon.boundedContext.user.in;
 
-import dukku.semicolon.boundedContext.user.app.UserFacade;
+import dukku.semicolon.boundedContext.user.app.user.UserFacade;
 import dukku.semicolon.shared.user.dto.PasswordUpdateRequest;
 import dukku.semicolon.shared.user.dto.UserRegisterRequest;
 import dukku.semicolon.shared.user.dto.UserResponse;
@@ -53,4 +53,12 @@ public class UserController {
         userFacade.updateUserPassword(passwordUpdateRequest);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/me")
+    @UserApiDocs.deleteUser
+    public ResponseEntity<Void> deleteUser() {
+        userFacade.withdraw(UserUtil.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -118,7 +118,44 @@ public final class SettlementApiDocs {
     public @interface GetSettlements {
     }
 
-    // =============== 2) 정산 통계 조회 ===============
+    // =============== 2) 정산 단건 조회 ===============
+    @Documented
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Operation(summary = "정산 단건 조회", description = """
+            관리자가 정산 UUID로 정산 상세 정보를 조회합니다.
+
+            - 특정 정산의 상세 정보를 확인할 수 있습니다.
+            - 정산 상태, 금액, 수수료, 판매자 정보 등을 조회할 수 있습니다.
+            """, parameters = {
+            @Parameter(name = "settlementUuid", description = "정산 UUID", example = "f1e2d3c4-b5a6-7890-cdef-1234567890ab", required = true)
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Settlement Response", value = """
+                    {
+                      "settlementUuid": "f1e2d3c4-b5a6-7890-cdef-1234567890ab",
+                      "status": "SUCCESS",
+                      "sellerUuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "sellerNickname": "홍길동상점",
+                      "productName": "무선 이어폰",
+                      "totalAmount": 50000,
+                      "fee": 0.03,
+                      "feeAmount": 1500,
+                      "settlementAmount": 48500,
+                      "settlementReservationDate": "2026-01-25T00:00:00+09:00",
+                      "bankName": "국민은행",
+                      "accountNumber": "123-456-789012",
+                      "orderUuid": "b2f0f6d3-9c4f-44d1-9f1f-8c2b3c7b1a11",
+                      "createdAt": "2026-01-22T14:30:00+09:00",
+                      "updatedAt": "2026-01-25T01:05:00+09:00"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "404", description = "정산을 찾을 수 없음", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"code\": \"SETTLEMENT_NOT_FOUND\", \"message\": \"정산을 찾을 수 없습니다.\"}"))),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (관리자 전용)", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"code\": \"FORBIDDEN\", \"message\": \"관리자만 접근 가능합니다.\"}")))
+    })
+    public @interface GetSettlement {
+    }
+
+    // =============== 3) 정산 통계 조회 ===============
     @Documented
     @Target(METHOD)
     @Retention(RUNTIME)

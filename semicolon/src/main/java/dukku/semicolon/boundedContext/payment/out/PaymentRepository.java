@@ -1,7 +1,7 @@
 package dukku.semicolon.boundedContext.payment.out;
 
 import dukku.semicolon.boundedContext.payment.entity.Payment;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentStatus;
+import dukku.common.shared.payment.type.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,6 +16,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     Optional<Payment> findByUuid(UUID uuid);
 
     List<Payment> findByUserUuid(UUID userUuid);
+
+    List<Payment> findByOrderUuid(UUID orderUuid);
 
     List<Payment> findByPaymentStatus(PaymentStatus status);
 

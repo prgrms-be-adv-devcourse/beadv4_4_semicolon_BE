@@ -41,7 +41,7 @@ public class DepositHistory extends BaseEntity<Integer> {
     @Column(updatable = false, nullable = false, columnDefinition = "uuid", comment = "사용자 UUID")
     private UUID userUuid;
 
-    @Column(updatable = false, nullable = false, comment = "변동 금액 (+/-)")
+    @Column(updatable = false, nullable = false, comment = "변동 금액 (절댓값)")
     private Long amount;
 
     @Column(updatable = false, nullable = false, comment = "변동 후 잔액 스냅샷")

@@ -9,9 +9,12 @@ import java.util.UUID;
 /**
  * 예치금 이력 Repository
  */
-public interface DepositHistoryRepository extends JpaRepository<DepositHistory, Integer> {
+public interface DepositHistoryRepository
+        extends JpaRepository<DepositHistory, Integer>, DepositHistoryRepositoryCustom {
 
     List<DepositHistory> findByUserUuidOrderByCreatedAtDesc(UUID userUuid);
+
+    List<DepositHistory> findAllByOrderByCreatedAtDesc();
 
     List<DepositHistory> findByOrderItemUuid(UUID orderItemUuid);
 }

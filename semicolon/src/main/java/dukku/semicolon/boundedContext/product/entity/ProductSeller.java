@@ -46,4 +46,8 @@ public class ProductSeller extends BaseIdAndUUIDAndTime {
                 .activeListingCount(0)
                 .build();
     }
+
+    public void changeIntro(String intro) {
+        this.intro = intro;
+    }
 }

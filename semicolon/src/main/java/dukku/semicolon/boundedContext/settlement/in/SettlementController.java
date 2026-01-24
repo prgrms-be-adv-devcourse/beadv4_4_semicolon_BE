@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.settlement.in;
 
 import dukku.semicolon.boundedContext.settlement.app.SettlementFacade;
 import dukku.semicolon.shared.settlement.docs.SettlementApiDocs;
-import dukku.semicolon.shared.settlement.dto.SettlementResponse;
+import dukku.semicolon.shared.settlement.dto.SettlementDetailResponse;
 import dukku.semicolon.shared.settlement.dto.SettlementSearchRequest;
 import dukku.semicolon.shared.settlement.dto.SettlementStatisticsRequest;
 import dukku.semicolon.shared.settlement.dto.SettlementStatisticsResponse;
@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/settlements")
@@ -29,11 +31,21 @@ public class SettlementController {
      */
     @GetMapping
     @SettlementApiDocs.GetSettlements
-    public Page<SettlementResponse> getSettlements(
+    public Page<SettlementDetailResponse> getSettlements(
             @Valid @ModelAttribute SettlementSearchRequest request,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return settlementFacade.getSettlements(request.toCondition(), pageable);
+    }
+
+    /**
+     * 정산 단건 조회
+     * GET /admin/settlements/{settlementUuid}
+     */
+    @GetMapping("/{settlementUuid}")
+    @SettlementApiDocs.GetSettlement
+    public SettlementDetailResponse getSettlement(@PathVariable UUID settlementUuid) {
+        return settlementFacade.getSettlement(settlementUuid);
     }
 
     /**

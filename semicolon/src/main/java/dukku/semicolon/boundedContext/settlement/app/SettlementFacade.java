@@ -1,46 +1,67 @@
 package dukku.semicolon.boundedContext.settlement.app;
 
-import dukku.semicolon.shared.settlement.dto.SettlementResponse;
+import dukku.common.shared.deposit.event.DepositChargeFailedEvent;
+import dukku.common.shared.deposit.event.DepositChargeSucceededEvent;
+import dukku.common.shared.order.event.OrderItemConfirmedEvent;
+import dukku.semicolon.boundedContext.settlement.entity.Settlement;
+import dukku.semicolon.shared.settlement.dto.SettlementDetailResponse;
 import dukku.semicolon.shared.settlement.dto.SettlementSearchCondition;
 import dukku.semicolon.shared.settlement.dto.SettlementStatisticsCondition;
 import dukku.semicolon.shared.settlement.dto.SettlementStatisticsResponse;
-import dukku.semicolon.boundedContext.settlement.entity.Settlement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class SettlementFacade {
 
-    private final GetSettlementListUseCase getSettlements;
-    private final GetSettlementStatisticsUseCase getStatistics;
-
+    private final GetSettlementUseCase getSettlementUseCase;
+    private final GetSettlementListUseCase getSettlementListUseCase;
+    private final GetSettlementStatisticsUseCase getSettlementStatisticsUseCase;
+    private final CreateSettlementUseCase createSettlementUseCase;
+    private final SettlementSupport settlementSupport;
+    private final RequestDepositChargeUseCase requestDepositChargeUseCase;
 
     @Transactional(readOnly = true)
-    public Page<SettlementResponse> getSettlements(SettlementSearchCondition condition, Pageable pageable) {
-        Page<Settlement> settlements = getSettlements.execute(condition, pageable);
-        return settlements.map(this::toResponse);
+    public SettlementDetailResponse getSettlement(UUID settlementUuid) {
+        Settlement settlement = getSettlementUseCase.execute(settlementUuid);
+        return SettlementDetailResponse.from(settlement);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SettlementDetailResponse> getSettlements(SettlementSearchCondition condition, Pageable pageable) {
+        Page<Settlement> settlements = getSettlementListUseCase.execute(condition, pageable);
+        return settlements.map(SettlementDetailResponse::from);
     }
 
     @Transactional(readOnly = true)
     public SettlementStatisticsResponse getStatistics(SettlementStatisticsCondition condition) {
-        return getStatistics.execute(condition);
+        return getSettlementStatisticsUseCase.execute(condition);
     }
 
-    /**
-     * TODO: 외부 서비스 호출로 sellerNickname, productName, bankName, accountNumber 조회
-     */
-    private SettlementResponse toResponse(Settlement settlement) {
-        return SettlementResponse.of(
-                settlement,
-                null,  // sellerNickname - 추후 외부 서비스 연동
-                null,  // productName - 추후 외부 서비스 연동
-                null,  // bankName - 추후 외부 서비스 연동
-                null   // accountNumber - 추후 외부 서비스 연동
-        );
+    public void createSettlement(OrderItemConfirmedEvent event) {
+        createSettlementUseCase.execute(event);
+    }
+
+    public Settlement requestDepositCharge(Settlement settlement) {
+        return requestDepositChargeUseCase.execute(settlement);
+    }
+
+    public void completeSettlement(DepositChargeSucceededEvent event) {
+        Settlement settlement = settlementSupport.findByUuid(event.settlementUuid());
+        settlement.complete();
+        settlementSupport.save(settlement);
+    }
+
+    public void failSettlement(DepositChargeFailedEvent event) {
+        Settlement settlement = settlementSupport.findByUuid(event.settlementUuid());
+        settlement.fail();
+        settlementSupport.save(settlement);
     }
 }

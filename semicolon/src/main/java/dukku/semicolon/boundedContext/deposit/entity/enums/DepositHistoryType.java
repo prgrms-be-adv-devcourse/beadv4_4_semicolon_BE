@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
  */
 public enum DepositHistoryType {
     CHARGE, // 충전
+    SETTLEMENT, // 정산
     USE, // 사용
+    ROLLBACK, // 롤백 (정산 취소 등)
     REFUND, // 환불
     WITHDRAW, // 출금
     ADJUST // 조정

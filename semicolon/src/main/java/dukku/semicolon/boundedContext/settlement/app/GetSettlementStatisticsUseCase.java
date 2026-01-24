@@ -61,9 +61,9 @@ public class GetSettlementStatisticsUseCase {
     private TotalStatistics toTotalStatistics(Tuple tuple) {
         return new TotalStatistics(
                 tuple.get(settlement.count()),
-                tuple.get(settlement.totalAmount.sum().coalesce(0)),
-                tuple.get(settlement.settlementAmount.sum().coalesce(0)),
-                tuple.get(settlement.feeAmount.sum().coalesce(0))
+                tuple.get(settlement.totalAmount.sum().coalesce(0L)),
+                tuple.get(settlement.settlementAmount.sum().coalesce(0L)),
+                tuple.get(settlement.feeAmount.sum().coalesce(0L))
         );
     }
 
@@ -118,7 +118,7 @@ public class GetSettlementStatisticsUseCase {
                 map.put(status, new StatusStatistics(
                         status,
                         tuple.get(settlement.count()),
-                        tuple.get(settlement.settlementAmount.sum().coalesce(0))
+                        tuple.get(settlement.settlementAmount.sum().coalesce(0L))
                 ));
             }
             return new StatusStatisticsMap(map);

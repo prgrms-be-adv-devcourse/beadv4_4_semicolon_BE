@@ -1,6 +1,6 @@
 package dukku.semicolon.shared.payment.dto;
 
-import dukku.semicolon.boundedContext.payment.entity.enums.RefundStatus;
+import dukku.common.shared.payment.type.RefundStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
