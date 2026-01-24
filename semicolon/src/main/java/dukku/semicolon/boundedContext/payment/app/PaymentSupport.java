@@ -12,7 +12,11 @@ import dukku.semicolon.boundedContext.payment.out.PaymentRepository;
 import dukku.semicolon.boundedContext.payment.out.RefundRepository;
 import dukku.semicolon.shared.payment.exception.PaymentNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.CannotAcquireLockException;
 
 import java.util.List;
 import java.util.Optional;
@@ -80,8 +84,10 @@ public class PaymentSupport {
     }
 
     /**
-     * 결제 저장
+     * 결제 저장 (재시도 적용)
      */
+    @Retryable(retryFor = { DataAccessException.class,
+            CannotAcquireLockException.class }, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public Payment savePayment(Payment payment) {
         return paymentRepository.save(payment);
     }
@@ -97,6 +103,8 @@ public class PaymentSupport {
      * @param originPg      변경 전 PG 금액
      * @param originDeposit 변경 전 예치금액
      */
+    @Retryable(retryFor = { DataAccessException.class,
+            CannotAcquireLockException.class }, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public void createHistory(Payment payment, PaymentHistoryType type,
             PaymentStatus originStatus, Long originPg, Long originDeposit) {
         PaymentHistory history = PaymentHistory.create(
@@ -122,8 +130,10 @@ public class PaymentSupport {
     // === Refund 관련 ===
 
     /**
-     * 환불 저장
+     * 환불 저장 (재시도 적용)
      */
+    @Retryable(retryFor = { DataAccessException.class,
+            CannotAcquireLockException.class }, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public Refund saveRefund(Refund refund) {
         return refundRepository.save(refund);
     }

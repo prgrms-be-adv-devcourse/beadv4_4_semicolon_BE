@@ -5,6 +5,7 @@ import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.boundedContext.deposit.app.IncreaseDepositUseCase;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
 import dukku.semicolon.boundedContext.payment.out.TossPaymentClient;
+import dukku.semicolon.boundedContext.payment.out.PaymentRepository;
 import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,9 @@ class PaymentIntegrationTest {
 
         @Autowired
         private PaymentSupport paymentSupport;
+
+        @MockitoSpyBean
+        private PaymentRepository paymentRepository;
 
         @MockitoSpyBean
         private TossPaymentClient tossPaymentClient;
@@ -266,5 +270,24 @@ class PaymentIntegrationTest {
 
                 Payment updatedPayment = paymentSupport.findPaymentByUuid(testPayment.getUuid());
                 assertThat(updatedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELED);
+        }
+
+        @Test
+        @DisplayName("DB 저장 재시도(Retry) 검증: 일시적 DB 장애 발생 시 savePayment가 재시도 되어야 한다")
+        void dbRetryVerificationTest() {
+                // Given
+                // Repository가 첫 2번은 DataAccessException 던지도록 설정
+                doThrow(new org.springframework.dao.RecoverableDataAccessException("DB Connection Fail 1"))
+                                .doThrow(new org.springframework.dao.RecoverableDataAccessException(
+                                                "DB Connection Fail 2"))
+                                .doCallRealMethod()
+                                .when(paymentRepository).save(any());
+
+                // When
+                paymentSupport.savePayment(testPayment);
+
+                // Then
+                // Repository.save()가 총 3번 호출되었는지 확인
+                verify(paymentRepository, times(3)).save(any());
         }
 }
