@@ -323,10 +323,10 @@ public class BaseInitData implements ApplicationRunner {
         String query = "?auto=format&fit=crop&q=80&w=800";
         if (c.contains("피규어"))
             return new String[] {
-                    "https://images.unsplash.com/photo-1588619491740-496531392652" + query, // 건담 스타일
-                    "https://images.unsplash.com/photo-1627637819842-870632b6e828" + query, // 큐브릭/피규어
-                    "https://images.unsplash.com/photo-1550745165-9bc0b252726f" + query, // 테크니컬/로봇
-                    "https://images.unsplash.com/photo-1560941001-d4b52ad00ecc" + query, // 넨도로이드 스타일
+                    "https://images.unsplash.com/photo-1550745165-9bc0b252726f" + query, // 큐브릭 스타일
+                    "https://images.unsplash.com/photo-1589487391730-58f20eb2c308" + query, // 피규어 정면
+                    "https://images.unsplash.com/photo-1593085512500-5d55148d6f0d" + query, // 애니메이션 스타일
+                    "https://images.unsplash.com/photo-1560941001-d4b52ad00ecc" + query, // 넨도로이드 (정상 확인)
                     "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe" + query // 배트맨/히어로
             };
         if (c.contains("카드"))
