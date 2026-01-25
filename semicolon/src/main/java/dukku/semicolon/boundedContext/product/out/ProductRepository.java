@@ -20,6 +20,15 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, Integer>, CustomProductRepository {
     Optional<Integer> findIdByUuidAndDeletedAtIsNull(UUID productUuid);
 
+    @Query("""
+select distinct p
+from Product p
+left join fetch p.images i
+left join fetch p.category c
+where p.uuid = :uuid
+""")
+    Optional<Product> findByUuidWithImagesAndCategory(@Param("uuid") UUID uuid);
+
     Optional<Product> findByUuid(UUID productUuid);
 
     Optional<Product> findByUuidAndDeletedAtIsNull(UUID productUuid);

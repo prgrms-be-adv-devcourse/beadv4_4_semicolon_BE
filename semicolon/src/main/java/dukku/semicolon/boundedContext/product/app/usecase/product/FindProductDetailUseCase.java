@@ -20,7 +20,7 @@ public class FindProductDetailUseCase {
     private final ProductStatsRedisSupport  productStatsRedisSupport;
 
     public ProductDetailResponse execute(UUID productUuid) {
-        Product product = productRepository.findByUuid(productUuid)
+        Product product = productRepository.findByUuidWithImagesAndCategory(productUuid)
                 .orElseThrow(ProductNotFoundException::new);
 
         productStatsRedisSupport.incrementView(product.getId());
