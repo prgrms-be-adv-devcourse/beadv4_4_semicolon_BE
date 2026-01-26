@@ -69,6 +69,7 @@ jobs:
               -e CRYPTO_KEY=${{ secrets.CRYPTO_KEY }} \
               -e TOSS_API_SECRET_KEY=${{ secrets.TOSS_API_SECRET_KEY }} \
               -e CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }} \
+              -e JAVA_TOOL_OPTIONS="--add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --enable-native-access=ALL-UNNAMED" \
               ${{ env.DOCKER_IMAGE }}:latest
             
             docker image prune -f
