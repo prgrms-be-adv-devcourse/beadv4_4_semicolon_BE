@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.payment.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dukku.common.shared.payment.type.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +35,11 @@ public class PaymentRefundResponse {
         private PaymentStatus status;
         private RefundAmountInfo amounts;
         private PgInfo pg;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdAt;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime completedAt;
     }
 

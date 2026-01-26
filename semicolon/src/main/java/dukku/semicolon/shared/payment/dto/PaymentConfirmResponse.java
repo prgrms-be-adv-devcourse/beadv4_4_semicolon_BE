@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.payment.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dukku.common.shared.payment.type.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,8 @@ public class PaymentConfirmResponse {
     public static class PaymentConfirmData {
         private UUID paymentUuid;
         private PaymentStatus status;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime approvedAt;
         private TossInfo toss;
         private AmountInfo amounts;

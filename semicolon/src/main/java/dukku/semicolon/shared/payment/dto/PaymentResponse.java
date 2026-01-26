@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.payment.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dukku.common.shared.payment.type.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,6 +52,7 @@ public class PaymentResponse {
         /**
          * 결제 요청 생성 시각
          */
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdAt;
     }
 

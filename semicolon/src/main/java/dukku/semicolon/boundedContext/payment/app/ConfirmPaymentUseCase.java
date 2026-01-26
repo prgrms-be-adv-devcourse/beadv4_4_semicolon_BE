@@ -2,8 +2,7 @@ package dukku.semicolon.boundedContext.payment.app;
 
 import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
-import dukku.semicolon.boundedContext.payment.entity.PaymentHistory;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
+import dukku.common.shared.payment.type.PaymentHistoryType;
 import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmRequest;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmResponse;
@@ -15,8 +14,11 @@ import dukku.semicolon.boundedContext.payment.out.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
 
-import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 결제 승인 확정 UseCase
@@ -45,52 +47,65 @@ public class ConfirmPaymentUseCase {
         // 1. 결제 조회
         Payment payment = support.findPaymentByUuid(request.getPaymentUuid());
 
-        // 2. 상태 검증 (PENDING만 승인 가능)
+        // 2. 상태 검증 (PENDING 상태인 경우에만 승인 가능)
         validatePaymentStatus(payment);
 
-        // 3. 금액 검증 (토스 amount vs 내부 pgAmount)
+        // 3. 금액 유효성 검증 (토스 결제 요청 금액 vs 시스템 내 결제 대상 금액)
         validateAmount(payment, request.getToss().getAmount());
 
-        // 4. 중복 paymentKey 검증
+        // 4. 결제 키 중복 검증 (이미 처리된 결제인지 확인)
         validateDuplicatePaymentKey(request.getToss().getPaymentKey());
 
-        // 5. 결제 승인 상태 변경 전 값 저장
+        // 5. 결제 승인 상태 변경 전 값 저장 (이력 기록용)
         PaymentStatus originStatus = payment.getPaymentStatus();
         Long originAmountPg = payment.getAmountPg();
         Long originDeposit = payment.getPaymentDeposit();
 
-        // 6. 실제 토스 API 호출 (Client 위임)
-        java.util.Map<String, Object> tossRequestBody = new java.util.HashMap<>();
+        // 6. 실제 토스페이먼츠 승인 요청 API 호출
+        Map<String, Object> tossRequestBody = new HashMap<>();
         tossRequestBody.put("paymentKey", request.getToss().getPaymentKey());
         tossRequestBody.put("orderId", request.getToss().getOrderId());
         tossRequestBody.put("amount", request.getToss().getAmount());
 
-        java.util.Map<String, Object> tossResponse = tossClient.confirm(tossRequestBody);
+        Map<String, Object> tossResponse = tossClient.confirm(tossRequestBody);
         int statusCode = ((Number) tossResponse.getOrDefault("statusCode", 200)).intValue();
 
-        if (statusCode >= 400) {
+        if (HttpStatus.valueOf(statusCode).isError()) {
             log.error("[Toss Confirm API Error] status={}, body={}", statusCode, tossResponse);
-            // 에러 시 로직 (명세에 따라 상세 처리 가능)
+            // 실패 이력 기록
+            support.createHistory(payment, PaymentHistoryType.PAYMENT_FAILED, originStatus, originAmountPg,
+                    originDeposit);
             return payment.toPaymentConfirmResponse(false, "PG 승인 실패: " + tossResponse.get("message"));
         }
 
-        // 7. 결제 승인 처리
+        // 7. 시스템 내 결제 승인 (상태 변경 및 결제키 저장)
         payment.approve(request.getToss().getPaymentKey());
         support.savePayment(payment);
 
-        // 7. 이력 생성
-        createHistory(payment, originStatus, originAmountPg, originDeposit);
+        // 8. 결제 성공 이력 생성
+        support.createHistory(payment, PaymentHistoryType.PAYMENT_SUCCESS, originStatus, originAmountPg, originDeposit);
 
-        // 8. 이벤트 발행
+        // 9. 예치금 차감
+        // Deposit BC에서 상품별로 정확히 예치금을 차감하고 이력을 남길 수 있도록
+        // 각 상품 스냅샷에서 예치금 사용액이 있는 아이템만 필터링하여 정보를 가공
+        // 가공된 항목을 List에 추가
+        List<PaymentSuccessEvent.ItemDepositUsage> itemDepositUsages = payment.getItems().stream()
+                .filter(item -> item.getPaymentDeposit() != null && item.getPaymentDeposit() > 0)
+                .map(item -> new PaymentSuccessEvent.ItemDepositUsage(item.getOrderItemUuid(),
+                        item.getPaymentDeposit()))
+                .toList();
+
+        // 10. 결제 성공 이벤트 발행 (주문 상태 변경 및 예치금 차감 트리거)
         eventPublisher.publish(new PaymentSuccessEvent(
                 payment.getUuid(),
+                payment.getUuid(), // paymentUuid (2026-01-24 추가된 필드 대응)
                 payment.getOrderUuid(),
                 payment.getAmount(),
                 payment.getPaymentDeposit(),
                 payment.getUserUuid(),
-                payment.getApprovedAt()));
+                payment.getApprovedAt(),
+                itemDepositUsages));
 
-        // 8. 응답 생성
         return payment.toPaymentConfirmResponse(true, "결제가 승인되었습니다.");
     }
 
@@ -110,19 +125,5 @@ public class ConfirmPaymentUseCase {
         if (support.findPaymentByPgPaymentKey(paymentKey).isPresent()) {
             throw new DuplicatePaymentKeyException();
         }
-    }
-
-    private void createHistory(Payment payment, PaymentStatus originStatus,
-            Long originAmountPg, Long originDeposit) {
-        PaymentHistory history = PaymentHistory.create(
-                payment,
-                PaymentHistoryType.PAYMENT_SUCCESS,
-                originStatus,
-                payment.getPaymentStatus(),
-                originAmountPg,
-                payment.getAmountPg(),
-                originDeposit,
-                payment.getPaymentDeposit());
-        support.savePaymentHistory(history);
     }
 }

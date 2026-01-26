@@ -19,12 +19,11 @@ public class DepositEventListener {
     private final DepositFacade depositFacade;
 
     /**
-     * 결제 성공 시 예치금 차감 처리
+     * 결제 완료 시 예치금 차감 라이프사이클 처리
      *
      * <p>
-     * PaymentSuccessEvent 수신 시 예치금을 차감한다.
-     * 차감 성공 시 DepositUsedEvent 발행.
-     * 차감 실패 시 DepositDeductionFailedEvent 발행 (보상 트랜잭션 유도).
+     * 결제 트랜잭션이 최종 커밋된 후(AFTER_COMMIT), 비동기적으로 예치금 차감 프로세스를 시작한다.
+     * 상품별 사용 상세 내역(itemDepositUsages)을 포함하여 파사드에 위임한다.
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -32,7 +31,8 @@ public class DepositEventListener {
         depositFacade.deductDepositForPayment(
                 event.userUuid(),
                 event.paymentDeposit(),
-                event.orderUuid());
+                event.orderUuid(),
+                event.itemDepositUsages());
     }
 
     /**

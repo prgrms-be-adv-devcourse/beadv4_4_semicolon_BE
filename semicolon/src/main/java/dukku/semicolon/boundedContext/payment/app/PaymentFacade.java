@@ -33,6 +33,7 @@ public class PaymentFacade {
     private final ConfirmPaymentUseCase confirmPayment;
     private final FindPaymentUseCase findPayment;
     private final RefundPaymentUseCase refundPayment;
+    private final CompensatePaymentUseCase compensatePayment;
 
     /**
      * 결제 요청 (준비)
@@ -82,5 +83,15 @@ public class PaymentFacade {
      */
     public PaymentRefundResponse refundPayment(PaymentRefundRequest request, String idempotencyKey) {
         return refundPayment.execute(request, idempotencyKey);
+    }
+
+    /**
+     * 보상 트랜잭션 (결제 취소)
+     * 
+     * @param orderUuid 주문 UUID
+     * @param reason    취소 사유
+     */
+    public void compensatePayment(UUID orderUuid, String reason) {
+        compensatePayment.execute(orderUuid, reason);
     }
 }

@@ -24,4 +24,5 @@ public class PaymentOrderItemDto {
     private String productName;
     private Long price;
     private Long paymentCoupon;
+    private Long paymentDeposit; // 2026-01-24 추가
 }
