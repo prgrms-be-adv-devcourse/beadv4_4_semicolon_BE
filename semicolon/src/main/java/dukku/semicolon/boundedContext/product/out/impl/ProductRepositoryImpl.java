@@ -20,7 +20,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
     @Override
     public void bulkUpdateProductStats(List<ProductStatDto> stats) {
-        String sql = "UPDATE product " +
+        String sql = "UPDATE products " +
                 "SET view_count = ?, like_count = ?, comment_count = ? " +
                 "WHERE id = ?";
 

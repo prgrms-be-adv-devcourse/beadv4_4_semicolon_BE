@@ -49,7 +49,7 @@ public class ProductController {
         return productFacade.findProductDetail(productUuid);
     }
 
-    @PostMapping("/internal/reserve")
+    @PostMapping("/products/internal/reserve")
     @ProductApiDocs.ReserveProducts
     public void reserveProducts(@RequestBody ProductReserveRequest request) {
         productFacade.reserveProducts(request);
