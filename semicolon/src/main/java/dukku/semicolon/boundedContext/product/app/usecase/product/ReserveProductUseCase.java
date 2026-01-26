@@ -4,11 +4,13 @@ import dukku.semicolon.boundedContext.product.entity.Product;
 import dukku.semicolon.boundedContext.product.out.ProductRepository;
 import dukku.semicolon.shared.product.dto.product.ProductReserveRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReserveProductUseCase {
@@ -22,6 +24,8 @@ public class ReserveProductUseCase {
 
         // 검증: 요청한 상품 수와 조회된 상품 수가 같은지 (유효하지 않은 UUID 체크)
         if (products.size() != request.productUuids().size()) {
+            log.error("ReserveProducUseCase Error. Product Size: {}", products.size());
+
             throw new IllegalArgumentException("일부 상품을 찾을 수 없습니다.");
         }
 
