@@ -3,6 +3,7 @@ package dukku.semicolon.boundedContext.payment.app;
 import dukku.common.global.UserUtil;
 import dukku.semicolon.boundedContext.payment.entity.Payment;
 import dukku.semicolon.boundedContext.payment.entity.PaymentOrderItem;
+import dukku.common.shared.payment.type.PaymentHistoryType;
 import dukku.common.shared.payment.type.PaymentType;
 import dukku.semicolon.shared.payment.dto.PaymentRequest;
 import dukku.semicolon.shared.payment.dto.PaymentResponse;
@@ -11,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +50,9 @@ public class RequestPaymentUseCase {
         // 3. Payment 생성 (PENDING 상태) 및 스냅샷 기록
         String tossOrderId = generateTossOrderId(UUID.randomUUID()); // 또는 로직 변경
         Payment payment = createPayment(request, tossOrderId);
+
+        // 3-1. 결제 요청 이력 생성 (Support 위임)
+        support.createHistory(payment, PaymentHistoryType.PAYMENT_REQUESTED, null, 0L, 0L);
 
         // 4. 응답 생성
         return payment.toPaymentResponse(request.getOrderName());
@@ -104,11 +109,18 @@ public class RequestPaymentUseCase {
         // TODO: Deposit BC 연동 후 실제 잔액 조회 및 검증 로직 추가
     }
 
+    /**
+     * 결제 및 스냅샷 아이템 생성
+     * 
+     * <p>
+     * 주문 정보를 기반으로 결제(Payment) 엔티티를 생성하고,
+     * 총 예치금 사용액을 각 주문 상품(OrderItem)에 일관된 규칙으로 분배하여 기록한다.
+     */
     private Payment createPayment(PaymentRequest request, String tossOrderId) {
         UUID userUuid = UserUtil.getUserId();
         PaymentRequest.Amounts amounts = request.getAmounts();
 
-        // 결제 유형 결정 (예치금만 사용 vs 혼합)
+        // 결제 유형 결정 (전액 예치금 사용 vs PG 혼합 결제)
         PaymentType paymentType = amounts.getPgPayAmount() == 0
                 ? PaymentType.DEPOSIT
                 : PaymentType.MIXED;
@@ -123,8 +135,25 @@ public class RequestPaymentUseCase {
                 paymentType,
                 tossOrderId);
 
-        // 스냅샷 아이템 추가
-        request.getItems().forEach(itemDto -> {
+        // [상품별 예치금 분배 로직]
+        // 1. productId ASC 정렬을 통해 배치 순서가 바뀌어도 항상 동일한 분배 결과 보장
+        // 2. 각 상품별 결제 대상 금액(단가 - 쿠폰)을 한도로, 예치금이 소진될 때까지 순서대로 채움
+        Long remainingDeposit = amounts.getDepositUseAmount();
+        List<PaymentRequest.PaymentRequestItem> sortedItems = request.getItems().stream()
+                .sorted(Comparator.comparing(PaymentRequest.PaymentRequestItem::getProductId)
+                        .thenComparing(PaymentRequest.PaymentRequestItem::getOrderItemUuid)) // 상품 ID가 같을 경우를 대비한 보조 정렬
+                .toList();
+
+        for (PaymentRequest.PaymentRequestItem itemDto : sortedItems) {
+            // 이 상품에 최대로 적용 가능한 결제금액 계산
+            Long itemPayableAmount = itemDto.getPrice() -
+                    (itemDto.getPaymentCoupon() != null ? itemDto.getPaymentCoupon() : 0L);
+
+            // 남은 예치금 중 이 상품에 할당할 금액 결정 (Min 연산)
+            Long itemDepositUse = Math.min(remainingDeposit, itemPayableAmount);
+            remainingDeposit -= itemDepositUse;
+
+            // 결제 상품 스냅샷 생성 및 추가 (할당된 예치금 정보 포함)
             payment.addItem(PaymentOrderItem.create(
                     payment,
                     request.getOrderUuid(),
@@ -133,8 +162,9 @@ public class RequestPaymentUseCase {
                     itemDto.getProductName(),
                     itemDto.getPrice(),
                     itemDto.getPaymentCoupon(),
-                    itemDto.getSellerUuid()));
-        });
+                    itemDto.getSellerUuid(),
+                    itemDepositUse));
+        }
 
         return support.savePayment(payment);
     }

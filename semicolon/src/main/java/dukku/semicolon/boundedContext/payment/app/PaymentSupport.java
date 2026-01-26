@@ -4,6 +4,8 @@ import dukku.semicolon.boundedContext.payment.entity.Payment;
 import dukku.semicolon.boundedContext.payment.entity.PaymentHistory;
 import dukku.semicolon.boundedContext.payment.entity.PaymentOrderItem;
 import dukku.semicolon.boundedContext.payment.entity.Refund;
+import dukku.common.shared.payment.type.PaymentHistoryType;
+import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.boundedContext.payment.out.PaymentHistoryRepository;
 import dukku.semicolon.boundedContext.payment.out.PaymentOrderItemRepository;
 import dukku.semicolon.boundedContext.payment.out.PaymentRepository;
@@ -87,8 +89,32 @@ public class PaymentSupport {
     // === PaymentHistory 관련 ===
 
     /**
-     * 결제 이력 저장
+     * 결제 이력 생성 및 저장 (통합형)
+     * 
+     * @param payment       가장 최신 상태의 Payment 엔티티
+     * @param type          이력 유형 (REQUESTED, SUCCESS, FAILED 등)
+     * @param originStatus  변경 전 상태 (요청 시엔 null)
+     * @param originPg      변경 전 PG 금액
+     * @param originDeposit 변경 전 예치금액
      */
+    public void createHistory(Payment payment, PaymentHistoryType type,
+            PaymentStatus originStatus, Long originPg, Long originDeposit) {
+        PaymentHistory history = PaymentHistory.create(
+                payment,
+                type,
+                originStatus,
+                payment.getPaymentStatus(),
+                originPg,
+                payment.getAmountPg(),
+                originDeposit,
+                payment.getPaymentDeposit());
+        paymentHistoryRepository.save(history);
+    }
+
+    /**
+     * @deprecated 직접 엔티티를 조립하기보다 createHistory 사용 권장
+     */
+    @Deprecated
     public PaymentHistory savePaymentHistory(PaymentHistory history) {
         return paymentHistoryRepository.save(history);
     }
