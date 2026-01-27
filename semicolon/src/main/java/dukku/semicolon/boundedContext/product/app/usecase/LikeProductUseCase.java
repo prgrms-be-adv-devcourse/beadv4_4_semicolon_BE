@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
 import dukku.semicolon.boundedContext.product.entity.Product;
 import dukku.semicolon.boundedContext.product.entity.ProductLike;

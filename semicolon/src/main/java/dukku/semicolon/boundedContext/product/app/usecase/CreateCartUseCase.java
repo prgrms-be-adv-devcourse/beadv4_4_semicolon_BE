@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
 import dukku.common.global.exception.BadRequestException;
 import dukku.common.global.exception.ConflictException;

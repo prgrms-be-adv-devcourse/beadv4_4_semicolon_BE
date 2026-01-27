@@ -1,5 +1,8 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.facade;
 
+import dukku.semicolon.boundedContext.product.app.usecase.CreateProductUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.DeleteProductUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.UpdateProductUseCase;
 import dukku.semicolon.shared.product.dto.ProductCreateRequest;
 import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.dto.ProductUpdateRequest;

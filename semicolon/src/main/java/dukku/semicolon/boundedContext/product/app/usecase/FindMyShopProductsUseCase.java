@@ -1,6 +1,7 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
 import dukku.common.shared.product.type.SaleStatus;
+import dukku.semicolon.boundedContext.product.app.support.ProductMapper;
 import dukku.semicolon.boundedContext.product.entity.Product;
 import dukku.semicolon.boundedContext.product.entity.ProductSeller;
 import dukku.semicolon.boundedContext.product.out.ProductRepository;

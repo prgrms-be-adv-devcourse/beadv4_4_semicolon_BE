@@ -1,5 +1,7 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
+import dukku.semicolon.boundedContext.product.app.support.ProductMapper;
+import dukku.semicolon.boundedContext.product.app.support.ProductSupport;
 import dukku.semicolon.boundedContext.product.entity.Category;
 import dukku.semicolon.boundedContext.product.entity.Product;
 import dukku.semicolon.boundedContext.product.out.CategoryRepository;

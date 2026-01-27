@@ -1,6 +1,6 @@
 package dukku.semicolon.boundedContext.product.in;
 
-import dukku.semicolon.boundedContext.product.app.ProductLikeFacade;
+import dukku.semicolon.boundedContext.product.app.facade.ProductLikeFacade;
 import dukku.semicolon.shared.product.docs.ProductLikeApiDocs;
 import dukku.semicolon.shared.product.dto.LikeProductResponse;
 import dukku.semicolon.shared.product.dto.MyLikedProductListResponse;

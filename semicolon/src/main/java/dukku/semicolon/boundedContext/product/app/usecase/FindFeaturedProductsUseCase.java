@@ -1,6 +1,7 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
 import dukku.common.shared.product.type.VisibilityStatus;
+import dukku.semicolon.boundedContext.product.app.support.ProductMapper;
 import dukku.semicolon.boundedContext.product.out.ProductRepository;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;
 import lombok.RequiredArgsConstructor;

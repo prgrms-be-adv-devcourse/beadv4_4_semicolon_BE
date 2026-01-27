@@ -1,5 +1,9 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.facade;
 
+import dukku.semicolon.boundedContext.product.app.usecase.FindCategoryListUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.FindFeaturedProductsUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.FindProductDetailUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.FindProductListUseCase;
 import dukku.semicolon.shared.product.dto.CategoryCreateResponse;
 import dukku.semicolon.shared.product.dto.ProductDetailResponse;
 import dukku.semicolon.shared.product.dto.ProductListItemResponse;

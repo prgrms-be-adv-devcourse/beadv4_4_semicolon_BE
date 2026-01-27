@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.support;
 
 import dukku.semicolon.shared.product.exception.ProductImageLimitExceededException;
 import lombok.RequiredArgsConstructor;

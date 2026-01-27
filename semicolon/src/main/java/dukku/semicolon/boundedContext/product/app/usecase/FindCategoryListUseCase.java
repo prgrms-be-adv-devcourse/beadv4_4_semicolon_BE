@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
 import dukku.semicolon.boundedContext.product.out.CategoryRepository;
 import dukku.semicolon.shared.product.dto.CategoryCreateResponse;

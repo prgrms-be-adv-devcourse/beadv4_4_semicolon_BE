@@ -1,8 +1,6 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.usecase;
 
 import dukku.semicolon.boundedContext.product.entity.Cart;
-import dukku.semicolon.boundedContext.product.entity.Product;
-import dukku.semicolon.boundedContext.product.entity.ProductImage;
 import dukku.semicolon.boundedContext.product.out.CartRepository;
 import dukku.semicolon.shared.product.dto.CartDto;
 import dukku.semicolon.shared.product.dto.CartListResponse;

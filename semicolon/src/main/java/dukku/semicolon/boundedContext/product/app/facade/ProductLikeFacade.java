@@ -1,5 +1,8 @@
-package dukku.semicolon.boundedContext.product.app;
+package dukku.semicolon.boundedContext.product.app.facade;
 
+import dukku.semicolon.boundedContext.product.app.usecase.UnlikeProductUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.FindMyLikedProductsUseCase;
+import dukku.semicolon.boundedContext.product.app.usecase.LikeProductUseCase;
 import dukku.semicolon.shared.product.dto.LikeProductResponse;
 import dukku.semicolon.shared.product.dto.MyLikedProductListResponse;
 import lombok.RequiredArgsConstructor;
