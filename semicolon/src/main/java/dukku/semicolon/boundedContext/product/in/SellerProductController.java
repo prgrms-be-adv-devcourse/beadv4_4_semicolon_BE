@@ -1,10 +1,10 @@
 package dukku.semicolon.boundedContext.product.in;
 
-import dukku.semicolon.boundedContext.product.app.SellerProductFacade;
+import dukku.semicolon.boundedContext.product.app.facade.SellerProductFacade;
 import dukku.semicolon.shared.product.docs.SellerProductApiDocs;
-import dukku.semicolon.shared.product.dto.ProductCreateRequest;
-import dukku.semicolon.shared.product.dto.ProductDetailResponse;
-import dukku.semicolon.shared.product.dto.ProductUpdateRequest;
+import dukku.semicolon.shared.product.dto.product.ProductCreateRequest;
+import dukku.semicolon.shared.product.dto.product.ProductDetailResponse;
+import dukku.semicolon.shared.product.dto.product.ProductUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,29 +25,27 @@ public class SellerProductController {
     @PostMapping
     @SellerProductApiDocs.CreateProduct
     public ProductDetailResponse create(
-            @RequestHeader("X-USER-UUID") UUID userUuid,
             @RequestBody @Valid ProductCreateRequest request
     ) {
-        return sellerProductFacade.create(userUuid, request);
+        return sellerProductFacade.create(request);
     }
 
     @PatchMapping("/{productUuid}")
     @SellerProductApiDocs.UpdateProduct
     public ProductDetailResponse update(
-            @RequestHeader("X-USER-UUID") UUID userUuid,
             @PathVariable UUID productUuid,
             @RequestBody @Valid ProductUpdateRequest request
     ) {
-        return sellerProductFacade.update(userUuid, productUuid, request);
+        return sellerProductFacade.update(productUuid, request);
     }
 
     @DeleteMapping("/{productUuid}")
     @SellerProductApiDocs.DeleteProduct
     public ResponseEntity<Void> delete(
-            @RequestHeader("X-USER-UUID") UUID userUuid,
             @PathVariable UUID productUuid
     ) {
-        sellerProductFacade.delete(userUuid, productUuid);
+        sellerProductFacade.delete(productUuid);
+
         return ResponseEntity.noContent().build();
     }
 }

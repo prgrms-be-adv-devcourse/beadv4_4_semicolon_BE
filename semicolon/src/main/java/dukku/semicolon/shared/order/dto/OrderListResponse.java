@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.order.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dukku.common.shared.order.type.OrderItemStatus;
 import dukku.common.shared.order.type.OrderStatus;
 import dukku.semicolon.boundedContext.order.entity.Order;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Builder
 public class OrderListResponse {
     private UUID orderUuid;           // 주문 ID
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderDate;  // 주문 날짜
     private OrderStatus status;       // 주문 전체 상태 (예: 결제완료)
     private int totalAmount;          // 총 결제 금액

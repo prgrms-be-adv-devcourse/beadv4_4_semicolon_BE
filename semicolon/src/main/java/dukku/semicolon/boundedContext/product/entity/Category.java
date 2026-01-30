@@ -3,7 +3,10 @@ package dukku.semicolon.boundedContext.product.entity;
 import dukku.common.global.exception.BadRequestException;
 import dukku.common.global.jpa.entity.BaseIdAndTime;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity

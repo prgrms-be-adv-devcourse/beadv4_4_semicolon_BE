@@ -1,12 +1,10 @@
 package dukku.semicolon.boundedContext.product.in;
 
-import dukku.semicolon.boundedContext.product.app.ProductLikeFacade;
+import dukku.semicolon.boundedContext.product.app.facade.ProductLikeFacade;
 import dukku.semicolon.shared.product.docs.ProductLikeApiDocs;
-import dukku.semicolon.shared.product.dto.LikeProductResponse;
-import dukku.semicolon.shared.product.dto.MyLikedProductListResponse;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import dukku.semicolon.shared.product.dto.product.MyLikedProductListResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,29 +22,28 @@ public class ProductLikeController {
 
     @PostMapping("/products/{productUuid}/likes")
     @ProductLikeApiDocs.LikeProduct
-    public LikeProductResponse like(
-            @PathVariable UUID productUuid,
-            @RequestHeader("X-USER-UUID") UUID userUuid // TODO : 임시 사용자 UUID 헤더
-    ) {
-        return productLikeFacade.like(userUuid, productUuid);
+    public ResponseEntity<Void> like(@PathVariable UUID productUuid) {
+        productLikeFacade.like(productUuid);
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/products/{productUuid}/likes")
     @ProductLikeApiDocs.UnlikeProduct
-    public LikeProductResponse unlike(
-            @PathVariable UUID productUuid,
-            @RequestHeader("X-USER-UUID") UUID userUuid
+    public ResponseEntity<Void> unlike(
+            @PathVariable UUID productUuid
     ) {
-        return productLikeFacade.unlike(userUuid, productUuid);
+        productLikeFacade.unlike(productUuid);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me/likes")
-    @ProductLikeApiDocs.FindMyLikes
-    public MyLikedProductListResponse findMyLikes(
-            @RequestHeader("X-USER-UUID") UUID userUuid,
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size
+    @ProductLikeApiDocs.MyLikes
+    public MyLikedProductListResponse myLikes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
-        return productLikeFacade.findMyLikes(userUuid, page, size);
+        return productLikeFacade.myLikes(page, size);
     }
 }

@@ -4,6 +4,7 @@ import dukku.semicolon.boundedContext.product.entity.ProductLike;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
@@ -14,6 +15,14 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Intege
     boolean existsByUserUuidAndProduct_Uuid(UUID userUuid, UUID productUuid);
 
     Optional<ProductLike> findByUserUuidAndProduct_Uuid(UUID userUuid, UUID productUuid);
+
+    @Modifying
+    @Query("""
+    delete from ProductLike pl
+    where pl.userUuid = :userUuid
+        and pl.product.uuid = :productUuid
+    """)
+    int deleteByUserUuidAndProductUuid(UUID userUuid, UUID productUuid);
 
     long countByProduct_Uuid(UUID productUuid);
 

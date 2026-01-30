@@ -18,7 +18,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class ProductUser {
 
     @Id

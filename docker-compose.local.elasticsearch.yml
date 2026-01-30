@@ -1,0 +1,27 @@
+# 해당 파일은 로컬에서 실행하기위해 필요한 앱을 설치하는 파일입니다. Elasticsearch, Redis.
+# 개발용을 위해 만들어졌으며 배포시에는 사용을 안합니다.
+version: "3.8"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    container_name: semicolon-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    # 플러그인 설치 명령어 (그대로 유지)
+    command: >
+      /bin/sh -c "
+        if ! ./bin/elasticsearch-plugin list | grep -q analysis-nori; then
+          ./bin/elasticsearch-plugin install analysis-nori;
+        fi;
+        /usr/local/bin/docker-entrypoint.sh elasticsearch
+      "
+  redis:
+    image: redis:7.2
+    container_name: semicolon-redis
+    ports:
+      - "6379:6379"

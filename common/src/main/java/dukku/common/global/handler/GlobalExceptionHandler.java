@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationExceptions(Exception ex) {
         log.error("ValidationException: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse("VALIDATION_ERROR", "입력 데이터에 오류가 있습니다.", HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), "입력 데이터에 오류가 있습니다.", HttpStatus.BAD_REQUEST.value(), ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
