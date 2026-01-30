@@ -7,5 +7,7 @@ public record DepositChargeFailedEvent(
                 UUID userUuid,
                 Long amount,
                 UUID settlementUuid,
-                String reason) {
+                String reason,
+                String hello
+) {
 }
