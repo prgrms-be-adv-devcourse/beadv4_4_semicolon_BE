@@ -1,12 +1,39 @@
-name: PR Test
+name: PR Build & Test
 
 on:
   pull_request:
-    branches: [ dev ] # master branch에 PR을 보낼 때 실행
+    branches: [ dev ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    
+    # ✅ 환경 변수 주입 (Secrets 및 Localhost 설정)
+    env:
+      SPRING_PROFILES_ACTIVE: dev
+      
+      # 1. Database & Cache (CI 환경이므로 무조건 localhost)
+      # 실제 운영/개발 서버의 Host(Secrets)를 쓰면 안 되고, 밑에서 띄울 컨테이너에 붙어야 합니다.
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: semicolon
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_SSLMODE: disable
+      
+      SPRING_DATA_REDIS_HOST: localhost
+      SPRING_DATA_REDIS_PORT: 6379
+      
+      SPRING_ELASTICSEARCH_URIS: http://localhost:9200
+      
+      # 2. Security & API Keys (GitHub Secrets에서 주입)
+      # 이 값들이 없으면 JWT Provider나 외부 API 연동 Bean 생성 시 에러가 납니다.
+      JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+      JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+      CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
+      TOSS_API_SECRET_KEY: ${{ secrets.TOSS_API_SECRET_KEY }}
+      CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+
     steps:
       - uses: actions/checkout@v2
 
@@ -15,10 +42,68 @@ jobs:
         with:
           java-version: 25
 
-      # Gradle wrapper 파일 실행 권한주기
+      # 3. 통합 테스트용 docker-compose 파일 생성
+      - name: Create docker-compose.ci.yml
+        run: |
+          cat <<EOF > docker-compose.ci.yml
+          version: "3.8"
+          services:
+            elasticsearch:
+              image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+              container_name: semicolon-elasticsearch
+              environment:
+                - discovery.type=single-node
+                - xpack.security.enabled=false
+                - ES_JAVA_OPTS=-Xms512m -Xmx512m
+              ports:
+                - "9200:9200"
+              command: >
+                /bin/sh -c "
+                  if ! ./bin/elasticsearch-plugin list | grep -q analysis-nori; then
+                    ./bin/elasticsearch-plugin install analysis-nori;
+                  fi;
+                  /usr/local/bin/docker-entrypoint.sh elasticsearch
+                "
+            
+            redis:
+              image: redis:7.2
+              container_name: semicolon-redis
+              ports:
+                - "6379:6379"
+
+            postgres:
+              image: postgres:18.1
+              container_name: semicolon-postgres
+              environment:
+                POSTGRES_DB: ${{ env.DB_NAME }}
+                POSTGRES_USER: ${{ env.DB_USERNAME }}
+                POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+              ports:
+                - "5432:5432"
+          EOF
+
+      # 4. Docker Compose 실행 (docker compose v2 사용)
+      - name: Start Containers (ES, Redis, Postgres)
+        run: docker compose -f docker-compose.ci.yml up -d
+
+      # 5. 컨테이너 헬스체크 및 대기
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for Elasticsearch..."
+          timeout 60s bash -c 'until curl -s http://localhost:9200 > /dev/null; do sleep 5; done' || echo "ES didn't start in time"
+          echo "Elasticsearch is up!"
+          
+          echo "Waiting for Postgres..."
+          sleep 10 
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Gradle test를 실행한다
-      - name: Test with Gradle
-        run: ./gradlew --info test
+      # 6. 빌드 및 테스트 수행
+      - name: Build with Gradle
+        run: ./gradlew clean build --no-daemon --info
+        
+      # 7. 실패 시 로그 확인
+      - name: Print Container Logs on Failure
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs
