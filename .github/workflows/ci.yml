@@ -1,19 +1,84 @@
-name: build-and-push
+name: CI (PR)
 
 on:
   pull_request:
-    branches: [ "dev" ]
+    branches: [ "main", "develop" ]
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18.1
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+      redis:
+        image: redis:7.2
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || exit 1"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: "false"
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+        ports:
+          - 9200:9200
+        options: >-
+          --health-cmd "curl -fsS http://localhost:9200 >/dev/null || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+
     steps:
-      - name: Checkout Source Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build Docker Image (no push)
-        uses: docker/build-push-action@v5
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          context: .
-          push: false
-          tags: semicolon-backend:ci
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      # (선택) ES nori 플러그인 필요하면 여기서 설치해야 하는데,
+      # GitHub Actions services는 컨테이너 내부 command를 바꾸기 어렵다.
+      # => 테스트가 nori 의존이면 docker-compose 방식으로 가는게 맞음.
+
+      - name: Build & Test
+        env:
+          # ✅ 여기서 Spring이 DB/Redis/ES 붙을 수 있게 env로 주입
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/app
+          SPRING_DATASOURCE_USERNAME: app
+          SPRING_DATASOURCE_PASSWORD: app
+
+          SPRING_DATA_REDIS_HOST: localhost
+          SPRING_DATA_REDIS_PORT: "6379"
+
+          SPRING_ELASTICSEARCH_URIS: http://localhost:9200
+
+          # ✅ 배치 자동 실행 방지 (네 코드가 이 프로퍼티를 읽는 구조여야 함)
+          SPRING_BATCH_JOB_ENABLED: "false"
+
+          # ✅ 만약 너희가 자체 프로퍼티로 스케줄러 on/off를 제공한다면 여기에 끄기값 추가
+          # BATCH_SETTLEMENT_SCHEDULER_ENABLED: "false"
+
+        run: |
+          ./gradlew clean test
