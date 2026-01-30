@@ -1,7 +1,6 @@
 package dukku.semicolon.boundedContext.payment.in;
 
 import dukku.semicolon.boundedContext.payment.app.PaymentFacade;
-import dukku.semicolon.shared.payment.docs.PaymentApiDocs;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmRequest;
 import dukku.semicolon.shared.payment.dto.PaymentConfirmResponse;
 import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
