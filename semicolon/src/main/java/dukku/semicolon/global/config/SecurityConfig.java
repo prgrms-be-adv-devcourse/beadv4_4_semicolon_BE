@@ -2,6 +2,7 @@ package dukku.semicolon.global.config;
 
 import dukku.common.global.auth.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,11 +14,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Value("${custom.security.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
@@ -41,19 +49,33 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v3/api-docs/**",
+                                "/api/v3/api-docs/**",
+                                "/api/v1/categories", // GET: Public
+                                "/api/v1/products/featured", // GET: Public
+                                "/api/v1/products", // GET: Public
+                                "/api/v1/products/**", // GET: Public
+                                "/api/v1/shops/**", // GET: Public
                                 "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api/v1/users/register", //임시로 v1추가
-                                "/api/v1/auth/login" //임시테스트용
-                               // "/api/v1/users/me" //삭제 임시 테스트
+                                "/api/v1/users/register",
+                                "/api/v1/auth/login"
                         )
                         .permitAll() // 인증 필요없음 -> filter 미실행
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")// ADMIN만 접근
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")// ADMIN만 접근
 
                         .anyRequest().authenticated() // 그 외는 인증 필요
                 )
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(
+                            Arrays.asList(allowedOrigins)
+                    );
+                    corsConfig.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+                    corsConfig.setAllowedHeaders(Arrays.asList("Authorization","Content-Type"));
+                    corsConfig.setAllowCredentials(true);
+                    return corsConfig;
+                }))
                 .exceptionHandling(e -> e // 인증 실패시 예외 처리
                         .authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

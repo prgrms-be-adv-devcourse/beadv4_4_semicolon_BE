@@ -14,6 +14,13 @@ jwt:
 crypto:
   key: ${CRYPTO_KEY}
 
+toss:
+  api:
+    secret-key: ${TOSS_API_SECRET_KEY}
+
 custom:
   global:
     internalBackUrl: http://localhost:${server.port:8080}
+  security:
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,https://localhost:3000}

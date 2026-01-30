@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.product.dto;
 
+import dukku.semicolon.shared.product.dto.product.ProductListItemResponse;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;

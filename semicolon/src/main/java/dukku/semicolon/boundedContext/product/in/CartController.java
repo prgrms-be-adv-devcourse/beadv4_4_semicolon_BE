@@ -1,8 +1,8 @@
 package dukku.semicolon.boundedContext.product.in;
 
-import dukku.semicolon.boundedContext.product.app.CartFacade;
+import dukku.semicolon.boundedContext.product.app.facade.CartFacade;
 import dukku.semicolon.shared.product.docs.CartApiDocs;
-import dukku.semicolon.shared.product.dto.CartListResponse;
+import dukku.semicolon.shared.product.dto.cart.CartListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

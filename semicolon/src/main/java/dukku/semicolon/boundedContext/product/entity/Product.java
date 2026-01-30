@@ -4,7 +4,6 @@ import dukku.common.global.jpa.entity.BaseIdAndUUIDAndTime;
 import dukku.common.shared.product.type.ConditionStatus;
 import dukku.common.shared.product.type.SaleStatus;
 import dukku.common.shared.product.type.VisibilityStatus;
-import dukku.semicolon.shared.product.dto.ProductUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -138,37 +137,62 @@ public class Product extends BaseIdAndUUIDAndTime {
         images.add(ProductImage.create(this, imageUrl, nextSortOrder));
     }
 
-    public void softDelete() {
-        this.deletedAt = java.time.LocalDateTime.now();
+    // 무작정 바꾸는게 아닌 null이아닌것만 바꾼다.
+    public void update(
+            Category category,
+            String title,
+            String description,
+            Long price,
+            Long shippingFee,
+            ConditionStatus conditionStatus,
+            VisibilityStatus visibilityStatus
+    ) {
+        if (category != null) this.category = category;
+        if (title != null && !title.isBlank()) this.title = title;
+        if (description != null) this.description = description;
+        if (price != null) this.price = price;
+        if (shippingFee != null) this.shippingFee = shippingFee;
+        if (conditionStatus != null) this.conditionStatus = conditionStatus;
+        if (visibilityStatus != null) this.visibilityStatus = visibilityStatus;
     }
 
-    // 수정용 change 메서드
-    public void changeCategory(Category category) { this.category = category; }
-    public void changeTitle(String title) { this.title = title; }
-    public void changeDescription(String description) { this.description = description; }
-    public void changePrice(Long price) { this.price = price; }
-    public void changeShippingFee(Long shippingFee) { this.shippingFee = (shippingFee == null ? 0L : shippingFee); }
-    public void changeConditionStatus(ConditionStatus status) { this.conditionStatus = status; }
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+        this.visibilityStatus = VisibilityStatus.HIDDEN;
+    }
 
-    public void replaceImages(List<String> imageUrls) {
+    public void replaceImages(List<String> newImageUrls) {
         this.images.clear();
-        int sort = 1;
-        for (String url : imageUrls) {
-            this.images.add(ProductImage.create(this, url, sort));
-            sort++;
+
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            for (String url : newImageUrls) {
+                this.addImage(url);
+            }
         }
     }
 
-    public void applyUpdate(Category category, ProductUpdateRequest req) {
-        if (category != null) changeCategory(category);
-        if (req.getTitle() != null) changeTitle(req.getTitle());
-        if (req.getDescription() != null) changeDescription(req.getDescription());
-        if (req.getPrice() != null) changePrice(req.getPrice());
-        if (req.getShippingFee() != null) changeShippingFee(req.getShippingFee());
-        if (req.getConditionStatus() != null) changeConditionStatus(req.getConditionStatus());
+    // 판매 확정 (RESERVED -> SOLD_OUT)
+    public void confirmSale(UUID orderUuid) {
+        // 내 주문이 맞는지 검증 (다른 사람의 주문으로 예약된 상품을 건드리지 않도록)
+        if (this.saleStatus == SaleStatus.RESERVED &&
+                this.reservedOrderUuid != null &&
+                this.reservedOrderUuid.equals(orderUuid)) {
 
-        if (req.getImageUrls() != null) {
-            replaceImages(req.getImageUrls()); // null 아님 => 전체교체
+            this.saleStatus = SaleStatus.SOLD_OUT;
+            // 판매 완료되어도 주문 추적을 위해 reservedOrderUuid는 남겨두거나,
+            // 별도 soldOrderUuid로 옮기는 정책을 쓸 수 있음. 여기선 유지.
+        }
+    }
+
+    // 예약 해제 (RESERVED -> ON_SALE)
+    public void releaseReservation(UUID orderUuid) {
+        // 내 주문이 맞는지 검증
+        if (this.saleStatus == SaleStatus.RESERVED &&
+                this.reservedOrderUuid != null &&
+                this.reservedOrderUuid.equals(orderUuid)) {
+
+            this.saleStatus = SaleStatus.ON_SALE;
+            this.reservedOrderUuid = null; // 예약 정보 삭제
         }
     }
 }

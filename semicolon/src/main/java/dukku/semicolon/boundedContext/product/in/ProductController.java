@@ -1,11 +1,9 @@
 package dukku.semicolon.boundedContext.product.in;
 
-import dukku.semicolon.boundedContext.product.app.ProductFacade;
+import dukku.semicolon.boundedContext.product.app.facade.ProductFacade;
 import dukku.semicolon.shared.product.docs.ProductApiDocs;
-import dukku.semicolon.shared.product.dto.CategoryCreateResponse;
-import dukku.semicolon.shared.product.dto.ProductDetailResponse;
-import dukku.semicolon.shared.product.dto.ProductListItemResponse;
-import dukku.semicolon.shared.product.dto.ProductListResponse;
+import dukku.semicolon.shared.product.dto.cqrs.ProductSearchRequest;
+import dukku.semicolon.shared.product.dto.product.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1")
 @ProductApiDocs.ProductTag
 public class ProductController {
-
     private final ProductFacade productFacade;
 
     @GetMapping("/categories")
@@ -38,13 +35,10 @@ public class ProductController {
 
     @GetMapping("/products")
     @ProductApiDocs.FindProductList
-    public ProductListResponse findProducts(
-            @RequestParam(required = false) Integer categoryId,
-            @RequestParam(defaultValue = "recent") String sort,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        return productFacade.findProducts(categoryId, sort, page, size);
+    public ProductListResponse findProducts(ProductSearchRequest request,
+                                            @RequestParam int page,
+                                            @RequestParam int size) {
+        return productFacade.findProducts(request, page, size);
     }
 
     @GetMapping("/products/{productUuid}")
@@ -53,5 +47,11 @@ public class ProductController {
             @PathVariable UUID productUuid
     ) {
         return productFacade.findProductDetail(productUuid);
+    }
+
+    @PostMapping("/products/internal/reserve")
+    @ProductApiDocs.ReserveProducts
+    public void reserveProducts(@RequestBody ProductReserveRequest request) {
+        productFacade.reserveProducts(request);
     }
 }

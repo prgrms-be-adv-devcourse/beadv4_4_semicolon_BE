@@ -1,5 +1,6 @@
 package dukku.semicolon.shared.order.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dukku.semicolon.boundedContext.order.entity.OrderItem;
 import dukku.common.shared.order.type.OrderItemStatus;
 import dukku.common.shared.order.type.OrderStatus;
@@ -21,6 +22,7 @@ public class OrderResponse {
     private int totalAmount;
     private int refundedAmount;
     private OrderStatus orderStatus;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderedAt;
 
     // 3. 배송지 정보

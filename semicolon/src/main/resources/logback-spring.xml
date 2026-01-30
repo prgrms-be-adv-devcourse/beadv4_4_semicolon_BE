@@ -49,10 +49,10 @@
     </springProfile>
 
     <!-- RELEASE / PROD 환경
-         - 파일 로그 필수
-         - 콘솔 출력 선택 (현재는 제거) -->
+         - 파일 로그 필수 -->
     <springProfile name="release,prod">
-        <root level="INFO">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>
 

@@ -64,7 +64,8 @@ public class User extends SourceUser {
                 user.getEmail(),
                 user.getNickname(),
                 user.getRole(),
-                user.getStatus()
+                user.getStatus(),
+                user.getCreatedAt()
         );
     }
 
