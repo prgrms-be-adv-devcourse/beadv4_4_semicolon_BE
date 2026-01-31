@@ -56,10 +56,25 @@ public class PaymentOrderItem extends BaseIdAndUUIDAndTime {
     @Column(nullable = false, comment = "결제 시점 단가")
     private Long price;
 
-    // === 정적 팩토리 메서드 ===
+    @Column(nullable = false, comment = "상품별 예치금 사용액 (2026-01-24 추가)")
+    private Long paymentDeposit; // 2026-01-24 추가
 
+    /**
+     * 결제 주문 상품 스냅샷 생성
+     * 
+     * @param payment        연관된 결제 엔티티
+     * @param orderUuid      주문 식별자
+     * @param orderItemUuid  주문 상품 식별자
+     * @param productId      원본 상품 ID
+     * @param productName    상품명
+     * @param price          결제 시점 단가
+     * @param paymentCoupon  해당 상품에 적용된 쿠폰 할인액
+     * @param sellerUuid     판매자 식별자
+     * @param paymentDeposit 이 상품 구매에 사용된 예치금액 (분배 알고리즘에 의해 계산된 값)
+     * @return 결제 주문 상품 엔티티
+     */
     public static PaymentOrderItem create(Payment payment, UUID orderUuid, UUID orderItemUuid, Integer productId,
-            String productName, Long price, Long paymentCoupon, UUID sellerUuid) {
+            String productName, Long price, Long paymentCoupon, UUID sellerUuid, Long paymentDeposit) {
         return PaymentOrderItem.builder()
                 .payment(payment)
                 .orderUuid(orderUuid)
@@ -69,6 +84,7 @@ public class PaymentOrderItem extends BaseIdAndUUIDAndTime {
                 .price(price)
                 .paymentCoupon(paymentCoupon)
                 .sellerUuid(sellerUuid)
+                .paymentDeposit(paymentDeposit) // 2026-01-24 추가
                 .build();
     }
 
@@ -85,6 +101,7 @@ public class PaymentOrderItem extends BaseIdAndUUIDAndTime {
                 .price(this.price)
                 .paymentCoupon(this.paymentCoupon)
                 .sellerUuid(this.sellerUuid)
+                .paymentDeposit(this.paymentDeposit) // 2026-01-24 추가
                 .build();
     }
 }

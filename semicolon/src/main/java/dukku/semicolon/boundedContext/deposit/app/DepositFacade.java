@@ -6,6 +6,7 @@ import dukku.semicolon.shared.deposit.dto.DepositDto;
 import dukku.semicolon.shared.deposit.dto.DepositHistoryDto;
 import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.common.shared.deposit.event.*;
+import dukku.common.shared.payment.event.PaymentSuccessEvent;
 import dukku.semicolon.boundedContext.deposit.exception.NotEnoughDepositException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,31 +110,48 @@ public class DepositFacade {
     }
 
     /**
-     * 결제에 의한 예치금 차감 (Saga 참여)
+     * 결제 및 주문 처리에 따른 예치금 차감 프로세스 (Saga 패턴 참여)
      *
      * <p>
-     * 결제 성공 시 예치금을 차감하고 성공/실패 이벤트를 발행한다.
+     * 결제 성공 시 각 상품별로 할당된 예치금만큼 차감을 진행하고, 전체 차감 결과를 이벤트를 통해 전파한다.
+     * 
+     * @param userUuid          예치금을 소유한 유저 식별자
+     * @param totalAmount       차감될 총 예치금액 (동일성 검증용)
+     * @param orderUuid         관련 주문 식별자
+     * @param itemDepositUsages 상품별 예치금 사용 상세 내역 (차감 로직의 핵심 데이터)
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deductDepositForPayment(UUID userUuid, Long amount, UUID orderUuid) {
-        if (amount == null || amount <= 0) {
+    public void deductDepositForPayment(UUID userUuid, Long totalAmount, UUID orderUuid,
+            List<PaymentSuccessEvent.ItemDepositUsage> itemDepositUsages) {
+        if (totalAmount == null || totalAmount <= 0) {
             return;
         }
 
         try {
-            executeDeduction(userUuid, amount, orderUuid);
+            executeDeductions(userUuid, totalAmount, orderUuid, itemDepositUsages);
         } catch (Exception e) {
-            handleDeductionError(userUuid, amount, orderUuid, e);
+            // 차감 중 예외 발생 시 (잔액 부족 등) 실패 처리를 위한 보상 트랜잭션 유도
+            handleDeductionError(userUuid, totalAmount, orderUuid, e);
         }
     }
 
-    private void executeDeduction(UUID userUuid, Long amount, UUID orderUuid) {
-        decreaseDeposit(userUuid, amount, DepositHistoryType.USE, orderUuid);
+    /**
+     * 실제 예치금 차감 및 성공 이벤트 발행
+     */
+    private void executeDeductions(UUID userUuid, Long totalAmount, UUID orderUuid,
+            List<PaymentSuccessEvent.ItemDepositUsage> itemDepositUsages) {
 
+        // 상품별 예치금 차감 및 이력 생성
+        // 전달받은 아이템별 사용액 정보를 바탕으로 순차적으로 차감 로직을 수행함
+        for (PaymentSuccessEvent.ItemDepositUsage usage : itemDepositUsages) {
+            decreaseDeposit(userUuid, usage.depositAmount(), DepositHistoryType.USE, usage.orderItemUuid());
+        }
+
+        // 전체 차감 완료 성공 이벤트 발행
         eventPublisher.publish(new DepositUsedEvent(
                 orderUuid,
                 userUuid,
-                amount));
+                totalAmount));
     }
 
     private void handleDeductionError(UUID userUuid, Long amount, UUID orderUuid, Exception e) {
@@ -204,7 +222,6 @@ public class DepositFacade {
         // 정산에 의한 충전은 SETTLEMENT 타입 사용
         increaseDeposit(userUuid, amount, DepositHistoryType.SETTLEMENT, settlementUuid);
 
-        // 성공 이벤트 발행
         // 성공 이벤트 발행
         eventPublisher.publish(new DepositChargeSucceededEvent(
                 userUuid,
