@@ -1,7 +1,7 @@
 package dukku.semicolon.boundedContext.payment.out;
 
 import dukku.semicolon.boundedContext.payment.entity.PaymentHistory;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
+import dukku.common.shared.payment.type.PaymentHistoryType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -6,19 +6,15 @@ import dukku.semicolon.boundedContext.payment.entity.PaymentHistory;
 import dukku.semicolon.boundedContext.payment.entity.PaymentOrderItem;
 import dukku.semicolon.boundedContext.payment.entity.Refund;
 import dukku.semicolon.boundedContext.payment.entity.RefundItem;
-import dukku.semicolon.boundedContext.payment.entity.enums.PaymentHistoryType;
+import dukku.common.shared.payment.type.PaymentHistoryType;
 import dukku.common.shared.payment.type.PaymentStatus;
 import dukku.semicolon.shared.payment.dto.PaymentRefundRequest;
 import dukku.semicolon.shared.payment.dto.PaymentRefundResponse;
 import dukku.common.shared.payment.event.RefundCompletedEvent;
 import dukku.semicolon.shared.payment.exception.InvalidRefundAmountException;
-import dukku.semicolon.shared.payment.exception.PaymentNotFoundException;
 import dukku.semicolon.shared.payment.exception.PaymentNotRefundableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 /**
  * 환불 처리 UseCase
@@ -66,9 +62,10 @@ public class RefundPaymentUseCase {
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             for (PaymentRefundRequest.RefundItemInfo itemInfo : request.getItems()) {
                 PaymentOrderItem orderItem = support.findPaymentOrderItem(payment.getId(), itemInfo.getOrderItemUuid())
-                        .orElseThrow(() -> new IllegalArgumentException("결제 내역에서 해당 상품을 찾을 수 없습니다: " + itemInfo.getOrderItemUuid()));
-                
-                RefundItem refundItem = RefundItem.create(refund, orderItem, 
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "결제 내역에서 해당 상품을 찾을 수 없습니다: " + itemInfo.getOrderItemUuid()));
+
+                RefundItem refundItem = RefundItem.create(refund, orderItem,
                         itemInfo.getRefundAmount(), 0L, itemInfo.getRefundAmount());
                 refund.addRefundItem(refundItem);
             }
@@ -77,8 +74,12 @@ public class RefundPaymentUseCase {
         // 7. 결제 상태 업데이트
         updatePaymentStatus(payment, request.getRefundAmount());
 
-        // 8. 이력 생성
-        createHistory(payment, originStatus, originAmountPg, originDeposit, request.getRefundAmount());
+        // 8. 이력 생성 (Full vs Partial 구분)
+        PaymentHistoryType historyType = payment.getPaymentStatus() == PaymentStatus.CANCELED
+                ? PaymentHistoryType.FULL_REFUND_SUCCESS
+                : PaymentHistoryType.PARTIAL_REFUND_SUCCESS;
+
+        support.createHistory(payment, historyType, originStatus, originAmountPg, originDeposit);
 
         // 9. 이벤트 발행
         eventPublisher.publish(new RefundCompletedEvent(
@@ -144,25 +145,6 @@ public class RefundPaymentUseCase {
             payment.partialCancel(refundAmount);
         }
         support.savePayment(payment);
-    }
-
-    private void createHistory(Payment payment, PaymentStatus originStatus,
-            Long originAmountPg, Long originDeposit, Long refundAmount) {
-        // 전체 환불 vs 부분 환불 구분
-        PaymentHistoryType type = payment.getPaymentStatus() == PaymentStatus.CANCELED
-                ? PaymentHistoryType.FULL_REFUND_SUCCESS
-                : PaymentHistoryType.PARTIAL_REFUND_SUCCESS;
-
-        PaymentHistory history = PaymentHistory.create(
-                payment,
-                type,
-                originStatus,
-                payment.getPaymentStatus(),
-                originAmountPg,
-                payment.getAmountPg(),
-                originDeposit,
-                payment.getPaymentDeposit());
-        support.savePaymentHistory(history);
     }
 
     /**

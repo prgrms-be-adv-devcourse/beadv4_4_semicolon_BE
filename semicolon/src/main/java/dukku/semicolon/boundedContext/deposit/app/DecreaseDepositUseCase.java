@@ -30,6 +30,8 @@ public class DecreaseDepositUseCase {
      * 잔액 부족 시
      * {@link dukku.semicolon.boundedContext.deposit.exception.NotEnoughDepositException}
      * 발생.
+     * 
+     * TODO: Phase 2에서 비관적 락 적용 예정
      */
     @Transactional
     public void decrease(UUID userUuid, Long amount, DepositHistoryType type, UUID orderItemUuid) {
