@@ -119,8 +119,8 @@ public class RefundPaymentUseCase {
         // 10. 이력 생성
         // 결제 전체 상태 변화를 추적할 수 있는 히스토리를 생성
         PaymentHistoryType historyType = (payment.getPaymentStatus() == PaymentStatus.CANCELED)
-                ? PaymentHistoryType.FULL_REFUND_SUCCESS
-                : PaymentHistoryType.PARTIAL_REFUND_SUCCESS;
+                ? PaymentHistoryType.FULL_REFUND_OK
+                : PaymentHistoryType.PARTIAL_REFUND_OK;
         support.createHistory(payment, historyType, originStatus, originAmountPg, originDeposit);
 
         // 11. 이벤트 발행
@@ -160,7 +160,7 @@ public class RefundPaymentUseCase {
             String reason) {
         payment.rollbackFailedStatus();
         support.savePayment(payment);
-        support.createHistory(payment, PaymentHistoryType.PAYMENT_ROLLBACK_FAILED, originStatus, originAmountPg,
+        support.createHistory(payment, PaymentHistoryType.ROLLBACK_FAILED, originStatus, originAmountPg,
                 originDeposit);
     }
 

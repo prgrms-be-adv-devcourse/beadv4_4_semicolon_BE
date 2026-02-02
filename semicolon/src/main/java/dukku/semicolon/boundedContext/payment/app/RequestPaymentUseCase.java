@@ -52,7 +52,7 @@ public class RequestPaymentUseCase {
         Payment payment = createPayment(request, tossOrderId);
 
         // 3-1. 결제 요청 이력 생성 (Support 위임)
-        support.createHistory(payment, PaymentHistoryType.PAYMENT_REQUESTED, null, 0L, 0L);
+        support.createHistory(payment, PaymentHistoryType.PAY_REQUESTED, null, 0L, 0L);
 
         // 4. 응답 생성
         return payment.toPaymentResponse(request.getOrderName());
