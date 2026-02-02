@@ -73,7 +73,7 @@ public class ConfirmPaymentUseCase {
         if (HttpStatus.valueOf(statusCode).isError()) {
             log.error("[Toss Confirm API Error] status={}, body={}", statusCode, tossResponse);
             // 실패 이력 기록
-            support.createHistory(payment, PaymentHistoryType.PAY_FAILED, originStatus, originAmountPg,
+            support.createHistory(payment, PaymentHistoryType.PAYMENT_FAILED, originStatus, originAmountPg,
                     originDeposit);
             return payment.toPaymentConfirmResponse(false, "PG 승인 실패: " + tossResponse.get("message"));
         }
@@ -83,7 +83,7 @@ public class ConfirmPaymentUseCase {
         support.savePayment(payment);
 
         // 8. 결제 성공 이력 생성
-        support.createHistory(payment, PaymentHistoryType.PAY_SUCCESS, originStatus, originAmountPg, originDeposit);
+        support.createHistory(payment, PaymentHistoryType.PAYMENT_SUCCESS, originStatus, originAmountPg, originDeposit);
 
         // 9. 예치금 차감
         // Deposit BC에서 상품별로 정확히 예치금을 차감하고 이력을 남길 수 있도록
