@@ -109,7 +109,6 @@ public class ProductDocument {
                 .shippingFee(product.getShippingFee())
                 .saleStatus(product.getSaleStatus())
                 .visibilityStatus(product.getVisibilityStatus())
-                .likeCount(product.getLikeCount()) // 초기값 0
                 .createdAt(product.getCreatedAt())
                 // 썸네일 찾기 (없으면 null)
                 .thumbnailImageUrl(product.getImages().stream()
