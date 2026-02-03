@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,8 +24,9 @@ public class OrderFacade {
     private final FindAdminOrderListUseCase findAdminOrderList;
     private final FindMyOrderListUseCase findMyOrderList;
     private final UpdateOrderItemDeliveryInfoUseCase updateOrderItemDeliveryInfo;
-    private final UpdateOrderItemStatusUseCase  updateOrderItemStatus;
+    private final UpdateOrderItemStatusUseCase updateOrderItemStatus;
     private final FindConfirmedItemsUseCase findConfirmedItems;
+    private final FindSellerOrderListUseCase findSellerOrderList;
 
     public OrderResponse createOrder(OrderCreateRequest req) {
         return Order.toOrderResponse(createOrder.execute(req));
@@ -67,6 +67,11 @@ public class OrderFacade {
 
     // 주문 확정 조회
     public List<ConfirmedOrderItemResponse> findConfirmedItems(LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        return  findConfirmedItems.execute(startDateTime, endDateTime);
+        return findConfirmedItems.execute(startDateTime, endDateTime);
+    }
+
+    // 판매자가 본인의 판매 내역을 조회하고 싶을 때
+    public Page<SellerOrderItemResponse> findSellerOrderList(UUID sellerUuid, Pageable pageable) {
+        return findSellerOrderList.execute(sellerUuid, pageable);
     }
 }

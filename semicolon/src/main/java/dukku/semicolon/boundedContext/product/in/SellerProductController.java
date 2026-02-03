@@ -19,7 +19,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1/seller/products")
 @SellerProductApiDocs.SellerProductTag
 public class SellerProductController {
-
     private final SellerProductFacade sellerProductFacade;
 
     @PostMapping
