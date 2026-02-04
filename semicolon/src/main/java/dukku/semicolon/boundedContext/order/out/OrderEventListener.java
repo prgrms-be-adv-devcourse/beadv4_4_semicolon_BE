@@ -4,8 +4,8 @@ import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.common.shared.order.event.PaymentRollbackRequestEvent;
 import dukku.common.shared.payment.event.PaymentFailEvent;
 import dukku.common.shared.payment.event.PaymentSuccessEvent;
-import dukku.semicolon.boundedContext.order.app.UpdateOrderRefundStatusUseCase;
-import dukku.semicolon.boundedContext.order.app.UpdateOrderStatusUseCase;
+import dukku.semicolon.boundedContext.order.app.usecase.UpdateOrderRefundStatusUseCase;
+import dukku.semicolon.boundedContext.order.app.usecase.UpdateOrderStatusUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -33,7 +33,8 @@ public class OrderEventListener {
         updateOrderRefundStatusUseCase.updateRefund(event.orderUuid(), event.status(), event.refundAmount());
     }*/
 
-    /**결제서비스에서 사용.
+    /**
+     * 결제서비스에서 사용.
      * 결제 완료 시 주문 상태 및 해당 주문 상품 상태 변경.
      * retry 실패 할 경우 로그를 남기며 보상 트랜잭션 실행
      * TODO: 최종 프로젝트에서 환불 적용.
@@ -59,7 +60,8 @@ public class OrderEventListener {
     }
 
 
-    /**결제서비스에서 사용.
+    /**
+     * 결제서비스에서 사용.
      * 결제 완료 시 주문 상태 및 해당 주문 상품 상태 변경.
      * retry 실패 할 경우 로그를 남기며 보상 트랜잭션 실행
      * TODO: 최종 프로젝트에서 환불 적용.

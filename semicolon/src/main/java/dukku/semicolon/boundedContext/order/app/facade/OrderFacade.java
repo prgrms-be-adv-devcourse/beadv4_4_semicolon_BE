@@ -1,7 +1,9 @@
-package dukku.semicolon.boundedContext.order.app;
+package dukku.semicolon.boundedContext.order.app.facade;
 
+import dukku.common.global.UserUtil;
 import dukku.common.shared.order.dto.ConfirmedOrderItemResponse;
 import dukku.common.shared.order.type.OrderItemStatus;
+import dukku.semicolon.boundedContext.order.app.usecase.*;
 import dukku.semicolon.boundedContext.order.entity.Order;
 import dukku.semicolon.shared.order.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,6 @@ public class OrderFacade {
     private final CreateOrderUseCase createOrder;
     private final FindOrderUseCase findOrder;
     private final UpdateShippingInfoUseCase updateShippingInfo;
-    private final FindAdminOrderListUseCase findAdminOrderList;
     private final FindMyOrderListUseCase findMyOrderList;
     private final UpdateOrderItemDeliveryInfoUseCase updateOrderItemDeliveryInfo;
     private final UpdateOrderItemStatusUseCase updateOrderItemStatus;
@@ -41,12 +42,6 @@ public class OrderFacade {
     // 사용자가 배송지 정보를 수정하고 싶을 때
     public void updateShippingInfo(UUID orderUuid, OrderUpdateRequest.ShippingInfo req) {
         updateShippingInfo.execute(orderUuid, req);
-    }
-
-    // 사용자가 주문내역을 조회하고 싶을 때
-    @Transactional(readOnly = true)
-    public Page<OrderListResponse> findAdminOrderList(AdminOrderSearchCondition condition, Pageable pageable) {
-        return findAdminOrderList.execute(condition, pageable);
     }
 
     // 사용자가 본인의 주문내역을 조회하고 싶을 때
@@ -70,8 +65,8 @@ public class OrderFacade {
         return findConfirmedItems.execute(startDateTime, endDateTime);
     }
 
-    // 판매자가 본인의 판매 내역을 조회하고 싶을 때
-    public Page<SellerOrderItemResponse> findSellerOrderList(UUID sellerUuid, Pageable pageable) {
-        return findSellerOrderList.execute(sellerUuid, pageable);
+    // 판매자가 본인의 판매 내역을 조회
+    public Page<SellerOrderItemResponse> findMySalesHistory(Pageable pageable) {
+        return findSellerOrderList.execute(UserUtil.getUserId(), pageable);
     }
 }

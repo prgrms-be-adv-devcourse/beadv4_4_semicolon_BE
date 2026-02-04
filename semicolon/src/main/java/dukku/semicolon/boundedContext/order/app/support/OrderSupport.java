@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.order.app;
+package dukku.semicolon.boundedContext.order.app.support;
 
 import dukku.semicolon.boundedContext.order.entity.Order;
 import dukku.semicolon.boundedContext.order.out.OrderRepository;

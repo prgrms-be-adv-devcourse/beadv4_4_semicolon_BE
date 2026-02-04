@@ -1,18 +1,21 @@
 package dukku.semicolon.boundedContext.order.in;
 
 import dukku.common.shared.order.type.OrderItemStatus;
-import dukku.semicolon.boundedContext.order.app.OrderFacade;
+import dukku.semicolon.boundedContext.order.app.facade.OrderFacade;
 import dukku.semicolon.shared.order.docs.OrderApiDocs;
 import dukku.semicolon.shared.order.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -25,7 +28,7 @@ public class OrderController {
     @OrderApiDocs.CreateOrder
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderCreateRequest req) {
         OrderResponse response = orderFacade.createOrder(req);
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -46,13 +49,6 @@ public class OrderController {
         orderFacade.updateShippingInfo(orderUuid, req);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/admin")
-    @OrderApiDocs.FindAdminOrderList
-    public ResponseEntity<Page<OrderListResponse>> findAdminOrderList(AdminOrderSearchCondition condition, Pageable pageable) {
-        Page<OrderListResponse> response = orderFacade.findAdminOrderList(condition, pageable);
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
@@ -80,5 +76,13 @@ public class OrderController {
         orderFacade.updateDeliveryInfo(orderItemUuid, status);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/seller")
+    @OrderApiDocs.FindMySalesHistory
+    public ResponseEntity<Page<SellerOrderItemResponse>> findMySalesHistory(
+            @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(orderFacade.findMySalesHistory(pageable));
     }
 }

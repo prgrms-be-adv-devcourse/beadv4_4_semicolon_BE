@@ -17,7 +17,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public final class OrderApiDocs {
 
-    private OrderApiDocs() {}
+    private OrderApiDocs() {
+    }
 
     // =============== 공통 태그 ===============
     @Documented
@@ -25,9 +26,10 @@ public final class OrderApiDocs {
     @Retention(RUNTIME)
     @Tag(
             name = "주문 관리 API",
-            description = "주문 생성, 조회, 수정 관련 기능"
+            description = "주문 생성, 조회, 수정 및 판매자 배송 관리 기능"
     )
-    public @interface OrderTag {}
+    public @interface OrderTag {
+    }
 
     // =============== 1) 주문 생성 ===============
     @Documented
@@ -104,15 +106,16 @@ public final class OrderApiDocs {
                     )
             }
     )
-    public @interface CreateOrder {}
+    public @interface CreateOrder {
+    }
 
-    // =============== 2) 주문 상세 조회 (관리자 또는 사용자) ===============
+    // =============== 2) 주문 상세 조회 (본인 주문) ===============
     @Documented
     @Target(METHOD)
     @Retention(RUNTIME)
     @Operation(
             summary = "주문 상세 조회",
-            description = "특정 주문의 상세 정보를 조회합니다. (관리자 또는 해당 주문 사용자만 가능)",
+            description = "특정 주문의 상세 정보를 조회합니다. (본인 주문만 가능)",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -165,7 +168,8 @@ public final class OrderApiDocs {
                     )
             }
     )
-    public @interface FindOrderByUuid {}
+    public @interface FindOrderByUuid {
+    }
 
     // =============== 3) 배송지 정보 수정 (사용자) ===============
     @Documented
@@ -214,76 +218,10 @@ public final class OrderApiDocs {
                     )
             }
     )
-    public @interface UpdateShippingInfo {}
+    public @interface UpdateShippingInfo {
+    }
 
-    // =============== 4) 관리자 주문 목록 조회 ===============
-    @Documented
-    @Target(METHOD)
-    @Retention(RUNTIME)
-    @Operation(
-            summary = "관리자 주문 목록 조회",
-            description = "관리자가 모든 주문 목록을 조건에 따라 조회합니다.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "주문 목록 조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "Admin Order List",
-                                            value = """
-                                                    {
-                                                      "content": [
-                                                        {
-                                                          "orderUuid": "550e8400-e29b-41d4-a716-446655440001",
-                                                          "orderedBy": "550e8400-e29b-41d4-a716-446655440000",
-                                                          "totalAmount": 25000,
-                                                          "orderStatus": "PENDING"
-                                                        }
-                                                      ],
-                                                      "pageable": {
-                                                        "sort": {
-                                                          "empty": true,
-                                                          "sorted": false,
-                                                          "unsorted": true
-                                                        },
-                                                        "offset": 0,
-                                                        "pageNumber": 0,
-                                                        "pageSize": 10,
-                                                        "paged": true,
-                                                        "unpaged": false
-                                                      },
-                                                      "last": true,
-                                                      "totalElements": 1,
-                                                      "totalPages": 1,
-                                                      "size": 10,
-                                                      "number": 0,
-                                                      "sort": {
-                                                        "empty": true,
-                                                        "sorted": false,
-                                                        "unsorted": true
-                                                      },
-                                                      "first": true,
-                                                      "numberOfElements": 1,
-                                                      "empty": false
-                                                    }
-                                                    """
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "접근 권한 없음",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{\"message\": \"관리자만 접근 가능합니다.\"}")
-                            )
-                    )
-            }
-    )
-    public @interface FindAdminOrderList {}
-
-    // =============== 5) 본인 주문 목록 조회 (사용자) ===============
+    // =============== 4) 본인 주문 목록 조회 (사용자) ===============
     @Documented
     @Target(METHOD)
     @Retention(RUNTIME)
@@ -340,9 +278,10 @@ public final class OrderApiDocs {
                     )
             }
     )
-    public @interface FindMyOrderList {}
+    public @interface FindMyOrderList {
+    }
 
-    // =============== 6) 주문 상품 배송 정보 입력 (판매자) ===============
+    // =============== 5) 주문 상품 배송 정보 입력 (판매자) ===============
     @Documented
     @Target(METHOD)
     @Retention(RUNTIME)
@@ -387,15 +326,16 @@ public final class OrderApiDocs {
                     )
             }
     )
-    public @interface UpdateOrderItemDeliveryInfo {}
+    public @interface UpdateOrderItemDeliveryInfo {
+    }
 
-    // =============== 7) 주문 상품 상태 변경 (사용자/관리자) ===============
+    // =============== 6) 주문 상품 상태 변경 (사용자/판매자) ===============
     @Documented
     @Target(METHOD)
     @Retention(RUNTIME)
     @Operation(
             summary = "주문 상품 상태 변경",
-            description = "주문 상품의 상태를 변경합니다. (구매 확정, 취소 요청, 환불 요청 등)",
+            description = "주문 상품의 상태를 변경합니다. (구매 확정, 취소 요청, 반품 요청 등)",
             responses = {
                     @ApiResponse(
                             responseCode = "204",
@@ -419,5 +359,66 @@ public final class OrderApiDocs {
                     )
             }
     )
-    public @interface UpdateOrderItemStatus {}
+    public @interface UpdateOrderItemStatus {
+    }
+
+    // =============== 7) 판매자 본인 판매 내역 조회 (판매자) ===============
+    @Documented
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Operation(
+            summary = "내 판매 내역 조회",
+            description = "판매자가 자신의 상품 판매 내역을 조회합니다. (주문 단위가 아닌 판매 상품 단위)",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "판매 내역 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "My Sales History",
+                                            value = """
+                                                    {
+                                                      "content": [
+                                                        {
+                                                          "orderItemUuid": "550e8400-e29b-41d4-a716-446655440099",
+                                                          "orderUuid": "550e8400-e29b-41d4-a716-446655440001",
+                                                          "orderDate": "2024-02-03 14:30:00",
+                                                          "productName": "멋진 티셔츠",
+                                                          "productPrice": 25000,
+                                                          "quantity": 1,
+                                                          "imageUrl": "https://cdn.example.com/image.jpg",
+                                                          "status": "PAYMENT_COMPLETED",
+                                                          "confirmedAt": null
+                                                        }
+                                                      ],
+                                                      "pageable": {
+                                                        "sort": { "sorted": true, "unsorted": false, "empty": false },
+                                                        "pageNumber": 0,
+                                                        "pageSize": 20,
+                                                        "paged": true,
+                                                        "unpaged": false
+                                                      },
+                                                      "totalElements": 1,
+                                                      "totalPages": 1,
+                                                      "last": true,
+                                                      "size": 20,
+                                                      "number": 0
+                                                    }
+                                                    """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "접근 권한 없음 (판매자가 아님)",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{\"message\": \"판매자 권한이 필요합니다.\"}")
+                            )
+                    )
+            }
+    )
+    public @interface FindMySalesHistory {
+    }
 }

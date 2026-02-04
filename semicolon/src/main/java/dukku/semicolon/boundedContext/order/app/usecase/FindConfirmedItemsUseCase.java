@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.order.app;
+package dukku.semicolon.boundedContext.order.app.usecase;
 
 import dukku.common.shared.order.dto.ConfirmedOrderItemResponse;
 import dukku.common.shared.order.type.OrderItemStatus;
@@ -17,7 +17,7 @@ import java.util.List;
 public class FindConfirmedItemsUseCase {
     private final OrderItemRepository orderItemRepository;
 
-    public List<ConfirmedOrderItemResponse> execute(LocalDateTime startDateTime, LocalDateTime endDateTime){
+    public List<ConfirmedOrderItemResponse> execute(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         if (startDateTime.isAfter(endDateTime)) {
             throw new IllegalArgumentException("startDateTime must be before endDateTime");
         }

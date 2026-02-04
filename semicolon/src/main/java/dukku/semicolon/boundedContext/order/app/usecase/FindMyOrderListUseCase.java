@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.order.app;
+package dukku.semicolon.boundedContext.order.app.usecase;
 
 import dukku.common.global.UserUtil;
 import dukku.semicolon.boundedContext.order.entity.Order;
