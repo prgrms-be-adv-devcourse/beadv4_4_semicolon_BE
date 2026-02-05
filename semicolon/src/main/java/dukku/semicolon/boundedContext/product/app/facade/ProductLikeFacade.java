@@ -13,7 +13,6 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class ProductLikeFacade {
-
     private final LikeProductUseCase likeProductUseCase;
     private final UnlikeProductUseCase unlikeProductUseCase;
     private final FindMyLikedProductsUseCase findMyLikedProductsUseCase;

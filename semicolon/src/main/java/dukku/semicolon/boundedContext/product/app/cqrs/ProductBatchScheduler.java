@@ -12,5 +12,6 @@ public class ProductBatchScheduler {
     @Scheduled(fixedRate = 60000) // 1분
     public void scheduleSync() {
         productSyncFacade.syncAllStats();
+
     }
 }

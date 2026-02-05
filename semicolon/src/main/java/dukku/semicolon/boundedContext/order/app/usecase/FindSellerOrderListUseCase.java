@@ -2,7 +2,6 @@ package dukku.semicolon.boundedContext.order.app.usecase;
 
 import dukku.common.global.UserUtil;
 import dukku.common.global.exception.BadRequestException;
-import dukku.common.global.exception.UnauthorizedException;
 import dukku.semicolon.boundedContext.order.out.OrderItemRepository;
 import dukku.semicolon.shared.order.dto.SellerOrderItemResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,23 +29,10 @@ public class FindSellerOrderListUseCase {
         }
 
         // 2. 권한 검증 (가장 중요한 부분)
-        validatePermission(targetSellerUuid);
+        UserUtil.validatePermission(targetSellerUuid);
 
         // 3. 조회 및 반환
         return orderItemRepository.findAllBySellerUuidWithOrder(targetSellerUuid, pageable)
                 .map(SellerOrderItemResponse::from);
-    }
-
-    private void validatePermission(UUID targetSellerUuid) {
-        // 관리자는 프리패스
-        if (UserUtil.isAdmin()) {
-            return;
-        }
-
-        // 일반 사용자는 본인의 데이터만 조회 가능
-        UUID currentUserId = UserUtil.getUserId();
-        if (!currentUserId.equals(targetSellerUuid)) {
-            throw new UnauthorizedException("본인의 판매 내역만 조회할 수 있습니다.");
-        }
     }
 }
