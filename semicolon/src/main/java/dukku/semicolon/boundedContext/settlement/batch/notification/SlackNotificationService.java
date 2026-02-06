@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.settlement.in.batch.notification;
+package dukku.semicolon.boundedContext.settlement.batch.notification;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.JobExecution;

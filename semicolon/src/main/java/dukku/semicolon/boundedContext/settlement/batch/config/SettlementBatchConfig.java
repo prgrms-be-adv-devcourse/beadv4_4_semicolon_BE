@@ -1,20 +1,20 @@
-package dukku.semicolon.boundedContext.settlement.in.batch.config;
+package dukku.semicolon.boundedContext.settlement.batch.config;
 
 import dukku.common.shared.order.dto.ConfirmedOrderItemResponse;
 import dukku.semicolon.boundedContext.settlement.entity.Settlement;
-import dukku.semicolon.boundedContext.settlement.in.batch.listener.DepositChargeSkipListener;
-import dukku.semicolon.boundedContext.settlement.in.batch.listener.SettlementBatchListener;
-import dukku.semicolon.boundedContext.settlement.in.batch.processor.CreateSettlementProcessor;
-import dukku.semicolon.boundedContext.settlement.in.batch.processor.DepositChargeProcessor;
-import dukku.semicolon.boundedContext.settlement.in.batch.processor.ValidateSettlementProcessor;
+import dukku.semicolon.boundedContext.settlement.batch.listener.DepositChargeSkipListener;
+import dukku.semicolon.boundedContext.settlement.batch.listener.SettlementBatchListener;
+import dukku.semicolon.boundedContext.settlement.batch.processor.CreateSettlementProcessor;
+import dukku.semicolon.boundedContext.settlement.batch.processor.DepositChargeProcessor;
+import dukku.semicolon.boundedContext.settlement.batch.processor.ValidateSettlementProcessor;
 import org.springframework.batch.infrastructure.item.support.ListItemReader;
-import dukku.semicolon.boundedContext.settlement.in.batch.writer.CreateSettlementWriter;
-import dukku.semicolon.boundedContext.settlement.in.batch.writer.DepositChargeWriter;
-import dukku.semicolon.boundedContext.settlement.in.batch.writer.ValidateSettlementWriter;
+import dukku.semicolon.boundedContext.settlement.batch.writer.CreateSettlementWriter;
+import dukku.semicolon.boundedContext.settlement.batch.writer.DepositChargeWriter;
+import dukku.semicolon.boundedContext.settlement.batch.writer.ValidateSettlementWriter;
 import dukku.semicolon.shared.settlement.exception.SettlementProcessingException;
 import dukku.semicolon.shared.settlement.exception.SettlementValidationException;
-import dukku.semicolon.boundedContext.settlement.in.batch.processor.RetrySettlementProcessor;
-import dukku.semicolon.boundedContext.settlement.in.batch.writer.RetrySettlementWriter;
+import dukku.semicolon.boundedContext.settlement.batch.processor.RetrySettlementProcessor;
+import dukku.semicolon.boundedContext.settlement.batch.writer.RetrySettlementWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;
@@ -27,7 +27,6 @@ import org.springframework.batch.infrastructure.item.database.JpaPagingItemReade
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DataAccessException;
-import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * 정산 배치 설정 (3-Step 구조)

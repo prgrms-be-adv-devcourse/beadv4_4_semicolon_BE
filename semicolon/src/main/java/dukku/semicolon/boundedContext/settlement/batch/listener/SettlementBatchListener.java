@@ -1,6 +1,6 @@
-package dukku.semicolon.boundedContext.settlement.in.batch.listener;
+package dukku.semicolon.boundedContext.settlement.batch.listener;
 
-import dukku.semicolon.boundedContext.settlement.in.batch.notification.SlackNotificationService;
+import dukku.semicolon.boundedContext.settlement.batch.notification.SlackNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;

@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.settlement.in.batch.config;
+package dukku.semicolon.boundedContext.settlement.batch.config;
 
 import lombok.Getter;
 import lombok.Setter;

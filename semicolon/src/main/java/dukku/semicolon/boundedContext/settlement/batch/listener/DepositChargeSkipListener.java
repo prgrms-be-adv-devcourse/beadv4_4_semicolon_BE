@@ -1,4 +1,4 @@
-package dukku.semicolon.boundedContext.settlement.in.batch.listener;
+package dukku.semicolon.boundedContext.settlement.batch.listener;
 
 import dukku.semicolon.boundedContext.settlement.entity.Settlement;
 import dukku.semicolon.boundedContext.settlement.out.SettlementRepository;
