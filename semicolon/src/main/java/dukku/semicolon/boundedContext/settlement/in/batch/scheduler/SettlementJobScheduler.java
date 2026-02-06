@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * 정산 배치 스케줄러
- * - 매일 자정에 정산 배치 Job 실행
+ * - 매월 1일 오전 2시에 정산 배치 Job 실행 (전월 확정 건 대상)
  * - batch.settlement.scheduler.enabled=true 인 경우에만 활성화
  */
 @Slf4j
@@ -37,11 +37,12 @@ public class SettlementJobScheduler {
     private final SettlementBatchProperties batchProperties;
 
     /**
-     * 매일 자정에 정산 배치 실행
-     * cron 표현식은 application.yml에서 설정 가능
-     * 기본값: "0 0 0 * * *" (매일 자정)
+     * 매월 1일 오전 2시에 정산 배치 실행
+     * - 전월 구매 확정 건을 대상으로 정산 처리
+     * - cron 표현식은 application.yml에서 설정 가능
+     * - 기본값: "0 0 2 1 * *" (매월 1일 오전 2시)
      */
-    @Scheduled(cron = "${batch.settlement.scheduler.cron:0 0 0 * * *}")
+    @Scheduled(cron = "${batch.settlement.scheduler.cron:0 0 2 1 * *}")
     public void runSettlementJob() {
         log.info("========== 정산 배치 스케줄러 시작 ==========");
         
@@ -66,12 +67,9 @@ public class SettlementJobScheduler {
         }
     }
     /**
-     * 매일 새벽 1시에 정산 재처리 배치 실행
-     * - 1시간 전(00:00) 실행된 settlementJob에서 실패한 건들을 재처리
-     * cron 표현식은 application.yml에서 설정 가능
-     * 기본값: "0 0 1 * * *" (매일 새벽 1시)
+     * 정산 재처리 배치 실행 (수동 전용)
+     * - 실패 건 발생 시 관리자가 수동으로 재처리
      */
-    @Scheduled(cron = "${batch.settlement.retry-scheduler.cron:0 0 1 * * *}")
     public void runSettlementRetryJob() {
         log.info("========== 정산 재처리 배치 스케줄러 시작 ==========");
 

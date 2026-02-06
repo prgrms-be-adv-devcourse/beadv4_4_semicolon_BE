@@ -31,6 +31,6 @@ public class SettlementBatchProperties {
     public static class Scheduler {
         private boolean enabled = true;
 
-        private String cron = "0 0 0 * * *";
+        private String cron = "0 0 2 1 * *";
     }
 }

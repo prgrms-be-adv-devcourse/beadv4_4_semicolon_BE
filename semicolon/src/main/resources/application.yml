@@ -83,7 +83,7 @@ batch:
     page-size: 100
     scheduler:
       enabled: true
-      cron: "0 0 0 * * *" # 매일 자정 실행
+      cron: "0 0 2 1 * *" # 매월 1일 오전 2시 실행
 
 springdoc:
   api-docs:
