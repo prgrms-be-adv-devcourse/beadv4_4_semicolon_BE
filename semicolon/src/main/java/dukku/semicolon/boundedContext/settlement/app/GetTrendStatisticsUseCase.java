@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.settlement.app;
 
 import dukku.semicolon.boundedContext.settlement.out.SettlementReportRepository;
 import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse;
-import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.DailyTrend;
+import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.MonthlyPendingTrend;
 import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.MonthlyTrend;
 import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.ProcessingTimeStats;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +25,10 @@ public class GetTrendStatisticsUseCase {
     public SettlementTrendStatisticsResponse execute(LocalDate startDate, LocalDate endDate) {
         LocalDate adjustedEndDate = endDate.plusDays(1);
 
-        List<DailyTrend> dailyTrends = reportRepository.getDailyTrend(startDate, adjustedEndDate);
         List<MonthlyTrend> monthlyTrends = reportRepository.getMonthlyTrend(startDate, adjustedEndDate);
+        List<MonthlyPendingTrend> monthlyPendingTrends = reportRepository.getMonthlyPendingTrend();
         ProcessingTimeStats processingTimeStats = reportRepository.getProcessingTimeStats();
 
-        return new SettlementTrendStatisticsResponse(dailyTrends, monthlyTrends, processingTimeStats);
+        return new SettlementTrendStatisticsResponse(monthlyTrends, monthlyPendingTrends, processingTimeStats);
     }
 }

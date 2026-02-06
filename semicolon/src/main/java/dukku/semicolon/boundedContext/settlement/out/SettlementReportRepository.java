@@ -2,7 +2,7 @@ package dukku.semicolon.boundedContext.settlement.out;
 
 import dukku.semicolon.shared.settlement.dto.SellerStatisticsResponse.SellerSettlementSummary;
 import dukku.semicolon.shared.settlement.dto.SettlementFinancialStatisticsResponse;
-import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.DailyTrend;
+import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.MonthlyPendingTrend;
 import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.MonthlyTrend;
 import dukku.semicolon.shared.settlement.dto.SettlementTrendStatisticsResponse.ProcessingTimeStats;
 import lombok.RequiredArgsConstructor;
@@ -93,34 +93,6 @@ public class SettlementReportRepository {
 
     // ===== 트렌드 통계 =====
 
-    public List<DailyTrend> getDailyTrend(LocalDate startDate, LocalDate endDate) {
-        String sql = """
-                SELECT
-                    TO_CHAR(completed_at, 'YYYY-MM-DD') AS date,
-                    COUNT(*) AS settlement_count,
-                    COALESCE(SUM(settlement_amount), 0) AS settlement_amount,
-                    COALESCE(SUM(fee_amount), 0) AS fee_amount,
-                    COALESCE(SUM(total_amount), 0) AS total_amount
-                FROM settlements
-                WHERE settlement_status = 'SUCCESS'
-                    AND completed_at >= ?
-                    AND completed_at < ?
-                GROUP BY TO_CHAR(completed_at, 'YYYY-MM-DD')
-                ORDER BY date DESC
-                """;
-
-        return jdbcTemplate.query(sql, (rs, rowNum) ->
-                        new DailyTrend(
-                                rs.getString("date"),
-                                rs.getLong("settlement_count"),
-                                rs.getLong("settlement_amount"),
-                                rs.getLong("fee_amount"),
-                                rs.getLong("total_amount")
-                        ),
-                startDate, endDate
-        );
-    }
-
     public List<MonthlyTrend> getMonthlyTrend(LocalDate startDate, LocalDate endDate) {
         String sql = """
                 SELECT
@@ -148,6 +120,37 @@ public class SettlementReportRepository {
                                 rs.getLong("total_amount")
                         ),
                 startDate, endDate
+        );
+    }
+
+    /**
+     * 월별 정산 예정 금액 (PENDING/PROCESSING 상태)
+     * - 정산 예약일 기준으로 월별 집계
+     */
+    public List<MonthlyPendingTrend> getMonthlyPendingTrend() {
+        String sql = """
+                SELECT
+                    EXTRACT(YEAR FROM settlement_reservation_date)::integer AS year,
+                    EXTRACT(MONTH FROM settlement_reservation_date)::integer AS month,
+                    COALESCE(SUM(CASE WHEN settlement_status = 'PENDING' THEN 1 ELSE 0 END), 0) AS pending_count,
+                    COALESCE(SUM(CASE WHEN settlement_status = 'PENDING' THEN settlement_amount ELSE 0 END), 0) AS pending_amount,
+                    COALESCE(SUM(CASE WHEN settlement_status = 'PROCESSING' THEN 1 ELSE 0 END), 0) AS processing_count,
+                    COALESCE(SUM(CASE WHEN settlement_status = 'PROCESSING' THEN settlement_amount ELSE 0 END), 0) AS processing_amount
+                FROM settlements
+                WHERE settlement_status IN ('PENDING', 'PROCESSING')
+                GROUP BY EXTRACT(YEAR FROM settlement_reservation_date), EXTRACT(MONTH FROM settlement_reservation_date)
+                ORDER BY year DESC, month DESC
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new MonthlyPendingTrend(
+                        rs.getInt("year"),
+                        rs.getInt("month"),
+                        rs.getLong("pending_count"),
+                        rs.getLong("pending_amount"),
+                        rs.getLong("processing_count"),
+                        rs.getLong("processing_amount")
+                )
         );
     }
 
