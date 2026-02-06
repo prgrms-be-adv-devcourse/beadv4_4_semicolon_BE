@@ -43,10 +43,10 @@ public final class SettlementApiDocs {
             - 기간별(startDate ~ endDate) 정산 내역을 조회할 수 있습니다.
             - 페이징을 지원하며, 기본값은 20개씩 최신순으로 정렬됩니다.
             """, parameters = {
-            @Parameter(name = "status", description = "정산 상태 (CREATED, PROCESSING, PENDING, SUCCESS, FAILED)", example = "SUCCESS"),
-            @Parameter(name = "sellerUuid", description = "판매자 UUID", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+            @Parameter(name = "status", description = "정산 상태 (PENDING, PROCESSING, SUCCESS, FAILED)", example = "SUCCESS"),
+            @Parameter(name = "sellerUuid", description = "판매자 UUID (홍길동상점)", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
             @Parameter(name = "startDate", description = "조회 시작일 (yyyy-MM-dd)", example = "2026-01-01"),
-            @Parameter(name = "endDate", description = "조회 종료일 (yyyy-MM-dd)", example = "2026-01-31"),
+            @Parameter(name = "endDate", description = "조회 종료일 (yyyy-MM-dd)", example = "2026-02-28"),
             @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
             @Parameter(name = "size", description = "페이지 크기", example = "20"),
             @Parameter(name = "sort", description = "정렬 기준", example = "createdAt,desc")
@@ -167,8 +167,8 @@ public final class SettlementApiDocs {
             - 조회 기간 내 완료된 정산 통계를 제공합니다.
             - startDate와 endDate로 조회 기간을 지정할 수 있습니다.
             """, parameters = {
-            @Parameter(name = "status", description = "정산 상태 필터 (CREATED, PROCESSING, PENDING, SUCCESS, FAILED)", example = "SUCCESS"),
-            @Parameter(name = "sellerUuid", description = "판매자 UUID 필터", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+            @Parameter(name = "status", description = "정산 상태 필터 (PENDING, PROCESSING, SUCCESS, FAILED)", example = "SUCCESS"),
+            @Parameter(name = "sellerUuid", description = "판매자 UUID 필터 (홍길동상점)", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
             @Parameter(name = "startDate", description = "조회 시작일 (yyyy-MM-dd)", example = "2026-01-01"),
             @Parameter(name = "endDate", description = "조회 종료일 (yyyy-MM-dd)", example = "2026-01-31")
     }, responses = {
