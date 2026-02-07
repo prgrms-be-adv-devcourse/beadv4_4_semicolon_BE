@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,6 +35,9 @@ public class ValidateSettlementReader {
     public JpaPagingItemReader<Settlement> pendingSettlementForValidationReader(
             @Value("#{jobParameters['now']}") LocalDateTime now
     ) {
+        // null인 경우 현재 시간 사용 (Spring Batch 6.0 타입 변환 이슈 대응)
+        LocalDateTime effectiveNow = now != null ? now : LocalDateTime.now();
+
         String jpql = """
                 SELECT s FROM Settlement s
                 WHERE s.settlementStatus = :status
@@ -42,16 +46,17 @@ public class ValidateSettlementReader {
                 """;
 
         log.info("[Step 2] 금액 검증 대상 Settlement Reader 생성 - pageSize: {}, now: {}",
-                batchProperties.getPageSize(), now);
+                batchProperties.getPageSize(), effectiveNow);
+
+        Map<String, Object> parameterValues = new HashMap<>();
+        parameterValues.put("status", SettlementStatus.PENDING);
+        parameterValues.put("now", effectiveNow);
 
         return new JpaPagingItemReaderBuilder<Settlement>()
                 .name("pendingSettlementForValidationReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString(jpql)
-                .parameterValues(Map.of(
-                        "status", SettlementStatus.PENDING,
-                        "now", now
-                ))
+                .parameterValues(parameterValues)
                 .pageSize(batchProperties.getPageSize())
                 .saveState(true)
                 .build();
