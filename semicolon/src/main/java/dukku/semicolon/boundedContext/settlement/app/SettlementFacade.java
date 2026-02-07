@@ -1,5 +1,6 @@
 package dukku.semicolon.boundedContext.settlement.app;
 
+import dukku.semicolon.boundedContext.settlement.batch.scheduler.SettlementJobScheduler;
 import dukku.semicolon.boundedContext.settlement.entity.Settlement;
 import dukku.semicolon.shared.settlement.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class SettlementFacade {
     private final ManualCompleteSettlementUseCase manualCompleteSettlementUseCase;
     private final ManualFailSettlementUseCase manualFailSettlementUseCase;
     private final ManualProcessSettlementUseCase manualProcessSettlementUseCase;
+    private final SettlementJobScheduler settlementJobScheduler;
 
     @Transactional(readOnly = true)
     public SettlementDetailResponse getSettlement(UUID settlementUuid) {
@@ -116,5 +118,27 @@ public class SettlementFacade {
     public SettlementDetailResponse failSettlement(UUID settlementUuid) {
         Settlement settlement = manualFailSettlementUseCase.execute(settlementUuid);
         return SettlementDetailResponse.from(settlement);
+    }
+
+    // ===== 배치 수동 실행 API =====
+
+    /**
+     * 정산 배치 수동 실행
+     * - batch 폴더의 SettlementJobScheduler 재사용
+     */
+    public BatchExecutionResponse runSettlementBatch() {
+        log.info("[SettlementFacade] 정산 배치 수동 실행 요청");
+        settlementJobScheduler.runManually();
+        return BatchExecutionResponse.started("settlementJob");
+    }
+
+    /**
+     * 정산 재처리 배치 수동 실행
+     * - batch 폴더의 SettlementJobScheduler 재사용
+     */
+    public BatchExecutionResponse runRetryBatch() {
+        log.info("[SettlementFacade] 정산 재처리 배치 수동 실행 요청");
+        settlementJobScheduler.runRetryManually();
+        return BatchExecutionResponse.started("settlementRetryJob");
     }
 }

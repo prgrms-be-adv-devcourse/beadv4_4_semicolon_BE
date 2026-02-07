@@ -458,4 +458,64 @@ public final class SettlementApiDocs {
     })
     public @interface ProcessSettlement {
     }
+
+    // =============== 8) 정산 배치 수동 실행 ===============
+    @Documented
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Operation(summary = "정산 배치 수동 실행", description = """
+            관리자가 정산 배치를 수동으로 실행합니다.
+
+            - 스케줄러를 기다리지 않고 즉시 배치를 실행합니다.
+            - 배치 처리 순서: 정산 대상 생성 → 금액 검증 → 예치금 충전
+            - 실행 결과로 JobExecution 정보를 반환합니다.
+
+            **주의**: 이미 실행 중인 배치가 있는 경우 중복 실행될 수 있습니다.
+            """, responses = {
+            @ApiResponse(responseCode = "200", description = "배치 실행 시작", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Batch Run Response", value = """
+                    {
+                      "jobExecutionId": 1,
+                      "jobName": "settlementJob",
+                      "status": "COMPLETED",
+                      "startTime": "2026-01-25T10:00:00",
+                      "endTime": "2026-01-25T10:05:30",
+                      "exitCode": "COMPLETED",
+                      "exitDescription": ""
+                    }
+                    """))),
+            @ApiResponse(responseCode = "500", description = "배치 실행 실패", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"code\": \"BATCH_EXECUTION_FAILED\", \"message\": \"정산 배치 실행에 실패했습니다.\"}"))),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (관리자 전용)", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"code\": \"FORBIDDEN\", \"message\": \"관리자만 접근 가능합니다.\"}")))
+    })
+    public @interface RunSettlementBatch {
+    }
+
+    // =============== 9) 정산 재처리 배치 수동 실행 ===============
+    @Documented
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Operation(summary = "정산 재처리 배치 수동 실행", description = """
+            관리자가 정산 재처리 배치를 수동으로 실행합니다.
+
+            - FAILED 상태의 정산을 재처리합니다.
+            - 배치 처리 순서: 실패 정산 조회 → PENDING 상태로 변경 → 금액 검증 → 예치금 충전
+            - 실행 결과로 JobExecution 정보를 반환합니다.
+
+            **주의**: 이미 실행 중인 배치가 있는 경우 중복 실행될 수 있습니다.
+            """, responses = {
+            @ApiResponse(responseCode = "200", description = "재처리 배치 실행 시작", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Retry Batch Run Response", value = """
+                    {
+                      "jobExecutionId": 2,
+                      "jobName": "settlementRetryJob",
+                      "status": "COMPLETED",
+                      "startTime": "2026-01-25T11:00:00",
+                      "endTime": "2026-01-25T11:02:15",
+                      "exitCode": "COMPLETED",
+                      "exitDescription": ""
+                    }
+                    """))),
+            @ApiResponse(responseCode = "500", description = "배치 실행 실패", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"code\": \"BATCH_EXECUTION_FAILED\", \"message\": \"정산 재처리 배치 실행에 실패했습니다.\"}"))),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (관리자 전용)", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"code\": \"FORBIDDEN\", \"message\": \"관리자만 접근 가능합니다.\"}")))
+    })
+    public @interface RunRetryBatch {
+    }
 }
