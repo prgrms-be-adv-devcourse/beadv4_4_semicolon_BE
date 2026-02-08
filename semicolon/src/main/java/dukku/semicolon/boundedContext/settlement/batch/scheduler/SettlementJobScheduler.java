@@ -4,13 +4,10 @@ import dukku.semicolon.boundedContext.settlement.batch.config.SettlementBatchPro
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
-import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,34 +40,29 @@ public class SettlementJobScheduler {
      * - 기본값: "0 0 2 1 * *" (매월 1일 오전 2시)
      */
     @Scheduled(cron = "${batch.settlement.scheduler.cron:0 0 2 1 * *}")
-    public void runSettlementJob() {
+    public JobExecution runSettlementJob() {
         log.info("========== 정산 배치 스케줄러 시작 ==========");
-        
+
         try {
             JobParameters jobParameters = createJobParameters();
-            
+
             log.info("정산 배치 Job 실행 - Parameters: {}", jobParameters);
 
-            jobOperator.start(settlementJob, jobParameters);
-            
-            log.info("정산 배치 Job 실행 완료");
-        } catch (JobExecutionAlreadyRunningException e) {
-            log.error("정산 배치가 이미 실행 중입니다.", e);
-        } catch (JobRestartException e) {
-            log.error("정산 배치 재시작 실패", e);
-        } catch (JobInstanceAlreadyCompleteException e) {
-            log.error("정산 배치가 이미 완료된 인스턴스입니다.", e);
-        } catch (InvalidJobParametersException e) {
-            log.error("정산 배치 파라미터가 잘못되었습니다.", e);
+            JobExecution jobExecution = jobOperator.run(settlementJob, jobParameters);
+
+            log.info("정산 배치 Job 실행 완료 - ExecutionId: {}, Status: {}",
+                    jobExecution.getId(), jobExecution.getStatus());
+            return jobExecution;
         } catch (Exception e) {
-            log.error("정산 배치 실행 중 예기치 않은 에러 발생", e);
+            log.error("정산 배치 실행 중 에러 발생", e);
+            throw new RuntimeException("정산 배치 실행 실패", e);
         }
     }
     /**
      * 정산 재처리 배치 실행 (수동 전용)
      * - 실패 건 발생 시 관리자가 수동으로 재처리
      */
-    public void runSettlementRetryJob() {
+    public JobExecution runSettlementRetryJob() {
         log.info("========== 정산 재처리 배치 스케줄러 시작 ==========");
 
         try {
@@ -78,36 +70,31 @@ public class SettlementJobScheduler {
 
             log.info("정산 재처리 배치 Job 실행 - Parameters: {}", jobParameters);
 
-            jobOperator.start(settlementRetryJob, jobParameters);
+            JobExecution jobExecution = jobOperator.start(settlementRetryJob, jobParameters);
 
-            log.info("정산 재처리 배치 Job 실행 완료");
-        } catch (JobExecutionAlreadyRunningException e) {
-            log.error("정산 재처리 배치가 이미 실행 중입니다.", e);
-        } catch (JobRestartException e) {
-            log.error("정산 재처리 배치 재시작 실패", e);
-        } catch (JobInstanceAlreadyCompleteException e) {
-            log.error("정산 재처리 배치가 이미 완료된 인스턴스입니다.", e);
-        } catch (InvalidJobParametersException e) {
-            log.error("정산 재처리 배치 파라미터가 잘못되었습니다.", e);
+            log.info("정산 재처리 배치 Job 실행 완료 - ExecutionId: {}, Status: {}",
+                    jobExecution.getId(), jobExecution.getStatus());
+            return jobExecution;
         } catch (Exception e) {
-            log.error("정산 재처리 배치 실행 중 예기치 않은 에러 발생", e);
+            log.error("정산 재처리 배치 실행 중 에러 발생", e);
+            throw new RuntimeException("정산 재처리 배치 실행 실패", e);
         }
     }
 
     /**
      * 수동 실행용 메서드 (관리자 API에서 호출 가능)
      */
-    public void runManually() {
+    public JobExecution runManually() {
         log.info("========== 정산 배치 수동 실행 ==========");
-        runSettlementJob();
+        return runSettlementJob();
     }
 
     /**
      * 재처리 배치 수동 실행용 메서드 (관리자 API에서 호출 가능)
      */
-    public void runRetryManually() {
+    public JobExecution runRetryManually() {
         log.info("========== 정산 재처리 배치 수동 실행 ==========");
-        runSettlementRetryJob();
+        return runSettlementRetryJob();
     }
 
     /**

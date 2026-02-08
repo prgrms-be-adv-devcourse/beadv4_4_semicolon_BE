@@ -5,9 +5,11 @@ import dukku.semicolon.boundedContext.settlement.entity.Settlement;
 import dukku.semicolon.shared.settlement.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.job.JobExecution;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -126,19 +128,21 @@ public class SettlementFacade {
      * 정산 배치 수동 실행
      * - batch 폴더의 SettlementJobScheduler 재사용
      */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public BatchExecutionResponse runSettlementBatch() {
         log.info("[SettlementFacade] 정산 배치 수동 실행 요청");
-        settlementJobScheduler.runManually();
-        return BatchExecutionResponse.started("settlementJob");
+        JobExecution jobExecution = settlementJobScheduler.runManually();
+        return BatchExecutionResponse.from(jobExecution);
     }
 
     /**
      * 정산 재처리 배치 수동 실행
      * - batch 폴더의 SettlementJobScheduler 재사용
      */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public BatchExecutionResponse runRetryBatch() {
         log.info("[SettlementFacade] 정산 재처리 배치 수동 실행 요청");
-        settlementJobScheduler.runRetryManually();
-        return BatchExecutionResponse.started("settlementRetryJob");
+        JobExecution jobExecution = settlementJobScheduler.runRetryManually();
+        return BatchExecutionResponse.from(jobExecution);
     }
 }
