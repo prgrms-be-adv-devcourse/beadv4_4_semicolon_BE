@@ -31,7 +31,7 @@ public class SystemDepositInitData {
     private static final String SYSTEM_DEPOSIT_EMAIL = "admin-deposit@dukku.shop";
     private static final String SYSTEM_DEPOSIT_NICKNAME = "시스템-예치금";
     // 임시 하드코딩 UUID (추후 API Client 등으로 대체 예정)
-    private static final UUID SYSTEM_USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    public static final UUID SYSTEM_USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     private static final Long INITIAL_CAPITAL = 1_000_000_000L; // 10억
 
     @Bean

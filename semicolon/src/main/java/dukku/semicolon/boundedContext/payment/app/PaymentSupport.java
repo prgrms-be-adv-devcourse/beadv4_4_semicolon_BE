@@ -137,4 +137,12 @@ public class PaymentSupport {
     public Refund saveRefund(Refund refund) {
         return refundRepository.save(refund);
     }
+
+    /**
+     * 특정 결제에 특정 유형의 이력이 존재하는지 확인
+     */
+    public boolean hasHistoryType(int paymentId, PaymentHistoryType type) {
+        return paymentHistoryRepository.findByPaymentId(paymentId).stream()
+                .anyMatch(h -> h.getType() == type);
+    }
 }
