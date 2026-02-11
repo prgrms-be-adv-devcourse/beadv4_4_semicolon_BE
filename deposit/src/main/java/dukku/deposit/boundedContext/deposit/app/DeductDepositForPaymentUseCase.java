@@ -5,7 +5,7 @@ import dukku.common.shared.deposit.event.DepositDeductionFailedEvent;
 import dukku.common.shared.deposit.event.DepositUsedEvent;
 import dukku.common.shared.deposit.type.DepositFailureCode;
 import dukku.common.shared.payment.event.PaymentSuccessEvent;
-import dukku.deposit.boundedContext.deposit.entity.enums.DepositHistoryType;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import dukku.deposit.boundedContext.deposit.exception.NotEnoughDepositException;
 import dukku.deposit.global.SystemDepositInitData;
 import lombok.RequiredArgsConstructor;

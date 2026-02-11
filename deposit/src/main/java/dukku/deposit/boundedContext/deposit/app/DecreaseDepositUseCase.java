@@ -2,7 +2,7 @@ package dukku.deposit.boundedContext.deposit.app;
 
 import dukku.deposit.boundedContext.deposit.entity.Deposit;
 import dukku.deposit.boundedContext.deposit.entity.DepositHistory;
-import dukku.deposit.boundedContext.deposit.entity.enums.DepositHistoryType;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ public class DecreaseDepositUseCase {
      * <p>
      * 사용자의 예치금 잔액을 차감하고, 변동 내역(History)을 저장한다.
      * 잔액 부족 시
-     * {@link dukku.semicolon.boundedContext.deposit.exception.NotEnoughDepositException}
+     * {@link dukku.deposit.boundedContext.deposit.exception.NotEnoughDepositException}
      * 발생.
      * 
      * TODO: Phase 2에서 비관적 락 적용 예정

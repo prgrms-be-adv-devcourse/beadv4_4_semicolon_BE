@@ -4,7 +4,7 @@ import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.common.shared.deposit.event.DepositRefundedEvent;
 import dukku.common.shared.deposit.event.DepositRefundFailedEvent;
 import dukku.common.shared.deposit.type.DepositFailureCode;
-import dukku.deposit.boundedContext.deposit.entity.enums.DepositHistoryType;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

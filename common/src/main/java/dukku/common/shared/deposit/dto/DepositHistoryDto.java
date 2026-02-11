@@ -1,6 +1,6 @@
 package dukku.common.shared.deposit.dto;
 
-import dukku.semicolon.boundedContext.deposit.entity.enums.DepositHistoryType;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

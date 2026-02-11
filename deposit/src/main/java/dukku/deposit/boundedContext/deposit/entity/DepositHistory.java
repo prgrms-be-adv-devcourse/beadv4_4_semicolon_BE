@@ -1,10 +1,13 @@
 package dukku.deposit.boundedContext.deposit.entity;
 
 import dukku.common.global.jpa.entity.BaseEntity;
-import dukku.deposit.boundedContext.deposit.entity.enums.DepositHistoryType;
 import dukku.common.shared.deposit.dto.DepositHistoryDto;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

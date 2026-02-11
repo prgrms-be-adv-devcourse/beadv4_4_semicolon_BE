@@ -1,7 +1,4 @@
-package dukku.deposit.boundedContext.deposit.entity.enums;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+package dukku.common.shared.deposit.type;
 
 /**
  * 예치금 변동 유형

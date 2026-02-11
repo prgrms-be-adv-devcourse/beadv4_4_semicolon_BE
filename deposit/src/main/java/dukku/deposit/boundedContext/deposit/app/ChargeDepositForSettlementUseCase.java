@@ -3,7 +3,7 @@ package dukku.deposit.boundedContext.deposit.app;
 import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.common.shared.deposit.event.DepositChargeFailedEvent;
 import dukku.common.shared.deposit.event.DepositChargeSucceededEvent;
-import dukku.deposit.boundedContext.deposit.entity.enums.DepositHistoryType;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import dukku.common.shared.deposit.dto.DepositChargeForSettlementResponse;
 import dukku.common.shared.deposit.dto.DepositDto;
 import dukku.common.shared.deposit.type.DepositChargeResultCode;

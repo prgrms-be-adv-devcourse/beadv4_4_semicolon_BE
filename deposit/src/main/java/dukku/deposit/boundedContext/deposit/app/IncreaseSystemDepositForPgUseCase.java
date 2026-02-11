@@ -1,6 +1,6 @@
 package dukku.deposit.boundedContext.deposit.app;
 
-import dukku.deposit.boundedContext.deposit.entity.enums.DepositHistoryType;
+import dukku.common.shared.deposit.type.DepositHistoryType;
 import dukku.deposit.global.SystemDepositInitData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

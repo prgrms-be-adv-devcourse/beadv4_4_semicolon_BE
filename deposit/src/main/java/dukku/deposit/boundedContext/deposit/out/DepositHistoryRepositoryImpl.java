@@ -12,7 +12,7 @@ import org.springframework.data.domain.SliceImpl;
 import java.util.List;
 import java.util.UUID;
 
-import static dukku.semicolon.boundedContext.deposit.entity.QDepositHistory.depositHistory;
+import static dukku.deposit.boundedContext.deposit.entity.QDepositHistory.depositHistory;
 
 @RequiredArgsConstructor
 public class DepositHistoryRepositoryImpl implements DepositHistoryRepositoryCustom {

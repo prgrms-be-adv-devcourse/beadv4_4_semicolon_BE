@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableResilientMethods
 @EnableJpaAuditing
 @SpringBootApplication(scanBasePackages = {
-        "dukku.semicolon",
+        "dukku.deposit", // TODO: semicolon에서 deposit로 변경 완료
         "dukku.common"
 })
 public class Application {
