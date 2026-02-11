@@ -21,6 +21,11 @@ public class FindMyShopUseCase {
         ProductSeller seller = productSellerRepository.findByUserUuid(userUuid)
                 .orElseThrow(ProductSellerNotFoundException::new);
 
-        return ShopResponse.from(seller);
+        return ShopResponse.builder()
+                .shopUuid(seller.getUuid())
+                .intro(seller.getIntro())
+                .salesCount(seller.getSalesCount())
+                .activeListingCount(seller.getActiveListingCount())
+                .build();
     }
 }

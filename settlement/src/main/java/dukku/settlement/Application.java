@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableResilientMethods
 @EnableJpaAuditing
 @SpringBootApplication(scanBasePackages = {
-        "dukku.semicolon",
+        "dukku.settlement",
         "dukku.common"
 })
 public class Application {

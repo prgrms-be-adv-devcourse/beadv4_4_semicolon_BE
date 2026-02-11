@@ -248,12 +248,33 @@ public class Product extends BaseIdAndUUIDAndTime {
     public static ProductListResponse from(Page<Product> result) {
         return ProductListResponse.builder()
                 .items(result.getContent().stream()
-                        .map(ProductListItemResponse::from)
-                        .toList())
+                        .map(Product::toListItemResponse)                        .toList())
                 .page(result.getNumber())
                 .size(result.getSize())
                 .totalCount(result.getTotalElements())
                 .hasNext(result.hasNext())
+                .build();
+    }
+
+    public ProductListItemResponse toListItemResponse() {
+        String thumbnail = this.images == null
+                ? null
+                : this.images.stream()
+                .min(Comparator.comparingInt(ProductImage::getSortOrder))
+                .map(ProductImage::getImageUrl)
+                .orElse(null);
+
+        return ProductListItemResponse.builder()
+                .productUuid(this.getUuid())
+                .title(this.title)
+                .price(this.price)
+                .thumbnailUrl(thumbnail)
+                .saleStatus(this.saleStatus)
+                .likeCount(this.likeCount)
+                .commentCount(this.commentCount)
+                .viewCount(this.viewCount)
+                .createdAt(this.getCreatedAt())
+                .tagNames(this.getTagNames())
                 .build();
     }
 }

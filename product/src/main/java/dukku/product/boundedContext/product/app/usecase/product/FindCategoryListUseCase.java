@@ -14,7 +14,12 @@ public class FindCategoryListUseCase {
 
     public List<CategoryCreateResponse> execute() {
         return categoryRepository.findAll().stream()
-                .map(CategoryCreateResponse::from)
+                .map(category -> CategoryCreateResponse.builder()
+                        .id(category.getId())
+                        .name(category.getCategoryName())
+                        .parentId(category.getParent() == null ? null : category.getParent().getId())
+                        .depth(category.getDepth())
+                        .build())
                 .toList();
     }
 }

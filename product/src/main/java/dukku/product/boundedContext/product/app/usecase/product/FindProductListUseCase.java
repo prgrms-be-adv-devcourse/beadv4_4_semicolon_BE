@@ -29,6 +29,14 @@ public class FindProductListUseCase {
             result = productRepository.findByCategory_IdInAndVisibilityStatusAndDeletedAtIsNull(categoryIds, VisibilityStatus.VISIBLE, pageable);
         }
 
-        return ProductListResponse.from(result);
+        return ProductListResponse.builder()
+                .items(result.getContent().stream()
+                        .map(Product::toListItemResponse)
+                        .toList())
+                .page(result.getNumber())
+                .size(result.getSize())
+                .totalCount(result.getTotalElements())
+                .hasNext(result.hasNext())
+                .build();
     }
 }

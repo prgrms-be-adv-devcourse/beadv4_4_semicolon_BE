@@ -141,4 +141,19 @@ public class ProductDocument {
                 .tagNames(doc.getTags())
                 .build();
     }
+
+    public ProductListItemResponse toListItemResponse() {
+        return ProductListItemResponse.builder()
+                .productUuid(UUID.fromString(this.productUuid))
+                .title(this.title)
+                .price(this.price)
+                .thumbnailUrl(this.thumbnailImageUrl)
+                .saleStatus(this.saleStatus)
+                .likeCount(this.likeCount)
+                .commentCount(this.commentCount)
+                .viewCount(this.viewCount)
+                .createdAt(this.createdAt)
+                .tagNames(this.tags)
+                .build();
+    }
 }
