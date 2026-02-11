@@ -64,6 +64,7 @@ jobs:
               -e SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }} \
               -e SPRING_DATA_REDIS_PORT=6379 \
               -e SPRING_ELASTICSEARCH_URIS=${{ secrets.ELASTICSEARCH_URL }} \
+              -e KAFKA_BOOTSTRAP_SERVERS=${{ secrets.KAFKA_BOOTSTRAP_SERVERS }} \
               -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
               -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
               -e CRYPTO_KEY=${{ secrets.CRYPTO_KEY }} \
@@ -72,6 +73,5 @@ jobs:
               -e SLACK_WEBHOOK_URL=${{secrets.SLACK_WEBHOOK_URL}}\
               -e SYSTEM_DEPOSIT_PASSWORD=${{secrets.SYSTEM_DEPOSIT_PASSWORD}}\
               ${{ env.DOCKER_IMAGE }}:latest
-            
             
             docker image prune -f
