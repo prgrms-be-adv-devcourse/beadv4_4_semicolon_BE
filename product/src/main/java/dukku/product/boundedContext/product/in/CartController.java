@@ -1,8 +1,9 @@
 package dukku.product.boundedContext.product.in;
 
-import dukku.product.boundedContext.product.app.facade.CartFacade;
 import dukku.common.shared.product.docs.CartApiDocs;
+import dukku.common.shared.product.dto.cart.CartInternalResponse;
 import dukku.common.shared.product.dto.cart.CartListResponse;
+import dukku.product.boundedContext.product.app.facade.CartFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,12 @@ public class CartController {
     public ResponseEntity<Void> deleteAllCartItem() {
         cartFacade.deleteAllCartItem();
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/internal/{userUuid}")
+    @CartApiDocs.FindCartListByUserUuid
+    public ResponseEntity<CartInternalResponse> findCartListByUserUuid(@PathVariable UUID userUuid) {
+        CartInternalResponse response = cartFacade.findCartListByUserUuid(userUuid);
+        return ResponseEntity.ok(response);
     }
 }
