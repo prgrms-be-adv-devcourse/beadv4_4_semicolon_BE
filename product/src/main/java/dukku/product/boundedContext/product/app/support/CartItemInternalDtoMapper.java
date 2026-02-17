@@ -7,7 +7,7 @@ import dukku.product.boundedContext.product.entity.ProductImage;
 
 import java.util.Comparator;
 
-// 썸네일 규칙/매핑은 mapper로 분리 (여기가 제일 지저분했잖아)
+// 썸네일 규칙 / 매핑은 mapper로 분리
 public final class CartItemInternalDtoMapper {
     private CartItemInternalDtoMapper() {}
 
