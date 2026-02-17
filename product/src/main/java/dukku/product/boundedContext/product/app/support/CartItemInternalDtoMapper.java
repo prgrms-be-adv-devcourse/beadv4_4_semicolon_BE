@@ -27,7 +27,7 @@ public final class CartItemInternalDtoMapper {
                 product.getUuid(),
                 product.getTitle(),
                 product.getPrice(),
-                product.getSaleStatus().name(),
+                product.getSaleStatus(),
                 thumbnailUrl
         );
     }

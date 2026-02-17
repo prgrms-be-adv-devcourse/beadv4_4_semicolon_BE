@@ -1,5 +1,7 @@
 package dukku.common.shared.product.dto.cart;
 
+import dukku.common.shared.product.type.SaleStatus;
+
 import java.util.UUID;
 
 public record CartItemInternalDto(
@@ -7,6 +9,6 @@ public record CartItemInternalDto(
         UUID productUuid,
         String productTitle,
         long productPrice,
-        String saleStatus,
+        SaleStatus saleStatus,
         String thumbnailUrl
 ) {}
