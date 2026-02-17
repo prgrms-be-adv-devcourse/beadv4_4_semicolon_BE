@@ -5,14 +5,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties(RateLimitProperties.class)
-@ConditionalOnBean(StringRedisTemplate.class)
+@ConditionalOnBean(RedisTemplate.class)
 @ConditionalOnProperty(prefix = "custom.rate-limit", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class RateLimitWebConfig implements WebMvcConfigurer {
     private final RateLimitInterceptor rateLimitInterceptor;

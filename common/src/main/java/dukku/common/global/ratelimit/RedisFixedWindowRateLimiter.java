@@ -3,7 +3,7 @@ package dukku.common.global.ratelimit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -11,12 +11,12 @@ import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnBean(StringRedisTemplate.class)
+@ConditionalOnBean(RedisTemplate.class)
 @ConditionalOnProperty(prefix = "custom.rate-limit", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class RedisFixedWindowRateLimiter {
     private static final String KEY_PREFIX = "rate_limit";
 
-    private final StringRedisTemplate stringRedisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public RateLimitDecision tryConsume(String policyName, String identifier, long limit, long windowSeconds) {
         long safeLimit = Math.max(limit, 1L);
@@ -26,9 +26,9 @@ public class RedisFixedWindowRateLimiter {
         long windowStart = (nowEpochSeconds / safeWindow) * safeWindow;
         String redisKey = KEY_PREFIX + ":" + policyName + ":" + identifier + ":" + windowStart;
 
-        Long current = stringRedisTemplate.opsForValue().increment(redisKey);
+        Long current = redisTemplate.opsForValue().increment(redisKey);
         if (current != null && current == 1L) {
-            stringRedisTemplate.expire(redisKey, Duration.ofSeconds(safeWindow + 1L));
+            redisTemplate.expire(redisKey, Duration.ofSeconds(safeWindow + 1L));
         }
 
         long used = current == null ? safeLimit : current;

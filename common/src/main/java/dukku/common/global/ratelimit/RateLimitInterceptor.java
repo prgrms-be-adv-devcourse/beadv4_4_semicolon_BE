@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnBean(StringRedisTemplate.class)
+@ConditionalOnBean(RedisTemplate.class)
 @ConditionalOnProperty(prefix = "custom.rate-limit", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class RateLimitInterceptor implements HandlerInterceptor {
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
