@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to k3s (EC2)
 
 on:
   push:
@@ -9,13 +9,16 @@ env:
   EC2_HOST: ${{ secrets.EC2_HOST }}
   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
   EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+  K8S_NAMESPACE: semicolon
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        module: [ auth, user, product, order, coupon, payment, deposit, settlement, ai ]
+        # ai는 일단 제외 (나중에 mongodb 포함해서 붙일 때 추가)
+        module: [ auth, user, product, order, coupon, payment, deposit, settlement ]
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -29,13 +32,14 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push ${{ matrix.module }}
+      - name: Build and Push (sha)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ env.DOCKER_USERNAME }}/semicolon-${{ matrix.module }}:latest
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/semicolon-${{ matrix.module }}:${{ github.sha }}
           build-args: |
             MODULE_NAME=${{ matrix.module }}
           cache-from: type=gha,scope=${{ matrix.module }}
@@ -45,20 +49,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Copy Docker Compose and Nginx Config
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: ${{ env.EC2_USERNAME }}
-          key: ${{ env.EC2_SSH_KEY }}
-          port: 22
-          source: "docker-compose.prod.yml"
-          target: "/home/${{ env.EC2_USERNAME }}/semicolon-backend"
-
-      - name: Deploy to EC2 via SSH
+      - name: Deploy to EC2 (k3s) via SSH - set image by sha
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.EC2_HOST }}
@@ -66,39 +57,32 @@ jobs:
           key: ${{ env.EC2_SSH_KEY }}
           port: 22
           script: |
-            mkdir -p /home/${{ env.EC2_USERNAME }}/semicolon-backend
-            cd /home/${{ env.EC2_USERNAME }}/semicolon-backend
-            
-            # .env 파일 생성
-            cat <<EOF > .env
-            DOCKER_IMAGE_PREFIX=${{ env.DOCKER_USERNAME }}
-            SPRING_PROFILES_ACTIVE=release
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            REDIS_HOST=${{ secrets.REDIS_HOST }}
-            REDIS_PORT=6379
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-            ELASTICSEARCH_URIS=${{ secrets.ELASTICSEARCH_URL }}
-            JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
-            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
-            CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}
-            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-            EMAIL_VERIFICATION_BASE_URL=${{ secrets.EMAIL_VERIFICATION_BASE_URL }}
-            KAFKA_BOOTSTRAP_SERVERS=${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
-            TOSS_API_SECRET_KEY=${{ secrets.TOSS_API_SECRET_KEY }}
-            SYSTEM_DEPOSIT_PASSWORD=${{ secrets.SYSTEM_DEPOSIT_PASSWORD }}
-            SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
-            CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            EOF
+            set -euo pipefail
 
-            # Docker Compose 실행 (v2 사용)
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml down
-            docker compose -f docker-compose.prod.yml up -d
-            
-            # 불필요한 이미지 정리
-            docker image prune -f
+            NS="${{ env.K8S_NAMESPACE }}"
+            SHA="${{ github.sha }}"
+            DOCKER_USERNAME="${{ env.DOCKER_USERNAME }}"
+
+            # k3s 환경이면 sudo가 필요할 수 있음
+            K="kubectl"
+            if ! kubectl version --client >/dev/null 2>&1; then
+              K="sudo kubectl"
+            fi
+
+            echo "[1] cluster check"
+            $K -n "$NS" get deploy
+
+            echo "[2] rollout: set images by sha"
+            for m in auth user product order coupon payment deposit settlement; do
+              img="${DOCKER_USERNAME}/semicolon-${m}:${SHA}"
+              echo " - deploy/${m} -> ${img}"
+              $K -n "$NS" set image "deploy/${m}" "${m}=${img}" --record=true
+            done
+
+            echo "[3] wait rollout status"
+            for m in auth user product order coupon payment deposit settlement; do
+              $K -n "$NS" rollout status "deploy/${m}" --timeout=180s
+            done
+
+            echo "[4] result"
+            $K -n "$NS" get deploy -o wide
