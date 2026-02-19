@@ -40,6 +40,7 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/semicolon-${{ matrix.module }}:${{ github.sha }}
+            ${{ env.DOCKER_USERNAME }}/semicolon-${{ matrix.module }}:latest
           build-args: |
             MODULE_NAME=${{ matrix.module }}
           cache-from: type=gha,scope=${{ matrix.module }}
