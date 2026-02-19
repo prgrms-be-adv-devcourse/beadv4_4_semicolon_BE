@@ -2,7 +2,7 @@ name: Deploy to k3s (EC2)
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "*" ]
   workflow_dispatch:
 
 env:
