@@ -46,7 +46,7 @@
     <!-- ============================================ -->
     <appender name="KAFKA" class="com.github.danielwegener.logback.kafka.KafkaAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>WARN</level>
         </filter>
 
         <filter class="dukku.common.global.logging.logback.MdcTraceFilter"/>
