@@ -1,17 +1,17 @@
 # Prometheus + Grafana 모니터링 스택
-# 사용법: docker-compose up -d (monitoring 폴더에서 실행)
+# 사용법: docker compose -f docker-compose.local.monitoring.yml up -d (루트에서 실행)
 services:
   # Prometheus - 메트릭 수집 및 저장
   prometheus:
     image: prom/prometheus:latest
     container_name: semicolon-prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'  # 30일간 데이터 보관
+      - '--storage.tsdb.retention.time=365d'  # 1년간 데이터 보관
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
@@ -28,7 +28,7 @@ services:
     image: grafana/grafana:latest
     container_name: semicolon-grafana
     env_file:
-      - .env
+      - ./monitoring/.env
     environment:
       # 기본 관리자 계정 (운영 환경에서는 반드시 변경!)
       - GF_SECURITY_ADMIN_USER=admin
@@ -51,8 +51,8 @@ services:
       - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -71,7 +71,7 @@ services:
       MONGO_INITDB_DATABASE: log_service
     volumes:
       - mongodb_data:/data/db
-      - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./monitoring/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     healthcheck:
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
