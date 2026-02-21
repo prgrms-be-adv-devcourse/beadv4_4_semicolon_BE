@@ -72,6 +72,10 @@ services:
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - CRYPTO_KEY=${CRYPTO_KEY}
       - SPRING_ELASTICSEARCH_URIS=${ELASTICSEARCH_URIS}
+      - AWS_ACCESS_KEY=${{AWS_ACCESS_KEY}}
+      - AWS_SECRET_KEY=${{AWS_SECRET_KEY}}
+      - AWS_REGION=${{AWS_REGION}}
+      - AWS_S3_BUCKET=${{AWS_S3_BUCKET}}
     networks:
       - team05-network
     deploy:
