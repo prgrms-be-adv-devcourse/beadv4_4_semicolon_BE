@@ -1,6 +1,6 @@
 # Grafana Alert Contact Points Provisioning
 # Slack Incoming Webhook을 통한 알림 전송 설정
-# .env 파일의 SLACK_WEB_HOOK_GRAFANA_ERROR 환경변수를 참조합니다.
+# .env 파일의 SLACK_WEBHOOK_URL_GRAFANA 환경변수를 참조합니다.
 # recipient는 Grafana validation 필수 필드이나, Incoming Webhook 사용 시 실제 전송 채널은 webhook URL이 결정합니다.
 apiVersion: 1
 
@@ -11,7 +11,7 @@ contactPoints:
       - uid: "slack-error-notification"
         type: "slack"
         settings:
-          url: ${SLACK_WEBHOOK_URL_GRAFANA_ERROR}
+          url: ${SLACK_WEBHOOK_URL_GRAFANA}
           recipient: "#grafana-alerts"
           title: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
           text: |
