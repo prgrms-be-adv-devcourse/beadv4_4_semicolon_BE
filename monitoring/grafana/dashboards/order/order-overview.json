@@ -21,7 +21,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(business_order_created_total{application=\"semicolon\"}[1h]))",
+          "expr": "sum(rate(business_order_created_total{application=\"order\"}[1h]))",
           "legendFormat": "Order Created",
           "refId": "A"
         }
@@ -44,7 +44,7 @@
       },
       "targets": [
         {
-          "expr": "rate(business_order_cancelled_total{application=\"semicolon\"}[5m]) / rate(business_order_created_total{application=\"semicolon\"}[5m]) * 100",
+          "expr": "rate(business_order_cancelled_total{application=\"order\"}[5m]) / rate(business_order_created_total{application=\"order\"}[5m]) * 100",
           "legendFormat": "Cancellation Rate",
           "refId": "A"
         }
@@ -84,7 +84,7 @@
       },
       "targets": [
         {
-          "expr": "avg(business_order_amount{application=\"semicolon\"})",
+          "expr": "avg(business_order_amount{application=\"order\"})",
           "legendFormat": "Average Amount",
           "refId": "A"
         }
@@ -107,7 +107,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (status) (business_order_created_total{application=\"semicolon\"})",
+          "expr": "sum by (status) (business_order_created_total{application=\"order\"})",
           "legendFormat": "{{status}}",
           "refId": "A"
         }
@@ -130,7 +130,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"semicolon\",uri=~\"/api/v1/orders.*\"}[1m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"order\",uri=~\"/api/v1/orders.*\"}[1m])) by (le))",
           "legendFormat": "P95 Latency",
           "refId": "A"
         }

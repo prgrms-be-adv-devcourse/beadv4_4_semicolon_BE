@@ -18,39 +18,139 @@ global:
 
 # 메트릭 수집 대상 설정
 scrape_configs:
-  # Spring Boot 애플리케이션 메트릭 수집
-  - job_name: 'semicolon-spring-app'
+  # ──────────────────────────────────────────────
+  # 도메인 모듈별 개별 수집 (application 레이블 자동 사용)
+  # honor_labels: true → Spring Boot의 management.metrics.tags.application 값을 그대로 사용
+  # ──────────────────────────────────────────────
+
+  # Gateway (common 모듈)
+  - job_name: 'gateway'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 10s
+    honor_labels: true
     static_configs:
-      - targets:
-          # Windows/Mac에서 로컬 Spring Boot 앱에 접근
-          - 'host.docker.internal:8080'   # gateway
-          - 'host.docker.internal:8083'   # product
-          - 'host.docker.internal:8084'   # order
-          - 'host.docker.internal:8086'   # payment
-          - 'host.docker.internal:8087'   # deposit
-          - 'host.docker.internal:8088'   # settlement
-          - 'host.docker.internal:8089'   # ai
+      - targets: ['host.docker.internal:8080']
         labels:
-          application: 'semicolon'
           environment: 'local'
+          module: 'gateway'
+
+  # Auth 모듈
+  - job_name: 'auth'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+        labels:
+          environment: 'local'
+          module: 'auth'
+
+  # User 모듈
+  - job_name: 'user'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8082']
+        labels:
+          environment: 'local'
+          module: 'user'
+
+  # Product 모듈
+  - job_name: 'product'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8083']
+        labels:
+          environment: 'local'
+          module: 'product'
+
+  # Order 모듈
+  - job_name: 'order'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8084']
+        labels:
+          environment: 'local'
+          module: 'order'
+
+  # Coupon 모듈
+  - job_name: 'coupon'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8085']
+        labels:
+          environment: 'local'
+          module: 'coupon'
+
+  # Payment 모듈
+  - job_name: 'payment'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8086']
+        labels:
+          environment: 'local'
+          module: 'payment'
+
+  # Deposit 모듈
+  - job_name: 'deposit'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8087']
+        labels:
+          environment: 'local'
+          module: 'deposit'
+
+  # Settlement 모듈
+  - job_name: 'settlement'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8088']
+        labels:
+          environment: 'local'
+          module: 'settlement'
+
+  # AI 모듈
+  - job_name: 'ai'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8089']
+        labels:
+          environment: 'local'
+          module: 'ai'
+
+  # ──────────────────────────────────────────────
+  # 기타 서비스
+  # ──────────────────────────────────────────────
 
   # Log Consumer 메트릭 수집
   - job_name: 'log-consumer'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 10s
+    honor_labels: true
     static_configs:
-      - targets:
-          - 'host.docker.internal:8085'
+      - targets: ['host.docker.internal:9000']
         labels:
-          application: 'log-consumer'
           environment: 'local'
+          module: 'log-consumer'
 
   # Prometheus 자체 모니터링
   - job_name: 'prometheus'
     static_configs:
-      - targets:
-          - 'localhost:9090'
+      - targets: ['localhost:9090']
         labels:
           application: 'prometheus'

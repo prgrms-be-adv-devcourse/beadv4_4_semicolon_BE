@@ -21,7 +21,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"semicolon\",uri=\"/api/v1/products\"}[1m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"product\",uri=\"/api/v1/products\"}[1m])) by (le))",
           "legendFormat": "P95 Latency",
           "refId": "A"
         }
@@ -44,7 +44,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{application=\"semicolon\",uri=~\"/api/v1/products.*\"}[1m]))",
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"product\",uri=~\"/api/v1/products.*\"}[1m]))",
           "legendFormat": "Requests/sec",
           "refId": "A"
         }
@@ -67,7 +67,7 @@
       },
       "targets": [
         {
-          "expr": "business_product_search_duration_seconds{application=\"semicolon\"}",
+          "expr": "business_product_search_duration_seconds{application=\"product\"}",
           "legendFormat": "Search Duration",
           "refId": "A"
         }

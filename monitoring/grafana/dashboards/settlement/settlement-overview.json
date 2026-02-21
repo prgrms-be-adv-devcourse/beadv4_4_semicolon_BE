@@ -11,158 +11,22 @@
   "panels": [
     {
       "id": 1,
-      "title": "정산 생성 건수 (시간당)",
-      "type": "timeseries",
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(business_settlement_created_total{application=\"semicolon\"}[1h])) by (status)",
-          "legendFormat": "{{status}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "palette-classic"
-          }
-        }
-      }
-    },
-    {
-      "id": 2,
-      "title": "정산 금액 추이 (KRW)",
-      "type": "timeseries",
-      "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(business_settlement_amount_total{application=\"semicolon\"}[5m]))",
-          "legendFormat": "Total Amount",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyKRW"
-        }
-      }
-    },
-    {
-      "id": 3,
-      "title": "판매자별 정산 금액 (Top 10)",
-      "type": "bargauge",
-      "gridPos": {
-        "x": 0,
-        "y": 8,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "topk(10, sum by (seller_id) (business_settlement_amount_total{application=\"semicolon\"}))",
-          "legendFormat": "Seller {{seller_id}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyKRW"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient"
-      }
-    },
-    {
-      "id": 4,
-      "title": "정산 재처리 비율",
+      "title": "마지막 배치 처리 시간",
+      "description": "가장 최근 정산 배치의 처리 소요 시간 (초)",
       "type": "stat",
       "gridPos": {
-        "x": 12,
-        "y": 8,
-        "w": 6,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "rate(business_settlement_retry_total{application=\"semicolon\"}[5m]) / rate(business_settlement_created_total{application=\"semicolon\"}[5m]) * 100",
-          "legendFormat": "Retry Rate %",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 5
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 5,
-      "title": "정산 상태 분포",
-      "type": "piechart",
-      "gridPos": {
-        "x": 18,
-        "y": 8,
-        "w": 6,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "sum by (status) (business_settlement_created_total{application=\"semicolon\"})",
-          "legendFormat": "{{status}}",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right"
-        }
-      }
-    },
-    {
-      "id": 6,
-      "title": "정산 처리 시간 (P95)",
-      "type": "timeseries",
-      "gridPos": {
         "x": 0,
-        "y": 16,
-        "w": 24,
-        "h": 8
+        "y": 0,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus"
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(business_settlement_processing_time_seconds_bucket{application=\"semicolon\"}[5m])) by (le, status))",
-          "legendFormat": "P95 - {{status}}",
+          "expr": "business_settlement_last_duration_seconds{application=\"settlement\"}",
+          "legendFormat": "처리 시간",
           "refId": "A"
         }
       ],
@@ -178,31 +42,137 @@
               },
               {
                 "color": "yellow",
-                "value": 5
+                "value": 10
               },
               {
                 "color": "red",
-                "value": 10
+                "value": 30
               }
             ]
           }
         }
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value"
       }
-    }
-    ,
+    },
     {
-      "id": 7,
-      "title": "이상거래 탐지 건수 (타입별)",
+      "id": 3,
+      "title": "정산 생성/재처리/Skip 추이",
+      "description": "정산 생성 건수, 재처리 요청 건수, Skip 건수",
       "type": "timeseries",
       "gridPos": {
-        "x": 0,
-        "y": 24,
-        "w": 14,
-        "h": 8
+        "x": 4,
+        "y": 0,
+        "w": 20,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus"
       },
       "targets": [
         {
-          "expr": "round(sum(increase(settlement_anomaly_detected_total{application=\"semicolon\"}[1h])) by (type))",
+          "expr": "sum(increase(business_settlement_created_total{application=\"settlement\"}[1h])) or vector(0)",
+          "legendFormat": "Created",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(increase(business_settlement_retry_total{application=\"settlement\"}[1h])) or vector(0)",
+          "legendFormat": "Retry",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(increase(business_settlement_skip_total{application=\"settlement\"}[1h])) or vector(0)",
+          "legendFormat": "Skip",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "배치 처리 시간 추이",
+      "description": "정산 배치 처리 소요 시간 추이 (데이터 누적 시 시간 범위를 넓혀서 월별 확인)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "business_settlement_last_duration_seconds{application=\"settlement\"}",
+          "legendFormat": "처리 시간",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 15,
+            "pointSize": 8,
+            "showPoints": "always",
+            "lineWidth": 2
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "이상거래 탐지 건수 (타입별)",
+      "description": "이상거래 탐지 건수 — 타입별 추이",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 14,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "round(sum(increase(settlement_anomaly_detected_total{application=\"settlement\"}[1h])) by (type))",
           "legendFormat": "{{type}}",
           "refId": "A"
         }
@@ -228,18 +198,22 @@
       }
     },
     {
-      "id": 8,
+      "id": 5,
       "title": "심각도별 이상거래 분포",
+      "description": "이상거래 탐지 건수 — 심각도별 비율",
       "type": "piechart",
       "gridPos": {
         "x": 14,
-        "y": 24,
+        "y": 10,
         "w": 10,
-        "h": 8
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus"
       },
       "targets": [
         {
-          "expr": "sum by (severity) (settlement_anomaly_detected_total{application=\"semicolon\"})",
+          "expr": "sum by (severity) (settlement_anomaly_detected_total{application=\"settlement\"})",
           "legendFormat": "{{severity}}",
           "refId": "A"
         }
@@ -247,12 +221,34 @@
       "fieldConfig": {
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "CRITICAL" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+            "matcher": {
+              "id": "byName",
+              "options": "CRITICAL"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "HIGH" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+            "matcher": {
+              "id": "byName",
+              "options": "HIGH"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -260,25 +256,31 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
-          "calcs": ["sum"]
+          "calcs": [
+            "sum"
+          ]
         },
         "pieType": "donut"
       }
     },
     {
-      "id": 9,
-      "title": "최근 CRITICAL 이상거래",
+      "id": 6,
+      "title": "이상거래 탐지 내역",
+      "description": "전체 이상거래 탐지 건 — 심각도/타입/UUID 포함",
       "type": "table",
       "gridPos": {
         "x": 0,
-        "y": 32,
+        "y": 16,
         "w": 24,
-        "h": 8
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus"
       },
       "targets": [
         {
-          "expr": "round(sum by (type) (settlement_anomaly_detected_total{application=\"semicolon\", severity=\"CRITICAL\"}))",
-          "legendFormat": "{{type}}",
+          "expr": "settlement_anomaly_detected_total{application=\"settlement\"}",
+          "legendFormat": "{{type}} - {{settlement_uuid}}",
           "refId": "A",
           "format": "table",
           "instant": true
@@ -290,8 +292,14 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
           },
           "custom": {
@@ -301,14 +309,46 @@
       },
       "transformations": [
         {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "__name__": true,
+              "application": true,
+              "instance": true,
+              "job": true,
+              "module": true,
+              "environment": true
+            },
+            "renameByName": {
+              "Time": "Time",
+              "type": "타입",
+              "severity": "심각도",
+              "settlement_uuid": "Settlement UUID",
+              "Value": "건수"
+            },
+            "indexByName": {
+              "Time": 0,
+              "severity": 1,
+              "type": 2,
+              "settlement_uuid": 3,
+              "Value": 4
+            }
+          }
+        },
+        {
           "id": "sortBy",
           "options": {
-            "sort": [{ "field": "Value", "desc": true }]
+            "sort": [
+              {
+                "field": "Time",
+                "desc": true
+              }
+            ]
           }
         }
       ]
     }
   ],
   "uid": "settlement-overview",
-  "version": 2
+  "version": 8
 }

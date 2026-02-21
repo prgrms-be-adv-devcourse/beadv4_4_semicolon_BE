@@ -21,7 +21,7 @@
       },
       "targets": [
         {
-          "expr": "rate(business_deposit_charge_success_total{application=\"semicolon\"}[5m]) / (rate(business_deposit_charge_success_total{application=\"semicolon\"}[5m]) + rate(business_deposit_charge_failed_total{application=\"semicolon\"}[5m])) * 100",
+          "expr": "rate(business_deposit_charge_success_total{application=\"deposit\"}[5m]) / (rate(business_deposit_charge_success_total{application=\"deposit\"}[5m]) + rate(business_deposit_charge_failed_total{application=\"deposit\"}[5m])) * 100",
           "legendFormat": "Success Rate",
           "refId": "A"
         }
@@ -61,12 +61,12 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(business_deposit_charge_success_total{application=\"semicolon\"}[1m]))",
+          "expr": "sum(rate(business_deposit_charge_success_total{application=\"deposit\"}[1m]))",
           "legendFormat": "Charge Success",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(business_deposit_charge_failed_total{application=\"semicolon\"}[1m]))",
+          "expr": "sum(rate(business_deposit_charge_failed_total{application=\"deposit\"}[1m]))",
           "legendFormat": "Charge Failed",
           "refId": "B"
         }
@@ -89,7 +89,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(business_deposit_balance_bucket{application=\"semicolon\"}) by (le))",
+          "expr": "histogram_quantile(0.50, sum(business_deposit_balance_bucket{application=\"deposit\"}) by (le))",
           "legendFormat": "Median Balance",
           "refId": "A"
         }
