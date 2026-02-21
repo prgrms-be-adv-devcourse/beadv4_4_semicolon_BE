@@ -8,6 +8,7 @@ rem =========================================================
 
 set "SCRIPT_DIR=%~dp0"
 set "COMPOSE_FILE=%SCRIPT_DIR%docker-compose.local.nginx.yml"
+set "NGINX_CONF=%SCRIPT_DIR%nginx-conf\default.conf"
 set "CERTS_DIR=%SCRIPT_DIR%nginx-conf\certs"
 set "CERT_FULLCHAIN=%CERTS_DIR%\fullchain.pem"
 set "CERT_PRIVKEY=%CERTS_DIR%\privkey.pem"
@@ -49,6 +50,9 @@ if not errorlevel 1 (
     )
 )
 
+call :preflight
+if errorlevel 1 goto :finish
+
 if /I "%ACTION%"=="up" goto :up
 if /I "%ACTION%"=="down" goto :down
 if /I "%ACTION%"=="restart" goto :restart
@@ -61,6 +65,34 @@ echo [nginx-local] Unknown action: %ACTION%
 echo Usage: nginx-local.bat [up^|down^|restart^|reload^|logs^|ps^|toggle] [pause^-p] [-y^|--yes] [--no-pause]
 set "EXIT_CODE=1"
 goto :finish
+
+:preflight
+where docker >nul 2>&1
+if errorlevel 1 (
+    echo [nginx-local] Docker command not found. Install Docker Desktop first.
+    set "EXIT_CODE=1"
+    exit /b 1
+)
+
+docker info >nul 2>&1
+if errorlevel 1 (
+    echo [nginx-local] Docker daemon is not running. Start Docker Desktop and retry.
+    set "EXIT_CODE=1"
+    exit /b 1
+)
+
+if not exist "%COMPOSE_FILE%" (
+    echo [nginx-local] Compose file not found: "%COMPOSE_FILE%"
+    set "EXIT_CODE=1"
+    exit /b 1
+)
+
+if not exist "%NGINX_CONF%" (
+    echo [nginx-local] Nginx config file not found: "%NGINX_CONF%"
+    set "EXIT_CODE=1"
+    exit /b 1
+)
+exit /b 0
 
 :ensure_certs
 if not exist "%CERTS_DIR%" (
@@ -110,23 +142,6 @@ if not exist "%CERT_PRIVKEY%" (
     goto :finish
 )
 goto :eof
-
-:detect_compose
-docker compose version >nul 2>&1
-if not errorlevel 1 (
-    set "COMPOSE_CMD=docker compose"
-    goto :eof
-)
-
-where docker-compose >nul 2>&1
-if not errorlevel 1 (
-    set "COMPOSE_CMD=docker-compose"
-    goto :eof
-)
-
-echo [nginx-local] Docker compose command not found. Install Docker Compose plugin or docker-compose.
-set "EXIT_CODE=1"
-goto :finish
 
 :up
 docker network inspect "%NETWORK_NAME%" >nul 2>&1
@@ -199,10 +214,19 @@ set "EXIT_CODE=%errorlevel%"
 goto :finish
 
 :reload
-docker exec semicolon-nginx nginx -t || (
+docker ps --filter "name=semicolon-nginx" --filter "status=running" -q | findstr /r /c:"." >nul
+if errorlevel 1 (
+    echo [nginx-local] semicolon-nginx is not running. Start first with: nginx-local.bat up
     set "EXIT_CODE=1"
     goto :finish
 )
+
+docker exec semicolon-nginx nginx -t
+if errorlevel 1 (
+    set "EXIT_CODE=1"
+    goto :finish
+)
+
 docker exec semicolon-nginx nginx -s reload
 set "EXIT_CODE=%errorlevel%"
 goto :finish
