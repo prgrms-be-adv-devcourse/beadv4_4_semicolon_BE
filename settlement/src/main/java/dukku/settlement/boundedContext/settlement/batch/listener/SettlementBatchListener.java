@@ -1,5 +1,6 @@
 package dukku.settlement.boundedContext.settlement.batch.listener;
 
+import dukku.settlement.boundedContext.settlement.app.SettlementMetrics;
 import dukku.settlement.boundedContext.settlement.batch.notification.SlackNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +12,15 @@ import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 /**
  * 정산 배치 작업 리스너
  * - Job/Step 시작/종료 로깅
  * - Skip 발생 시 로깅
  * - Job 완료 시 Slack 알림 전송
+ * - Job 실행 시간 / Skip / Retry 메트릭 기록
  */
 @Slf4j
 @Component
@@ -23,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class SettlementBatchListener implements JobExecutionListener, StepExecutionListener {
 
     private final SlackNotificationService slackNotificationService;
+    private final SettlementMetrics settlementMetrics;
 
 
     @Override
@@ -41,6 +47,9 @@ public class SettlementBatchListener implements JobExecutionListener, StepExecut
         log.info("Job Name: {}", jobExecution.getJobInstance().getJobName());
         log.info("Status: {}", jobExecution.getStatus());
         log.info("End Time: {}", jobExecution.getEndTime());
+
+        // 메트릭 기록: 배치 처리 시간 + Skip 건수
+        recordJobMetrics(jobExecution);
 
         // 실패한 경우 예외 정보 출력
         if (!jobExecution.getAllFailureExceptions().isEmpty()) {
@@ -79,5 +88,32 @@ public class SettlementBatchListener implements JobExecutionListener, StepExecut
                 stepExecution.getWriteCount(),
                 stepExecution.getSkipCount());
         return stepExecution.getExitStatus();
+    }
+
+    /**
+     * Job 종료 후 메트릭 기록
+     * - 실행 시간 (Gauge)
+     * - 전체 Step의 Skip 건수 합산
+     */
+    private void recordJobMetrics(JobExecution jobExecution) {
+        // 1. 실행 시간 기록
+        LocalDateTime startTime = jobExecution.getStartTime();
+        LocalDateTime endTime = jobExecution.getEndTime();
+
+        if (startTime != null && endTime != null) {
+            long durationSeconds = Duration.between(startTime, endTime).toSeconds();
+            settlementMetrics.recordJobDuration(durationSeconds);
+            log.info("[메트릭] 배치 처리 시간 기록: {}초", durationSeconds);
+        }
+
+        // 2. Skip 건수 기록
+        long totalSkipCount = jobExecution.getStepExecutions().stream()
+                .mapToLong(StepExecution::getSkipCount)
+                .sum();
+
+        if (totalSkipCount > 0) {
+            settlementMetrics.incrementSkip(totalSkipCount);
+            log.info("[메트릭] Skip 건수 기록: {}건", totalSkipCount);
+        }
     }
 }

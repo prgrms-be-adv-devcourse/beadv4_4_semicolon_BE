@@ -187,7 +187,7 @@ public class AnomalyDetectionService {
 
     private void publishAndCount(Settlement settlement, AnomalyType type, String description,
                                  Long expectedValue, Long actualValue) {
-        settlementMetrics.incrementAnomalyDetected(type.name(), type.getSeverity().name());
+        settlementMetrics.incrementAnomalyDetected(type.name(), type.getSeverity().name(), settlement.getUuid().toString());
         anomalyTracker.record(type, settlement.getUuid(), settlement.getOrderId(), description);
 
         eventPublisher.publish(new SettlementAnomalyDetectedEvent(

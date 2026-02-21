@@ -1,5 +1,6 @@
 package dukku.settlement.boundedContext.settlement.batch.writer;
 
+import dukku.settlement.boundedContext.settlement.app.SettlementMetrics;
 import dukku.settlement.boundedContext.settlement.entity.Settlement;
 import dukku.settlement.boundedContext.settlement.out.SettlementRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class CreateSettlementWriter implements ItemWriter<Settlement> {
 
     private final SettlementRepository settlementRepository;
+    private final SettlementMetrics settlementMetrics;
 
     @Override
     public void write(Chunk<? extends Settlement> chunk) throws Exception {
@@ -25,6 +27,11 @@ public class CreateSettlementWriter implements ItemWriter<Settlement> {
 
         for (Settlement settlement : chunk) {
             settlementRepository.save(settlement);
+
+            // 메트릭 기록: 정산 생성 건수 + 정산 금액
+            settlementMetrics.incrementCreated();
+            settlementMetrics.addAmount(settlement.getSettlementAmount());
+
             log.debug("[Step 1 Writer] Settlement 저장 완료 - UUID: {}, orderItemUuid: {}, 상태: {}",
                     settlement.getUuid(),
                     settlement.getOrderItemId(),

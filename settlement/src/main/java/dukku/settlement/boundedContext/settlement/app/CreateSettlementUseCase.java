@@ -7,7 +7,7 @@ import dukku.common.shared.deposit.out.depositApiClient.DepositApiClient;
 import dukku.common.shared.order.out.OrderApiClient;
 import dukku.common.shared.payment.dto.PaymentInternalResponse;
 import dukku.common.shared.payment.out.PaymentApiClient;
-import io.micrometer.core.annotation.Timed;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,6 @@ public class CreateSettlementUseCase {
     private final DepositApiClient depositApiClient;
     private final OrderApiClient orderApiClient;
     private final PaymentApiClient paymentApiClient;
-    private final SettlementMetrics settlementMetrics;
 
     @Value("${batch.settlement.fee-rate}")
     private BigDecimal feeRate;
@@ -49,7 +48,6 @@ public class CreateSettlementUseCase {
      * @param endDateTime   조회 종료 일시
      * @return 생성된 Settlement 목록
      */
-    @Timed(value = "business_settlement_processing_time_seconds", description = "정산 배치 처리 소요 시간")
     @Transactional
     public List<Settlement> execute(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         log.info("[정산 생성] 배치 실행. 조회 기간: {} ~ {}", startDateTime, endDateTime);
@@ -97,9 +95,6 @@ public class CreateSettlementUseCase {
             );
 
             settlementSupport.save(settlement);
-
-            settlementMetrics.incrementCreated();
-            settlementMetrics.addAmount(settlement.getSettlementAmount());
 
             log.debug("[정산 생성] settlementUuid={}, orderItemUuid={}, sellerUuid={}, amount={}",
                     settlement.getUuid(), orderItem.orderItemUuid(), orderItem.sellerUuid(), orderItem.productPrice());
