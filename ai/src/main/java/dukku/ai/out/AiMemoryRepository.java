@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import dukku.ai.entity.AiMemory;
+import dukku.common.shared.ai.type.MemoryType;
 
 public interface AiMemoryRepository extends JpaRepository<AiMemory, Integer> {
+    boolean existsByUserUuidAndMemoryType(UUID userUuid, MemoryType memoryType);
 
     @Query(value = """
             SELECT * FROM ai_memory
