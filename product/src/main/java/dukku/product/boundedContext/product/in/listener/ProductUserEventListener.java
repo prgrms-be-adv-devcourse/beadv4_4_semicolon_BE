@@ -1,4 +1,4 @@
-﻿package dukku.product.boundedContext.product.in.listener;
+package dukku.product.boundedContext.product.in.listener;
 
 import dukku.common.global.eventPublisher.EventPublisher;
 import dukku.common.shared.user.event.UserAiInitializationFailedEvent;
