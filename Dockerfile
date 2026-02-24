@@ -9,18 +9,8 @@ COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 
-# 2. 모든 모듈 소스 복사 (필요한 모듈만 빌드되도록 최적화 가능하지만, 구조상 전체 복사가 안전)
-COPY common common
-COPY auth auth
-COPY user user
-COPY product product
-COPY order order
-COPY payment payment
-COPY deposit deposit
-COPY settlement settlement
-COPY coupon coupon
-COPY ai ai
-COPY monitoring monitoring
+# 2. 모든 모듈 소스 복사 (구조적 안정성을 위해 전체 복사 권장)
+COPY . .
 
 # 3. 빌드 실행 (MODULE_NAME을 인자로 받음)
 ARG MODULE_NAME

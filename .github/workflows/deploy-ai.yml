@@ -2,7 +2,7 @@ name: Deploy AI Only to k3s (EC2)
 
 on:
   push:
-    branches: [ "infra/hwang" ] # dev 브랜치 푸시 시 자동 배포
+    branches: [ "infra/fix" ] # dev 브랜치 푸시 시 자동 배포
   workflow_dispatch: # 모든 브랜치에서 수동 실행 가능
 
 env:
