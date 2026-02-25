@@ -8,7 +8,9 @@ import dukku.common.shared.product.dto.cqrs.ProductSearchRequest;
 import dukku.common.shared.product.dto.cqrs.ProductSortType;
 import dukku.common.shared.product.dto.product.ProductListItemResponse;
 import dukku.common.shared.product.dto.product.ProductListResponse;
+import dukku.product.boundedContext.product.entity.Product;
 import dukku.product.boundedContext.product.entity.query.ProductDocument;
+import dukku.product.boundedContext.product.out.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +33,7 @@ import java.util.stream.Collectors;
 public class SearchProductUseCase {
 
     private final ElasticsearchOperations elasticsearchOperations;
+    private final ProductRepository productRepository;
 
     public ProductListResponse searchProducts(ProductSearchRequest request, Pageable pageable) {
 
@@ -110,9 +116,28 @@ public class SearchProductUseCase {
 
         SearchHits<ProductDocument> searchHits = elasticsearchOperations.search(query, ProductDocument.class);
 
-        // 4. 결과 변환
-        List<ProductListItemResponse> items = searchHits.stream()
-                .map(hit -> ProductDocument.from(hit.getContent()))
+        // 4. 결과 변환 + DB 실존/미삭제 검증(고아 ES 문서 필터링)
+        List<ProductDocument> docs = searchHits.stream()
+                .map(hit -> hit.getContent())
+                .toList();
+
+        Set<UUID> docUuids = docs.stream()
+                .map(ProductDocument::getProductUuid)
+                .map(this::toUuidOrNull)
+                .filter(uuid -> uuid != null)
+                .collect(Collectors.toSet());
+
+        Set<UUID> activeUuids = new HashSet<>(productRepository.findByUuidInAndDeletedAtIsNull(new ArrayList<>(docUuids))
+                .stream()
+                .map(Product::getUuid)
+                .toList());
+
+        List<ProductListItemResponse> items = docs.stream()
+                .filter(doc -> {
+                    UUID uuid = toUuidOrNull(doc.getProductUuid());
+                    return uuid != null && activeUuids.contains(uuid);
+                })
+                .map(ProductDocument::from)
                 .collect(Collectors.toList());
 
         return ProductListResponse.fromByQuery(new PageImpl<>(items, pageable, searchHits.getTotalHits()));
@@ -125,5 +150,13 @@ public class SearchProductUseCase {
         // 가격 낮은순만 오름차순, 나머지는 내림차순(최신순, 좋아요순 등)
         SortOrder finalOrder = (sortType == ProductSortType.PRICE_LOW) ? SortOrder.Asc : SortOrder.Desc;
         return SortOptions.of(s -> s.field(f -> f.field(field).order(finalOrder)));
+    }
+
+    private UUID toUuidOrNull(String value) {
+        try {
+            return value == null ? null : UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

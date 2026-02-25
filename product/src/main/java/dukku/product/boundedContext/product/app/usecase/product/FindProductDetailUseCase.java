@@ -36,10 +36,11 @@ public class FindProductDetailUseCase {
         log.info("[FindProductDetailUseCase] 상품 상세 조회 시작. productUuid={}", productUuid);
 
         Product product = productRepository.findByUuidWithImagesAndCategory(productUuid)
+                .filter(p -> p.getDeletedAt() == null)
                 .or(() -> {
                     log.warn("[FindProductDetailUseCase] 패치 조인 쿼리로 상품 조회 실패. 기본 조회(findByUuid)를 시도합니다. productUuid={}",
                             productUuid);
-                    return productRepository.findByUuid(productUuid);
+                    return productRepository.findByUuidAndDeletedAtIsNull(productUuid);
                 })
                 .orElseThrow(() -> {
                     log.error("[FindProductDetailUseCase] 어떤 방식으로도 상품을 찾을 수 없습니다. productUuid={}", productUuid);

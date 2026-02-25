@@ -25,7 +25,7 @@ product:
   init:
     enabled: false
     clear-es-on-startup: false
-  reindex-on-startup: false
+  reindex-on-startup: true
 
 management:
   endpoints:
