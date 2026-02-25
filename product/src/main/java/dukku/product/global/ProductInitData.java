@@ -25,7 +25,7 @@ import java.util.*;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "product.init.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "product.init.enabled", havingValue = "true", matchIfMissing = false)
 public class ProductInitData {
 
     private final ProductRepository productRepository;
@@ -58,6 +58,11 @@ public class ProductInitData {
             @Transactional
             public void run(String... args) throws Exception {
                 log.info("🚀 [InitData] Data Initialization Started");
+
+                if (productRepository.count() > 0) {
+                    log.info("[InitData] Existing products found. Skip initialization.");
+                    return;
+                }
 
                 userMap.clear();
                 sellerMap.clear();
@@ -243,7 +248,9 @@ public class ProductInitData {
         UUID sellerUuid = sellerMap.get(sId);
 
         boolean exists = productRepository.existsBySellerUuidAndCategory_IdAndTitleAndPriceAndDeletedAtIsNull(
-                sellerUuid, category.getId(), title, price);
+                sellerUuid, category.getId(), title, price)
+                || productRepository.existsByCategory_IdAndTitleAndPriceAndDeletedAtIsNull(
+                category.getId(), title, price);
         if (exists) {
             log.info("[InitData] 중복 상품 생성 스킵. sellerUuid={}, categoryId={}, title={}",
                     sellerUuid, category.getId(), title);

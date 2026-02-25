@@ -64,6 +64,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer>, Cust
 
     boolean existsBySellerUuidAndCategory_IdAndTitleAndPriceAndDeletedAtIsNull(
             UUID sellerUuid, Integer categoryId, String title, Long price);
+    boolean existsByCategory_IdAndTitleAndPriceAndDeletedAtIsNull(
+            Integer categoryId, String title, Long price);
 
     List<Product> findAllByUuidIn(List<UUID> uuids);
 
